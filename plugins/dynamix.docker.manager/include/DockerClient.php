@@ -27,7 +27,6 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
 $dockerManPaths = [
 	'autostart-file' => "/var/lib/docker/unraid-autostart",
 	'update-status'  => "/var/lib/docker/unraid-update-status.json",
-	'template-repos' => "/boot/config/plugins/dockerMan/template-repos",
 	'templates-user' => "/boot/config/plugins/dockerMan/templates-user",
 	'templates-usb'  => "/boot/config/plugins/dockerMan/templates",
 	'images'         => "/var/lib/docker/unraid/images",
@@ -130,113 +129,6 @@ class DockerTemplates {
 		}
 		array_multisort(array_column($tmpls,'name'), SORT_NATURAL|SORT_FLAG_CASE, $tmpls);
 		return $tmpls;
-	}
-
-	public function downloadTemplates($Dest=null, $Urls=null) {
-		global $dockerManPaths;
-		$Dest = $Dest ?: $dockerManPaths['templates-usb'];
-		$Urls = $Urls ?: $dockerManPaths['template-repos'];
-		$repotemplates = $output = [];
-		$tmp_dir = '/tmp/tmp-'.mt_rand();
-		if (!file_exists($dockerManPaths['template-repos'])) {
-			@mkdir(dirname($dockerManPaths['template-repos']), 0777, true);
-			@file_put_contents($dockerManPaths['template-repos'], 'https://github.com/limetech/docker-templates');
-		}
-		$urls = @file($Urls, FILE_IGNORE_NEW_LINES);
-		if (!is_array($urls)) return false;
-		//$this->debug("\nURLs:\n   ".implode("\n   ", $urls));
-		$github_api_regexes = [
-			'%/.*github.com/([^/]*)/([^/]*)/tree/([^/]*)/(.*)$%i',
-			'%/.*github.com/([^/]*)/([^/]*)/tree/([^/]*)$%i',
-			'%/.*github.com/([^/]*)/(.*).git%i',
-			'%/.*github.com/([^/]*)/(.*)%i'
-		];
-		foreach ($urls as $url) {
-			$github_api = ['url' => ''];
-			foreach ($github_api_regexes as $api_regex) {
-				if (preg_match($api_regex, $url, $matches)) {
-					$github_api['user']   = $matches[1] ?? '';
-					$github_api['repo']   = $matches[2] ?? '';
-					$github_api['branch'] = $matches[3] ?? 'master';
-					$github_api['path']   = $matches[4] ?? '';
-					$github_api['url']    = sprintf('https://github.com/%s/%s/archive/%s.tar.gz', $github_api['user'], $github_api['repo'], $github_api['branch']);
-					break;
-				}
-			}
-			// if after above we don't have a valid url, check for GitLab
-			if (empty($github_api['url'])) {
-				$source = file_get_contents($url);
-				// the following should always exist for GitLab Community Edition or GitLab Enterprise Edition
-				if (preg_match("/<meta content='GitLab (Community|Enterprise) Edition' name='description'>/", $source) > 0) {
-					$parse = parse_url($url);
-					$custom_api_regexes = [
-						'%/'.$parse['host'].'/([^/]*)/([^/]*)/tree/([^/]*)/(.*)$%i',
-						'%/'.$parse['host'].'/([^/]*)/([^/]*)/tree/([^/]*)$%i',
-						'%/'.$parse['host'].'/([^/]*)/(.*).git%i',
-						'%/'.$parse['host'].'/([^/]*)/(.*)%i',
-					];
-					foreach ($custom_api_regexes as $api_regex) {
-						if (preg_match($api_regex, $url, $matches)) {
-							$github_api['user']   = $matches[1] ?? '';
-							$github_api['repo']   = $matches[2] ?? '';
-							$github_api['branch'] = $matches[3] ?? 'master';
-							$github_api['path']   = $matches[4] ?? '';
-							$github_api['url']    = sprintf('https://'.$parse['host'].'/%s/%s/repository/archive.tar.gz?ref=%s', $github_api['user'], $github_api['repo'], $github_api['branch']);
-							break;
-						}
-					}
-				}
-			}
-			if (empty($github_api['url'])) {
-				//$this->debug("\n Cannot parse URL ".$url." for Templates.");
-				continue;
-			}
-			if ($this->download_url($github_api['url'], "$tmp_dir.tar.gz") === false) {
-				//$this->debug("\n Download ".$github_api['url']." has failed.");
-				@unlink("$tmp_dir.tar.gz");
-				return null;
-			} else {
-				@mkdir($tmp_dir, 0777, true);
-				shell_exec("tar -zxf $tmp_dir.tar.gz --strip=1 -C $tmp_dir/ 2>&1");
-				unlink("$tmp_dir.tar.gz");
-			}
-			$tmplsStor = [];
-			//$this->debug("\n Templates found in ".$github_api['url']);
-			foreach ($this->getTemplates($tmp_dir) as $template) {
-				$storPath = sprintf('%s/%s', $Dest, str_replace($tmp_dir.'/', '', $template['path']));
-				$tmplsStor[] = $storPath;
-				if (!is_dir(dirname($storPath))) @mkdir(dirname($storPath), 0777, true);
-				if (is_file($storPath)) {
-					if (sha1_file($template['path']) === sha1_file($storPath)) {
-						//$this->debug("   Skipped: ".$template['prefix'].'/'.$template['name']);
-						continue;
-					} else {
-						@copy($template['path'], $storPath);
-						//$this->debug("   Updated: ".$template['prefix'].'/'.$template['name']);
-					}
-				} else {
-					@copy($template['path'], $storPath);
-					//$this->debug("   Added: ".$template['prefix'].'/'.$template['name']);
-				}
-			}
-			$repotemplates = array_merge($repotemplates, $tmplsStor);
-			$output[$url] = $tmplsStor;
-			$this->removeDir($tmp_dir);
-		}
-		// Delete any templates not in the repos
-		foreach ($this->listDir($Dest, 'xml') as $arrLocalTemplate) {
-			if (!in_array($arrLocalTemplate['path'], $repotemplates)) {
-				unlink($arrLocalTemplate['path']);
-				//$this->debug("   Removed: ".$arrLocalTemplate['prefix'].'/'.$arrLocalTemplate['name']."\n");
-				// Any other files left in this template folder? if not delete the folder too
-				$files = array_diff(scandir(dirname($arrLocalTemplate['path'])), ['.', '..']);
-				if (empty($files)) {
-					rmdir(dirname($arrLocalTemplate['path']));
-					//$this->debug("   Removed: ".$arrLocalTemplate['prefix']);
-				}
-			}
-		}
-		return $output;
 	}
 
 	public function getTemplateValue($Repository, $field, $scope='all',$name='') {

@@ -40,8 +40,6 @@ foreach ($argv as $arg) {
 }
 
 if (!isset($check)) {
-  echo " Updating templates... ";
-  $DockerTemplates->downloadTemplates();
   echo " Updating info... ";
   $DockerTemplates->getAllInfo(true);
   echo " Done.";

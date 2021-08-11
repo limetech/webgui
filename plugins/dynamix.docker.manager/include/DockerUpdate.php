@@ -17,6 +17,5 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $ncsi = exec("wget --spider -nv -T10 -t1 http://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")=='OK';
 $DockerTemplates = new DockerTemplates();
-if ($ncsi) $DockerTemplates->downloadTemplates();
 $DockerTemplates->getAllInfo($ncsi,$ncsi);
 ?>

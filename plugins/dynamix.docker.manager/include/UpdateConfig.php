@@ -16,7 +16,6 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $autostart_file = $dockerManPaths['autostart-file'];
-$template_repos = $dockerManPaths['template-repos'];
 $user_prefs     = $dockerManPaths['user-prefs'];
 
 switch ($_POST['action']) {
@@ -52,14 +51,6 @@ case 'wait':
   $names = array_map('var_split', $autostart);
   $autostart[array_search($container,$names)] = $item;
   file_put_contents($autostart_file, implode("\n", $autostart)."\n");
-  break;
-case 'templates':
-  // update template
-  readfile("$docroot/update.htm");
-  $repos = $_POST['template_repos'];
-  file_put_contents($template_repos, $repos);
-  $DockerTemplates = new DockerTemplates();
-  $DockerTemplates->downloadTemplates();
   break;
 case 'exist':
   // docker file or folder exists?

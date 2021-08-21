@@ -52,8 +52,8 @@ html{font-size:<?=$display['font']?>%}
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
 #menu{background-color:#<?=$backgnd?>}
-#nav-block #nav-item a{color:#<?=$header?>}
-#nav-block #nav-item.active:after{background-color:#<?=$header?>}
+#nav-block .nav-item a{color:#<?=$header?>}
+#nav-block .nav-item.active:after{background-color:#<?=$header?>}
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
@@ -70,8 +70,8 @@ echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
 if ($themes2) {
-  foreach ($tasks as $button) if ($button['Code']) echo "#nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
-  foreach ($buttons as $button) if ($button['Code']) echo "#nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
+  foreach ($tasks as $button) if ($button['Code']) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
+  foreach ($buttons as $button) if ($button['Code']) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
@@ -358,7 +358,7 @@ function viewHistory(filter) {
 $(function() {
   var tab = $.cookie('one')||$.cookie('tab')||'tab1';
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
-  if ($.cookie('help')=='help') {$('.inline_help').show(); $('#nav-item.HelpButton').addClass('active');}
+  if ($.cookie('help')=='help') {$('.inline_help').show(); $('.nav-item.HelpButton').addClass('active');}
   $('#'+tab).attr('checked', true);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
@@ -411,7 +411,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
-  echo "<div id='nav-item'";
+  echo "<div class='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
   echo "<a href='/$page' onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
   // create list of nchan scripts to be started
@@ -435,7 +435,7 @@ foreach ($buttons as $button) {
       $icon = "<i class='fa $icon system'></i>";
     }
     $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
-    echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
+    echo "<div class='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
     echo "<div id='{$button['Link']}'></div>";
   }

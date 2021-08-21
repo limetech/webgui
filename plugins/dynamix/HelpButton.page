@@ -17,7 +17,7 @@ Code="e934"
 ?>
 <script>
 function HelpButton() {
-  if ($('#nav-item.HelpButton').toggleClass('active').hasClass('active')) {
+  if ($('.nav-item.HelpButton').toggleClass('active').hasClass('active')) {
     $('.inline_help').show('slow');
     $.cookie('help','help',{path:'/'});
   } else {

@@ -1,0 +1,94 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
+ * Copyright 2021-2021, Simon Fairweather
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+session_start();
+$docroot = '/usr/local/emhttp';
+$varroot = '/var/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/publish.php";
+extract(parse_plugin_cfg('dynamix',true));
+
+// add translations
+$_SERVER['REQUEST_URI'] = 'main';
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
+// remember current language
+$locale_init = $locale;
+
+// close session, it is not needed anymore
+session_unset();
+session_destroy();
+
+function update_translation($locale) {
+  global $docroot,$language;
+  $language = [];
+  if ($locale) {
+    $text = "$docroot/languages/$locale/translations.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/translations.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = unserialize(file_get_contents($store));
+    }
+    $text = "$docroot/languages/$locale/main.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/main.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
+}
+while (true) {
+  $var = (array)parse_ini_file("$varroot/var.ini");
+  // check for language changes
+  extract(parse_plugin_cfg('dynamix',true));
+  if ($display['locale'] != $locale_init) {
+    $locale_init = $display['locale'];
+    update_translation($locale_init);
+  }
+  $mover = file_exists('/var/run/mover.pid') ;
+  if ($mover) {
+    $data = [];
+    $data[] = "true"  ;
+    if ( file_exists("$varroot/mover.ini")) {
+      $moverstat = parse_ini_file("$varroot/mover.ini") ;
+      if ($moverstat["TotalToArray"]>0) { 
+        $toperc = ($moverstat["TotalToArray"]-$moverstat["RemainToArray"])/$moverstat["TotalToArray"] * 100; 
+        if ($moverstat["RemainToArray"]>0) { $data[] = _("Percentage Complete ").round($toperc,2)."%" ; } else {$data[] = _("Transfer complete") ;}
+        } else { 
+          $data[] = _("Nothing to transfer") ;}
+      if ($moverstat["TotalFromArray"]>0) { 
+        $fromperc = ($moverstat["TotalFromArray"] - $moverstat["RemainFromArray"])/$moverstat["TotalFromArray"] * 100; 
+        if ($moverstat["RemainFromArray"]>0) { $data[] = _("Percentage Complete ").round($fromperc,2)."%" ; } else {$data[] = _("Transfer complete") ;}
+        } else { 
+        $data[] = _("Nothing to transfer") ;}  
+    } else {
+      $data[] = _('Error');
+      $data[] = _('Error');
+      }
+  
+  publish('mover', implode(';',$data));
+  #implode(';',$data);
+  } else {
+    $data = [];
+    $data[] = "false"  ;
+    $data[] = _('Not Running');
+    $data[] = _('Not Running');
+    
+    publish('mover', implode(';',$data));
+  }
+  sleep(1);
+}
+?>

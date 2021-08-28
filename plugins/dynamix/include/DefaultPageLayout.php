@@ -374,7 +374,7 @@ $(function() {
     for (var i=0,notice; notice=notices[i]; i++) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+notice,false,true);
   });
 // check for flash offline / corrupted (delayed).
-  setTimeout(flashReport,5000);
+  timers.flashReport = setTimeout(flashReport,6000);
 });
 
 var mobiles=['ipad','iphone','ipod','android'];
@@ -703,7 +703,7 @@ $(function() {
     var action = $(this).prop('action').actionName();
     if (action=='update.htm' || action=='update.php') {
       var onsubmit = $(this).attr('onsubmit')||'';
-      $(this).attr('onsubmit','escapeQuotes(this);'+onsubmit);
+      $(this).attr('onsubmit','clearTimeout(timers.flashReport);escapeQuotes(this);'+onsubmit);
     }
   });
 

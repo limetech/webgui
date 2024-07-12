@@ -1,3 +1,37 @@
-i.top{position:absolute;padding-top:4px;cursor:pointer}
-i#showPass.checked{opacity:0.5}
-table.unraid{margin-top:20px}
+:root {
+    --useredit-dropbox-border-color: var(--gray-100);
+    --useredit-dropbox-bg-color: var(--gray-700); /* Condensed from: #262626*/
+}
+.Theme--azure:root {
+    --useredit-dropbox-border-color: var(--border-color);
+    --useredit-dropbox-bg-color: var(--mild-background-color);
+}
+.Theme--gray:root {
+    --useredit-dropbox-border-color: var(--border-color);
+    --useredit-dropbox-bg-color: var(--mild-background-color);
+}
+.Theme--white:root {
+    --useredit-dropbox-border-color: var(--black); /* Condensed from: #1c1c1c #1c1b1b #1c1c1c */
+    --useredit-dropbox-bg-color: var(--gray-150);
+}
+
+i.top {
+    position: absolute;
+    padding-top: 4px;
+    cursor: pointer;
+}
+i#showPass.checked {
+    opacity: 0.5;
+}
+table.unraid {
+    margin-top: 20px;
+}
+
+span#dropbox {
+    border: 1px solid var(--useredit-dropbox-border-color);
+    border-radius: 5px;
+    background: var(--useredit-dropbox-bg-color);
+    padding: 28px 12px;
+    line-height: 72px;
+    margin-right: 16px;
+}

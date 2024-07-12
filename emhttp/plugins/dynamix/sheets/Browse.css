@@ -1,26 +1,129 @@
-div#ace_settingsmenu,table#controls,table#more-controls{margin-top:0;background-color:#f2f2f2}
-tr.ace_optionsMenuEntry td{padding:4px;color:#1c1b1b}
-tr.ace_optionsMenuEntry td select option{color:#1c1b1b;background-color:#e8e8e8}
-tr.ace_optionsMenuEntry td input[type=number]::-webkit-inner-spin-button{-webkit-appearance:auto;cursor:pointer}
-tr.ace_optionsMenuEntry td input[type=number]{-moz-appearance:auto;margin:0}
-.title{letter-spacing:1px}
-.title span.left{text-transform:none}
-.loc{text-align:left!important;padding-left:0!important}
-table.tablesorter.indexer{margin-top:0}
-table.tablesorter.indexer thead th:nth-child(1){width:12px;text-align:left;padding-left:11px}
-table.tablesorter.indexer thead th:nth-child(2){width:3%!important}
-table.tablesorter.indexer thead th:nth-child(3){width:auto!important}
-table.tablesorter.indexer thead th:nth-child(n+4){width:10%!important}
-table.tablesorter.indexer thead th:nth-child(9){width:3%!important}
-table.tablesorter.indexer tbody tr:hover td{background-color:<?=$dfm['hover']?>}
-table.tablesorter.indexer thead th{text-align:left}
-table.tablesorter.indexer tbody td{text-align:left}
-table.tablesorter.indexer thead th:last-child{text-align:right}
-table.tablesorter.indexer tbody td:last-child{text-align:right}
-i[id^="row_"],i[id^="check_"]{cursor:pointer;font-size:1.8rem;color:gray}
-td[id^="name_"]{cursor:pointer}
-i.fa-home{font-size:2rem}
-i.fa-chevron-right{font-size:1.2rem;margin:0 8px}
-div.autoheight{width:100%;overflow-y:auto;margin-top:<?=$themes1?'-30px':'0'?>}
-div#buttons{display:none}
-.dropdown-menu{z-index:10001}
+:root {
+    --browse-icon-color: gray; /* @todo use existing color palette */
+    --browse-select-border-color: var(--black);
+    --browse-select-option-bg-color: var(--gray-150);
+    --browse-table-controls-bg-color: var(--gray-100);
+    --browse-table-tbody-tr-hover-td-bg-color: var(--white-opacity-10);
+    --browse-text-color: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --browse-table-tbody-tr-hover-td-bg-color: var(--black-opacity-10);
+}
+
+div#ace_settingsmenu,
+table#controls,
+table#more-controls {
+    margin-top: 0;
+    background-color: --browse-table-controls-bg-color;
+}
+tr.ace_optionsMenuEntry td {
+    padding: 4px;
+    color: var(--browse-text-color);
+}
+tr.ace_optionsMenuEntry td select option {
+    color: var(--browse-text-color);
+    background-color: var(--browse-select-option-bg-color);
+}
+tr.ace_optionsMenuEntry td input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto;
+    cursor: pointer;
+}
+tr.ace_optionsMenuEntry td input[type="number"] {
+    -moz-appearance: auto;
+    margin: 0;
+}
+.title {
+    letter-spacing: 1px;
+}
+.title span.left {
+    text-transform: none;
+}
+.loc {
+    text-align: left !important;
+    padding-left: 0 !important;
+}
+table.tablesorter.indexer {
+    margin-top: 0;
+}
+table.tablesorter.indexer thead th:nth-child(1) {
+    width: 12px;
+    text-align: left;
+    padding-left: 11px;
+}
+table.tablesorter.indexer thead th:nth-child(2) {
+    width: 3% !important;
+}
+table.tablesorter.indexer thead th:nth-child(3) {
+    width: auto !important;
+}
+table.tablesorter.indexer thead th:nth-child(n + 4) {
+    width: 10% !important;
+}
+table.tablesorter.indexer thead th:nth-child(9) {
+    width: 3% !important;
+}
+/* table.tablesorter.indexer tbody tr:hover td{background-color:<?=$dfm['hover']?>} */
+table.tablesorter.indexer thead th {
+    text-align: left;
+}
+table.tablesorter.indexer tbody td {
+    text-align: left;
+}
+table.tablesorter.indexer thead th:last-child {
+    text-align: right;
+}
+table.tablesorter.indexer tbody td:last-child {
+    text-align: right;
+}
+i[id^="row_"],
+i[id^="check_"] {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--browse-icon-color);
+}
+td[id^="name_"] {
+    cursor: pointer;
+}
+i.fa-home {
+    font-size: 2rem;
+}
+i.fa-chevron-right {
+    font-size: 1.2rem;
+    margin: 0 8px;
+}
+div#buttons {
+    display: none;
+}
+.dropdown-menu {
+    z-index: 10001;
+}
+
+div.autoheight {
+    width: 100%;
+    overflow-y: auto;
+    margin-top: -30px;
+}
+
+table.tablesorter.indexer tbody tr:hover td {
+    background-color: var(--browse-table-tbody-tr-hover-td-bg-color);
+}
+
+.Theme--black {
+    tr.ace_optionsMenuEntry td select {
+        color: var(--browse-text-color);
+        border-bottom: 1px solid var(--browse-select-border-color);
+        background-image: linear-gradient(66.6deg, transparent 60%, var(--browse-select-border-color) 40%),
+            linear-gradient(113.4deg, var(--browse-select-border-color) 40%, transparent 60%);
+    }
+    tr.ace_optionsMenuEntry td input[type="number"] {
+        color: var(--browse-text-color);
+    }
+}
+
+.Theme--sidebar {
+    div.autoheight {
+        margin-top: 0;
+    }
+}

@@ -1,6 +1,23 @@
-input.option{display:none;width:40px}
-select.option,#autosize{display:none}
-span#devtext{display:none;font-weight:bold}
-span#helptext{display:none;font-style:italic}
-span.code{display:inline-block;width:186px}
-i.fa-info.i{margin-right:10px}
+input.option {
+    display: none;
+    width: 40px;
+}
+select.option,
+#autosize {
+    display: none;
+}
+span#devtext {
+    display: none;
+    font-weight: bold;
+}
+span#helptext {
+    display: none;
+    font-style: italic;
+}
+span.code {
+    display: inline-block;
+    width: 186px;
+}
+i.fa-info.i {
+    margin-right: 10px;
+}

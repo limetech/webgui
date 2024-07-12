@@ -1,17 +1,90 @@
-.errortext{color:#EF3D47;display:none;margin-left:20px}
-.basic{display:inline-block}
-.advanced{display:none}
-select.mask{min-width:0;margin:0 10px 0 4px}
-select.net{min-width:0;margin:0 4px 0 2px}
-select option.hide{display:none}
-input.ip4{width:100px;margin:0 4px 0 1px}
-input.ip6{width:140px;margin:0 4px}
-input.gw4{width:100px;margin:0 4px 0 1px}
-input.gw6{width:160px;margin:0 4px}
-input.pool6{width:40px;margin:0 4px 0 1px}
-span.net{margin-left:4px;margin-right:2px}
-span.ip4{display:inline-block;width:260px}
-span.ip6{display:inline-block;width:310px}
-span.gw4{display:inline-block;width:200px}
-span.gw6{display:inline-block;width:270px}
-span.nonexist{margin-left:20px}
+:root {
+    --docker-settings-file-tree-background: var(--black);
+    --docker-settings-span-disabled-color: var(--gray-600);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --docker-settings-file-tree-background: var(--gray-100);
+    --docker-settings-span-disabled-color: var(--gray-300); /* Condensed from: #b0b0b0 */
+}
+
+.errortext {
+    color: var(--red-800); /* Condensed from: #ef3d47 */
+    display: none;
+    margin-left: 20px;
+}
+.basic {
+    display: inline-block;
+}
+.advanced {
+    display: none;
+}
+select.mask {
+    min-width: 0;
+    margin: 0 10px 0 4px;
+}
+select.net {
+    min-width: 0;
+    margin: 0 4px 0 2px;
+}
+select option.hide {
+    display: none;
+}
+input.ip4 {
+    width: 100px;
+    margin: 0 4px 0 1px;
+}
+input.ip6 {
+    width: 140px;
+    margin: 0 4px;
+}
+input.gw4 {
+    width: 100px;
+    margin: 0 4px 0 1px;
+}
+input.gw6 {
+    width: 160px;
+    margin: 0 4px;
+}
+input.pool6 {
+    width: 40px;
+    margin: 0 4px 0 1px;
+}
+span.net {
+    margin-left: 4px;
+    margin-right: 2px;
+}
+span.ip4 {
+    display: inline-block;
+    width: 260px;
+}
+span.ip6 {
+    display: inline-block;
+    width: 310px;
+}
+span.gw4 {
+    display: inline-block;
+    width: 200px;
+}
+span.gw6 {
+    display: inline-block;
+    width: 270px;
+}
+span.nonexist {
+    margin-left: 20px;
+}
+
+.fileTree {
+    background: var(--docker-settings-file-tree-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
+}
+span.disabled {
+    color: var(--docker-settings-span-disabled-color);
+}

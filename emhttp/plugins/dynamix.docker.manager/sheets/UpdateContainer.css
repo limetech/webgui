@@ -1,14 +1,77 @@
-.noshow,.advanced{display:none}
-.required:after{content:" *";color:#E80000}
-span.boxed{display:inline-block;line-height:normal;white-space:normal;width:60%}
-span.cpu,label.checkbox{display:inline-block;width:32px}
-span.ct{display:inline-block;width:230px}
-span.net{display:inline-block;width:120px}
-span.ip{display:inline-block;width:160px}
-dl,dt,dd{line-height:normal!important;height:auto!important}
-dl{padding:8px 0!important}
-dl>dt:nth-of-type(2),dl>dd:nth-of-type(2){padding:20px 0 0 0!important}
-input.setting_input{margin-right:4rem}
-input,select{margin-top:-0.8rem!important}
-div#configLocation,div#configLocation dl{padding:0!important}
-div#configLocation dt{margin-top:-0.18rem!important}
+:root {
+    --update-container-file-tree-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --update-container-file-tree-background: var(--gray-100);
+}
+
+.noshow,
+.advanced {
+    display: none;
+}
+.required:after {
+    content: " *";
+    color: var(--red-800);
+}
+span.boxed {
+    display: inline-block;
+    line-height: normal;
+    white-space: normal;
+    width: 60%;
+}
+span.cpu,
+label.checkbox {
+    display: inline-block;
+    width: 32px;
+}
+span.ct {
+    display: inline-block;
+    width: 230px;
+}
+span.net {
+    display: inline-block;
+    width: 120px;
+}
+span.ip {
+    display: inline-block;
+    width: 160px;
+}
+dl,
+dt,
+dd {
+    line-height: normal !important;
+    height: auto !important;
+}
+dl {
+    padding: 8px 0 !important;
+}
+dl > dt:nth-of-type(2),
+dl > dd:nth-of-type(2) {
+    padding: 20px 0 0 0 !important;
+}
+input.setting_input {
+    margin-right: 4rem;
+}
+input,
+select {
+    margin-top: -0.8rem !important;
+}
+div#configLocation,
+div#configLocation dl {
+    padding: 0 !important;
+}
+div#configLocation dt {
+    margin-top: -0.18rem !important;
+}
+
+.fileTree {
+    width: 240px;
+    max-height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    display: none;
+    background: var(--update-container-file-tree-background);
+}

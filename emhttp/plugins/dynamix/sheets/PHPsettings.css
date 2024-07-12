@@ -1,4 +1,10 @@
-div#templateWindow,div#dialogWindow{display:none}
-span.dim{opacity:0.2}
-#screenlog{margin-left:0}
-
+div#templateWindow,
+div#dialogWindow {
+    display: none;
+}
+span.dim {
+    opacity: 0.2;
+}
+#screenlog {
+    margin-left: 0;
+}

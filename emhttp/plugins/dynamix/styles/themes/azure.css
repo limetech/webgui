@@ -1,0 +1,111 @@
+:root {
+    --gray-400: #9794a0; /* Overwrites value in default-color */
+
+    /* Theme specific vars */
+    --theme-azure--cyan-400: #606e7f;
+    --theme-azure--cyan-700: #004e86;
+
+    --theme-azure--gray-100: #f3f0f4;
+    --theme-azure--gray-150: #edeaef;
+    --theme-azure--gray-200: #d7dbdd;
+    --theme-azure--gray-300: #cacfd2;
+    --theme-azure--gray-800: #4f4f4f;
+
+    --theme-azure-grayish-orange: #9f9180;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
+    --text-color: var(--theme-azure--cyan-400);
+    --blockquote-text-color: var(--gray-800);
+    --alt-text-color: var(--gray-400);
+    --disabled-text-color: var(--gray-500);
+    --inverse-text-color: var(--gray-900);
+    --link-text-color: var(--blue-800);
+
+    --background-color: var(--gray-150); /* Originally #e4e2e4 */
+    --alt-background-color: var(--gray-700); /* Originally #383a34 */
+    --opac-background-color: var(--gray-895);
+    --mild-background-color: var(--theme-azure--gray-150);
+    --usage-bar-background-color: var(--theme-azure--cyan-400);
+    --usage-disk-background-color: var(--theme-azure--gray-150);
+    --inverse-background-color: var(--gray-100);
+    --radio-background-color: var(--gray-700);
+    --disabled-input-background-color: var(--gray-300);
+    --table-background-color: transparent;
+    --table-header-background-color: var(--gray-150);
+    --usage-bar-background-color: var(--gray-500);
+    --usage-bar-used-background-color: var(--gray-400);
+    --hover-table-row-background-color: var(--black-opacity-05);
+
+    --dashboard-background-color: var(--theme-azure--gray-200);
+    --dashboard-title-action-color: var(--black-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
+
+    --border-color: var(--theme-azure--cyan-400);
+    --alt-border-color: var(--theme-azure--cyan-700);
+    --disabled-border-color: var(--gray-500);
+    --input-border-color: var(--gray-200);
+    --disabled-input-border-color: var(--gray-500);
+    --inverse-border-color: var(--gray-600); /* Originally #42453e */
+    --table-border-color: var(--theme-azure--cyan-400);
+    --table-alt-border-color: var(--theme-azure--gray-100);
+    --dashboard-border-color: var(--theme-azure--gray-300);
+
+    --footer-background-color: var(--black);
+    --footer-text: var(--gray-500);
+
+    --small-shadow: 0 0 0 0 transparent;
+    --hr-color: var(--theme-azure--cyan-400);
+
+    --checkbox-color: var(--gray-800);
+    --checkbox-hover-color: var(--gray-600);
+
+    --brand-orange: var(--orange-500);
+    --brand-red: var(--red-800);
+
+    --header-color: var(--gray-100);
+
+    --title-header-background-color: var(--mild-background-color);
+
+    --scrollbar-color: var(--gray-300);
+    --scrollbar-hover-color: var(--gray-200);
+
+    --bg-opacity-10: var(--black-opacity-10);
+    --bg-opacity-30: var(--black-opacity-30);
+
+    --button-border: var(--theme-azure-grayish-orange);
+    --button-text-color: var(--theme-azure-grayish-orange);
+    --button-background: var(--mild-background-color);
+    --button-background-size: cover;
+
+    --hover-button-border: var(--blue-800); /* Condensed from: #0072c6 */
+    --hover-button-text-color: var(--theme-azure--gray-800);
+    --hover-button-background: var(--mild-background-color);
+
+    --input-border-color: var(--blue-800); /* Condensed from: #0072c6 */
+    --input-bg-color: var(--mild-background-color);
+    /* /End vars used in default-base */
+
+    /* Set vars for default-dynamix */
+    --dynamix-ui-dropdownchecklist-color: var(--theme-azure--cyan-400);
+    --dynamix-ui-dropdownchecklist-color-alt1: var(--gray-900);
+    --dynamix-ui-dropdownchecklist-color-alt2: var(--gray-500);
+    --dynamix-ui-dropdownchecklist-dropcontainer-border-color: var(--blue-800); /* Condensed from: #0072c6 */
+    --dynamix-ui-state-active-border-color: var(--blue-800); /* Condensed from: #0072c6 */
+
+    --dynamix-sweet-alert-text-color: var(--theme-azure--cyan-400);
+    --dynamix-sweet-alert-icon-bg-color: var(--gray-150); /* Originally #e4e2e4 */
+
+    --dynamix-tablesorter-thead-row-border-color: var(--theme-azure--cyan-400);
+    --dynamix-tablesorter-thead-th-text-color: var(--theme-azure--cyan-400);
+    --dynamix-tablesorter-thead-th-bg-color: var(--gray-150); /* Originally #e4e2e4 */
+
+    --dynamix-tablesorter-tbody-row-border-color: var(--theme-azure--gray-150);
+
+    --dynamix-select-bg-color: var(--black);
+    --dynamix-select-box-shadow: 0 2px 0 #1f1f1f, inset 0 -1px #000000;
+    --dynamix-select-disabled-bg-color: var(--gray-700); /* Originally #383a34 */
+
+    --dynamix-box-text-color: var(--theme-azure--cyan-400);
+    /* /End vars for default-dynamix */
+}

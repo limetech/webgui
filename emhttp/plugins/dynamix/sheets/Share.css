@@ -1,5 +1,41 @@
-div.clone1{position:absolute;right:10px;margin-top:0}
-div.clone2{position:absolute;right:10px;margin-top:48px}
-span.input{display:inline-block;width:330px}
-input.clone{margin-left:8px;margin-right:0}
-span.clone{margin-right:4px}
+div.clone1 {
+    position: absolute;
+    right: 10px;
+    margin-top: 0;
+}
+div.clone2 {
+    position: absolute;
+    right: 10px;
+    margin-top: 48px;
+}
+span.input {
+    display: inline-block;
+    width: 330px;
+}
+input.clone {
+    margin-left: 8px;
+    margin-right: 0;
+}
+span.clone {
+    margin-right: 4px;
+}
+span.wrap {
+    display: inline-block;
+    width: 128px;
+}
+select.clone {
+    min-width: 123px;
+    max-width: 123px;
+    margin-right: 0;
+}
+
+
+.Theme--sidebar {
+    span.wrap {
+        width: 150px;
+    }
+    select.clone {
+        min-width: 145px;
+        max-width: 145px;
+    }
+}

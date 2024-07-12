@@ -1,3 +1,0 @@
-#guiSearchBoxSpan{display:inline-block;position:relative;margin:4px 2px 2px 2px;padding:0;text-align:left;height:auto;line-height:normal;font-size:1.3rem}
-#guiSearchBoxSpan:after{font-family:unraid;content:'\e956';position:absolute;top:.8rem;left:1.5rem;font-size:1.3rem}
-#guiSearchBox{width:50rem;border:none;border-radius:20px;padding-left:4rem;opacity:0.5;invert(100%)}

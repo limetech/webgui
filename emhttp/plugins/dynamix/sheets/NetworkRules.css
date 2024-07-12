@@ -1,1 +1,10 @@
-span[id^="info-"]{margin-left:20px}
+span[id^="info-"] {
+    margin-left: 20px;
+}
+
+.Theme--black,
+.Theme--white {
+    span.status.vhshift {
+        margin-right: -10px !important;
+    }
+}

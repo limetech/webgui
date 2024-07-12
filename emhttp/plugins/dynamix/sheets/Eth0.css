@@ -1,12 +1,55 @@
-span.red{color:#E68A00}
-span.blue{color:#00529B}
-span.green{color:#4F8A10}
-span.vshift{margin-top:0!important}
-input.gap{margin-right:6px}
-input.form{font-size:1rem;padding:5px 10px;margin-left:10px}
-div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
-div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
-div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
-div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-select.slim{min-width:47px;margin-left:4px}
-input.slim{width:32px;margin-left:8px}
+:root {
+    --eth0-shade-azure: #edeaef;
+    --eth0-shade-gray: #121510;
+    --eth0-shade-white: var(--gray-150);
+    --eth0-shade-black: var(gray-800);
+}
+
+span.red {
+    color: var(--orange-300);
+}
+span.blue {
+    color: var(--blue-700); /* Condensed from: #00529b */
+}
+span.green {
+    color: var(--green-800); /* Condensed from: #4f8a10 */
+}
+span.vshift {
+    margin-top: 0 !important;
+}
+input.gap {
+    margin-right: 6px;
+}
+input.form {
+    font-size: 1rem;
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+div.shade-white {
+    background-color: var(--eth0-shade-white); /* Condensed from: #ededed */
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-black {
+    background-color: var(--eth0-shade-black);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-azure {
+    background-color: var(--eth0-shade-azure);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-gray {
+    background-color: var(--eth0-shade-gray);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+select.slim {
+    min-width: 47px;
+    margin-left: 4px;
+}
+input.slim {
+    width: 32px;
+    margin-left: 8px;
+}

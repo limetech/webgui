@@ -28,7 +28,7 @@ $cpus    = cpu_list();
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/DockerManager.css")?>">
 
 <table id="docker_containers" class="tablesorter shift">
 <thead><tr><th><a id="resetsort" class="nohand" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Uptime)_</th></tr></thead>

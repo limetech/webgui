@@ -1,45 +1,236 @@
-body{-webkit-overflow-scrolling:touch}
-#vmform table{margin-top:0}
-#vmform div.title + table{margin-top:0}
-#vmform table tr{vertical-align:top;line-height:40px}
-#vmform table tr td:nth-child(odd){width:300px;text-align:right;padding-right:10px}
-#vmform table tr td:nth-child(even){width:110px}
-@media (max-width:1280px){#vmform table tr td:first-child{width:35%;padding-right:4rem}}
-@media (min-width:1281px){#vmform table tr td:first-child{width:30%;padding-right:4rem}}
-@media (min-width:1921px){#vmform table tr td:first-child{width:25%;padding-right:4rem}}
-#vmform table tr td:last-child{width:inherit}
-#vmform .multiple{position:relative}
-#vmform .sectionbutton{position:absolute;left:2px;cursor:pointer;opacity:0.4;font-size:1.4rem;line-height:17px;z-index:10;transition-property:opacity,left;transition-duration:0.1s;transition-timing-function:linear}
-#vmform .sectionbutton.remove{top:0;opacity:0.3}
-#vmform .sectionbutton.add{bottom:0}
-#vmform .sectionbutton:hover{opacity:1.0}
-#vmform .sectiontab{position:absolute;top:2px;bottom:2px;left:0;width:6px;border-radius:3px;background-color:#DDDDDD;transition-property:background,width;transition-duration:0.1s;transition-timing-function:linear}
-#vmform .multiple:hover .sectionbutton{opacity:0.7;left:4px}
-#vmform .multiple:hover .sectionbutton.remove{opacity:0.6}
-#vmform .multiple:hover .sectiontab{background-color:#CCCCCC;width:8px}
-#vmform table.multiple:hover{background-position:0 0;}
-#vmform table.multiple td{padding:5px 0}
-span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
-.basic{display:none}
-.advanced{/*Empty placeholder*/}
-.switch-button-label.off{color:inherit}
-#template_img{cursor:pointer}
-#template_img:hover{opacity:0.5}
-#template_img:hover i{opacity:1.0}
-.template_img_chooser_inner{display:inline-block;width:80px;margin-bottom:15px;margin-right:10px;text-align:center;}
-.template_img_chooser_inner img{width:48px;height:48px}
-.template_img_chooser_inner p{text-align:center;line-height:8px;}
-#template_img_chooser{width:560px;height:300px;overflow-y:scroll;position:relative}
-#template_img_chooser div:hover{background-color:#eee;cursor:pointer;}
-#form_content{display:none}
-#vmform .four{overflow:hidden}
-#vmform .four label{float:left;display:table-cell;width:15%;}
-#vmform .four label:nth-child(4n+4){}
-#vmform .four label.cpu1{width:28%;height:16px;line-height:16px}
-#vmform .four label.cpu2{width:3%;height:16px;line-height:16px}
-#vmform .mac_generate{cursor:pointer;margin-left:-5px;color:#08C;font-size:1.3rem;transform:translate(0px, 2px)}
-#vmform .disk{display:none}
-#vmform .disk_preview{display:inline-block;color:#BBB;transform:translate(0px, 1px)}
-i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
-input[type=checkbox]{margin-left:0}
-#vmform table.timers td.present {width:150px;}
+:root {
+    --add-vm-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --add-vm-background: var(--gray-100);
+}
+
+body {
+    -webkit-overflow-scrolling: touch;
+}
+#vmform table {
+    margin-top: 0;
+}
+#vmform div.title + table {
+    margin-top: 0;
+}
+#vmform table tr {
+    vertical-align: top;
+    line-height: 40px;
+}
+#vmform table tr td:nth-child(odd) {
+    width: 300px;
+    text-align: right;
+    padding-right: 10px;
+}
+#vmform table tr td:nth-child(even) {
+    width: 110px;
+}
+@media (max-width: 1280px) {
+    #vmform table tr td:first-child {
+        width: 35%;
+        padding-right: 4rem;
+    }
+}
+@media (min-width: 1281px) {
+    #vmform table tr td:first-child {
+        width: 30%;
+        padding-right: 4rem;
+    }
+}
+@media (min-width: 1921px) {
+    #vmform table tr td:first-child {
+        width: 25%;
+        padding-right: 4rem;
+    }
+}
+#vmform table tr td:last-child {
+    width: inherit;
+}
+#vmform .multiple {
+    position: relative;
+}
+#vmform .sectionbutton {
+    position: absolute;
+    left: 2px;
+    cursor: pointer;
+    opacity: 0.4;
+    font-size: 1.4rem;
+    line-height: 17px;
+    z-index: 10;
+    transition-property: opacity, left;
+    transition-duration: 0.1s;
+    transition-timing-function: linear;
+}
+#vmform .sectionbutton.remove {
+    top: 0;
+    opacity: 0.3;
+}
+#vmform .sectionbutton.add {
+    bottom: 0;
+}
+#vmform .sectionbutton:hover {
+    opacity: 1;
+}
+#vmform .sectiontab {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 0;
+    width: 6px;
+    border-radius: 3px;
+    background-color: var(--gray-200); /* Condensed from: #dddddd */
+    transition-property: background, width;
+    transition-duration: 0.1s;
+    transition-timing-function: linear;
+}
+#vmform .multiple:hover .sectionbutton {
+    opacity: 0.7;
+    left: 4px;
+}
+#vmform .multiple:hover .sectionbutton.remove {
+    opacity: 0.6;
+}
+#vmform .multiple:hover .sectiontab {
+    background-color: var(--gray-300);
+    width: 8px;
+}
+#vmform table.multiple:hover {
+    background-position: 0 0;
+}
+#vmform table.multiple td {
+    padding: 5px 0;
+}
+span.advancedview_panel {
+    display: none;
+    line-height: 16px;
+    margin-top: 1px;
+}
+.basic {
+    display: none;
+}
+.advanced {
+    /*Empty placeholder*/
+}
+.switch-button-label.off {
+    color: inherit;
+}
+#template_img {
+    cursor: pointer;
+}
+#template_img:hover {
+    opacity: 0.5;
+}
+#template_img:hover i {
+    opacity: 1;
+}
+.template_img_chooser_inner {
+    display: inline-block;
+    width: 80px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+    text-align: center;
+}
+.template_img_chooser_inner img {
+    width: 48px;
+    height: 48px;
+}
+.template_img_chooser_inner p {
+    text-align: center;
+    line-height: 8px;
+}
+#template_img_chooser {
+    width: 560px;
+    height: 300px;
+    overflow-y: scroll;
+    position: relative;
+}
+#template_img_chooser div:hover {
+    background-color: var(--gray-150); /* Condensed from: #eee */
+    cursor: pointer;
+}
+#form_content {
+    display: none;
+}
+#vmform .four {
+    overflow: hidden;
+}
+#vmform .four label {
+    float: left;
+    display: table-cell;
+    width: 15%;
+}
+#vmform .four label:nth-child(4n + 4) {
+}
+#vmform .four label.cpu1 {
+    width: 28%;
+    height: 16px;
+    line-height: 16px;
+}
+#vmform .four label.cpu2 {
+    width: 3%;
+    height: 16px;
+    line-height: 16px;
+}
+#vmform .mac_generate {
+    cursor: pointer;
+    margin-left: -5px;
+    color: var(--blue-700); /* Condensed from: #08c */
+    font-size: 1.3rem;
+    transform: translate(0px, 2px);
+}
+#vmform .disk {
+    display: none;
+}
+#vmform .disk_preview {
+    display: inline-block;
+    color: var(--gray-300); /* Condensed from: #bbb */
+    transform: translate(0px, 1px);
+}
+i.fa-plus-circle,
+i.fa-minus-circle {
+    margin-left: 8px;
+}
+input[type="checkbox"] {
+    margin-left: 0;
+}
+#vmform table.timers td.present {
+    width: 150px;
+}
+
+.fileTree {
+    background: var(--add-vm-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 100;
+    display: none;
+}
+#vmform table.multiple {
+    margin: 10px 0;
+    background: var(--add-vm-background);
+    background-size: 800px 100%;
+    background-position: -800px;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    transition: background 0.3s linear;
+}
+#template_img_chooser_outer {
+    position: absolute;
+    display: none;
+    border-radius: 5px;
+    border: 1px solid <?=$border?>;
+    background: var(--add-vm-background);
+    z-index: 10;
+}
+span#dropbox {
+    border: 1px solid <?=$border?>;
+    background: var(--add-vm-background);
+    padding: 28px 12px;
+    line-height: 72px;
+    margin-right: 16px;
+}

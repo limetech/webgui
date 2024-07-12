@@ -32,7 +32,9 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
+
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-pallet.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
 
 <style>

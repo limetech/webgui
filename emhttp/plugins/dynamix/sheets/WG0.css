@@ -1,29 +1,144 @@
-dt{width:22%}
-span.even{float:right;display:inline-block;width:150px;margin-top:3px}
-span.even.wide{width:200px}
-span.pin{float:right;margin:-40px 12px 0 0;clear:both;display:inline-block;width:400px;text-align:right}
-span[class^=rx]{margin-right:40px}
-span.vshift{margin-top:-2px!important}
-span.input{display:inline-block;width:420px}
-span.access-type{display:inline-block;width:35%;white-space:normal}
-@media(max-width:1920px){span.access-type{width:20%}}
-span.block{display:inline-block;width:48%;white-space:normal}
-div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
-div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
-div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
-div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-div.title{margin-bottom:10px!important}
-div[id^=block-wg]{margin-bottom:30px}
-div.preset{margin:8px 0;float:right}
-input.wide{width:360px}
-input.subnet{width:150px;margin-right:4px}
-input.mask{width:30px}
-input.port{width:50px}
-input.form,button.form{font-size:1rem;min-width:0;padding:5px 8px;margin:0}
-input.ok{color:#f2f2f2;background:#4f8a10}
-input.nok{color:#f2f2f2;background:#f0000c}
-select.subnet{min-width:150px}
-i.fa-fw{margin-left:5px}
-i.key-off{opacity:0.3;cursor:default!important}
-input:user-invalid {border-bottom-color:#E22828;}
-input:-moz-ui-invalid {border-bottom-color:#E22828;}
+:root {
+    --wg0-span-hshift-margin-right: -7px;
+    --wg0-span-label-margin-left: -12px;
+
+    --wg0-shade-azure: #edeaef;
+    --wg0-shade-gray: #121510;
+    --wg0-shade-white: var(--gray-150);
+    --wg0-shade-black: var(gray-800);
+}
+
+.Theme--sidebar:root {
+    --wg0-span-hshift-margin-right: 11px;
+    --wg0-span-label-margin-left: -4px;
+}
+
+dt {
+    width: 22%;
+}
+span.even {
+    float: right;
+    display: inline-block;
+    width: 150px;
+    margin-top: 3px;
+}
+span.even.wide {
+    width: 200px;
+}
+span.pin {
+    float: right;
+    margin: -40px 12px 0 0;
+    clear: both;
+    display: inline-block;
+    width: 400px;
+    text-align: right;
+}
+span[class^="rx"] {
+    margin-right: 40px;
+}
+span.vshift {
+    margin-top: -2px !important;
+}
+span.input {
+    display: inline-block;
+    width: 420px;
+}
+span.access-type {
+    display: inline-block;
+    width: 35%;
+    white-space: normal;
+}
+@media (max-width: 1920px) {
+    span.access-type {
+        width: 20%;
+    }
+}
+span.block {
+    display: inline-block;
+    width: 48%;
+    white-space: normal;
+}
+span.hshift {
+    margin-right: var(--wg0-span-hshift-margin-right) !important;
+}
+span.label {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: var(--wg0-span-label-margin-left);
+}
+
+div.shade-white {
+    background-color: var(--wg0-shade-white); /* Condensed from: #ededed */
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-black {
+    background-color: var(--wg0-shade-black);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-azure {
+    background-color: var(--wg0-shade-azure);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-gray {
+    background-color: var(--wg0-shade-gray);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.title {
+    margin-bottom: 10px !important;
+}
+div[id^="block-wg"] {
+    margin-bottom: 30px;
+}
+div.preset {
+    margin: 8px 0;
+    float: right;
+}
+input.wide {
+    width: 360px;
+}
+input.subnet {
+    width: 150px;
+    margin-right: 4px;
+}
+input.mask {
+    width: 30px;
+}
+input.port {
+    width: 50px;
+}
+input.form,
+button.form {
+    font-size: 1rem;
+    min-width: 0;
+    padding: 5px 8px;
+    margin: 0;
+}
+input.ok {
+    color: #f2f2f2;
+    background: #4f8a10;
+}
+input.nok {
+    color: #f2f2f2;
+    background: #f0000c;
+}
+select.subnet {
+    min-width: 150px;
+}
+i.fa-fw {
+    margin-left: 5px;
+}
+i.key-off {
+    opacity: 0.3;
+    cursor: default !important;
+}
+input:user-invalid {
+    border-bottom-color: #e22828;
+}
+input:-moz-ui-invalid {
+    border-bottom-color: #e22828;
+}

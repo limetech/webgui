@@ -1,1 +1,11 @@
-a.info span{top:66px;left:42px}
+a.info span {
+    top: 66px;
+    left: 42px;
+}
+
+.Theme--black,
+.Theme--white {
+    div#title {
+        margin-top: -30px !important;
+    }
+}

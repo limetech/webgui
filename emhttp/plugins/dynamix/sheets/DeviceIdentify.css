@@ -1,2 +1,14 @@
-input[type=date]{border:none;margin-left:-2px;padding-left:0;background:transparent;box-shadow:none}
-select.noframe{border:none;margin-left:0;padding-left:0;background:transparent;box-shadow:none}
+input[type="date"] {
+    border: none;
+    margin-left: -2px;
+    padding-left: 0;
+    background: transparent;
+    box-shadow: none;
+}
+select.noframe {
+    border: none;
+    margin-left: 0;
+    padding-left: 0;
+    background: transparent;
+    box-shadow: none;
+}

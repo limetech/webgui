@@ -1,4 +1,15 @@
-table.ups thead tr th{width:16.6%;padding-left:10px}
-table.ups tbody tr td{padding-left:10px;font-weight:bold}
-tr.ups{height:3rem;line-height:3rem}
-i.ups{margin-right:8px}
+table.ups thead tr th {
+    width: 16.6%;
+    padding-left: 10px;
+}
+table.ups tbody tr td {
+    padding-left: 10px;
+    font-weight: bold;
+}
+tr.ups {
+    height: 3rem;
+    line-height: 3rem;
+}
+i.ups {
+    margin-right: 8px;
+}

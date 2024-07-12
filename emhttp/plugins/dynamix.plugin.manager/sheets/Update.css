@@ -1,9 +1,52 @@
-ul,li{margin:0;padding-top:0;padding-bottom:0}
-pre.pre{margin:30px 0}
-pre>p{margin:0;padding:0}
-pre#swaltext{height:600px!important}
-@media (max-width:960px){pre#swaltext{height:400px!important}}
-@media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
-@media (max-height:768px){pre#swaltext{height:400px!important}}
-@media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
-input[value="_(Install)_"],input[value="_(Update)_"],input[value="_(Restore)_"]{margin:0}
+ul,
+li {
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+pre.pre {
+    margin: 30px 0;
+}
+pre > p {
+    margin: 0;
+    padding: 0;
+}
+pre#swaltext {
+    height: 600px !important;
+}
+@media (max-width: 960px) {
+    pre#swaltext {
+        height: 400px !important;
+    }
+}
+@media (max-width: 960px) {
+    .sweet-alert.nchan {
+        height: 600px;
+        width: 900px;
+        margin-left: -470px;
+    }
+}
+@media (max-height: 768px) {
+    pre#swaltext {
+        height: 400px !important;
+    }
+}
+@media (max-height: 768px) {
+    .sweet-alert.nchan {
+        height: 600px;
+        width: 900px;
+        margin-left: -470px;
+    }
+}
+input[value="_(Install)_"],
+input[value="_(Update)_"],
+input[value="_(Restore)_"] {
+    margin: 0;
+}
+
+.Theme--black,
+.Theme--white {
+    span.vhshift {
+        margin-top: 13px !important;
+    }
+}

@@ -1,5 +1,30 @@
-.ca_element_notice{padding-right:20px;width:100%;height:40px;line-height:40px;color:#e68a00;background:#feefb3;border-bottom:#e68a00 1px solid;text-align:center;font-size:1.4rem;z-index:900}
-a.ca_PluginUpdateInstall{cursor:pointer}
-span.ca_PluginUpdateDismiss{float:right;margin-right:20px;cursor:pointer}
-span.bannerInfo {cursor:pointer;text-decoration:none;margin:0 12px 0 6px}
-span.bannerInfo::before {content:"\f05a";font-family:fontAwesome;color:#e68a00}
+.ca_element_notice {
+    padding-right: 20px;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    color: var(--orange-300);
+    background: var(--yellow-200);
+    border-bottom: var(--orange-300) 1px solid;
+    text-align: center;
+    font-size: 1.4rem;
+    z-index: 900;
+}
+a.ca_PluginUpdateInstall {
+    cursor: pointer;
+}
+span.ca_PluginUpdateDismiss {
+    float: right;
+    margin-right: 20px;
+    cursor: pointer;
+}
+span.bannerInfo {
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0 12px 0 6px;
+}
+span.bannerInfo::before {
+    content: "\f05a";
+    font-family: fontAwesome;
+    color: var(--orange-300);
+}

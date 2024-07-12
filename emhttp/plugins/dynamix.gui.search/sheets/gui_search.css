@@ -1,0 +1,56 @@
+:root {
+    --gui-search-search-box-text-color: var(--white);
+    --gui-search-search-box-background-color: var(--gray-500);
+}
+
+#guiSearchBoxSpan {
+    display: inline-block;
+    padding: 0;
+    text-align: left;
+    height: auto;
+    line-height: normal;
+    font-size: 1.3rem;
+}
+
+#guiSearchBox {
+    width: 50rem;
+    border: none;
+    border-radius: 20px;
+    color: var(--gui-search-search-box-text-color);
+    background-color: var(--gui-search-search-box-background-color);
+}
+
+.Theme--black,
+.Theme--white {
+    #guiSearchBoxSpan {
+        position: relative;
+        margin: 4px 2px 2px 2px;
+    }
+    #guiSearchBoxSpan:after {
+        font-family: unraid;
+        content: "\e956";
+        position: absolute;
+        top: 0.8rem;
+        left: 1.5rem;
+        font-size: 1.3rem;
+    }
+    #guiSearchBox {
+        padding-left: 4rem;
+    }
+}
+
+.Theme--sidebar {
+    --gui-search-search-box-text-color: var(--black);
+    --gui-search-search-box-background-color: var(--yellow-200);
+
+    #guiSearchBoxSpan {
+        margin: 0 0 0 20px;
+    }
+    #guiSearchBox {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 5px 12px;
+    }
+}

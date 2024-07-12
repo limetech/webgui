@@ -1,0 +1,110 @@
+:root {
+    /* Theme specific vars */
+    --theme-gray--black-alt: #121510;
+    --theme-gray--cyan-300: #606e7f;
+    --theme-gray--cyan-400: #566573;
+    --theme-gray--cyan-500: #42453e;
+    --theme-gray--cyan-600: #004e86;
+    --theme-gray--cyan-700: #39587f;
+    --theme-gray--cyan-900: #212f3d;
+
+    --theme-gray--green-900: #232523;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
+    --text-color: var(--theme-gray--cyan-300);
+    --blockquote-text-color: var(--gray-800); 
+    --alt-text-color: var(--theme-gray--cyan-300);
+    --disabled-text-color: var(--gray-500); 
+    --inverse-text-color: var(--gray-900); 
+    --link-text-color: var(--blue-800); 
+
+    --background-color: var(--black);
+    --alt-background-color: var(--gray-700);
+    --opac-background-color: var(--gray-895);
+    --mild-background-color: var(--theme-gray--black-alt);
+    --usage-bar-background-color: var(--gray-600);
+    --usage-bar-used-background-color: var(--gray-500);
+    --usage-disk-background-color: var(--theme-gray--green-900);
+    --inverse-background-color: var(--gray-100);
+    --radio-background-color: var(--gray-700); 
+    --disabled-input-background-color: var(--alt-background-color);
+    --table-background-color: transparent;
+    --hover-table-row-background-color: var(--white-opacity-05);
+    --dashboard-background-color: var(--theme-gray--cyan-900);
+    --dashboard-title-action-color: var(--white-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
+
+    --border-color: var(--theme-gray--cyan-300);
+    --alt-border-color: var(--theme-gray--cyan-600);
+    --disabled-border-color: var(--gray-500); 
+    --input-border-color: var(--theme-gray--cyan-300); 
+    --disabled-input-border-color: var(--gray-500); 
+    --inverse-border-color: var(--theme-gray--cyan-500);
+    --table-border-color: var(--gray-700);
+    --table-alt-border-color: var(--theme-gray--black-alt);
+    --dashboard-border-color: var(--theme-gray--cyan-400);
+
+    --footer-text: var(--gray-500);
+    --footer-background-color: var(--black);
+
+    --small-shadow: 0 0 0 0 transparent;
+    --hr-color: var(--theme-gray--cyan-300); 
+
+    --checkbox-color: var(--gray-800); 
+    --checkbox-hover-color: var(--gray-600); 
+
+    --brand-orange: var(--orange-500);
+    --brand-red: var(--red-800);
+
+    --header-color: var(--gray-100);
+
+    --title-header-background-color: var(--mild-background-color);
+
+    --scrollbar-color: var(--gray-300);
+    --scrollbar-hover-color: var(--gray-200);
+
+    --bg-opacity-10: var(--black-opacity-10);
+    --bg-opacity-30: var(--black-opacity-30);
+
+    --button-border: var(--theme-gray--cyan-300);
+    --button-text-color: var(--theme-gray--cyan-300);
+    --button-background: var(--theme-gray--black-alt);
+    --button-background-size: cover;
+
+    --hover-button-border: var(--blue-700);
+    --hover-button-text-color: var(--gray-300);
+    --hover-button-background: var(--theme-gray--black-alt);
+
+    /* --input-border-color: var(--blue-700); */
+    --input-bg-color: var(--theme-gray--black-alt);
+    --focus-input-border-color: var(--blue-700);
+    --focus-input-background-color: var(--mild-background-color);
+    /* /End vars used in default-base */
+
+    /* Set vars for default-dynamix */
+    --dynamix-ui-dropdownchecklist-color: var(--theme-gray--cyan-300);
+    --dynamix-ui-dropdownchecklist-color-alt1: var(--gray-900);
+    --dynamix-ui-dropdownchecklist-dropcontainer-border-color: var(--blue-700);
+    --dynamix-ui-state-active-border-color: var(--blue-700);
+
+    --dynamix-sweet-alert-text-color: var(--theme-gray--cyan-300);
+    --dynamix-sweet-alert-icon-bg-color: var(--black);
+
+    --dynamix-tablesorter-thead-row-border-color: var(--theme-gray--cyan-300);
+    --dynamix-tablesorter-thead-th-text-color: var(--gray-500);
+    --dynamix-tablesorter-thead-th-bg-color: var(--black);
+
+    --dynamix-tablesorter-tbody-row-alt-bg-color: #121510;
+    --dynamix-tablesorter-tbody-row-bg-color: var(--black);
+    --dynamix-tablesorter-tbody-row-border-color: var(--table-alt-border-color); /* #edeaef */
+
+    --dynamix-select-bg-color: var(--black);
+    --dynamix-select-box-shadow: 0 2px 0 #1f1f1f, inset 0 -1px #000000;
+    --dynamix-select-disabled-bg-color: var(--gray-700); /* Originally #383a34 */
+    --dynamix-select-disabled-border-color: var(--gray-500);
+    --dynamix-select-disabled-color: var(--gray-500);
+
+    --dynamix-box-text-color: var(--theme-gray--cyan-300);
+    /* /End vars for default-dynamix */
+}

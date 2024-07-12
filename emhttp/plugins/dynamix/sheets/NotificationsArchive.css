@@ -1,3 +1,11 @@
-select.filter{margin:0}
-span.right{margin-top:-6px;font-size:1.3rem!important;padding:0!important}
-i.red-text{font-size:1.6rem}
+select.filter {
+    margin: 0;
+}
+span.right {
+    margin-top: -6px;
+    font-size: 1.3rem !important;
+    padding: 0 !important;
+}
+i.red-text {
+    font-size: 1.6rem;
+}

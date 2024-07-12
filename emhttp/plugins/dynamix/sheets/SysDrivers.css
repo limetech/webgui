@@ -1,14 +1,56 @@
-table#t1{margin-top:0;font-family:clear-sans}
-table#t1 thead tr th{font-weight:bold}
-table#t1 tbody tr td{padding:0 20px 0 0;margin:0;text-align:left;white-space:normal}
-table#t1 tbody tr td:nth-child(1){width:10%}
-table#t1 tbody tr td:nth-child(2){width:30%}
-table#t1 tbody tr td:nth-child(3){width:15%}
-table#t1 tbody tr td:nth-child(4){width:20%}
-table#t1 tbody tr td:nth-child(5){width:25%;padding-right:0}
-table.t1.tablesorter .filtered{display:none}
-textarea[id^=text]{width:90%;margin:0!important;padding:0!important;float:right}
-span[id^=save]{margin:0!important;padding:0!important}
-span.pin{display:inline-block;float:left}
-i.pin{margin:0!important;padding:2px 0!important;float:left;clear:both}
-.tablesorter-header-inner{font-family:clear-sans;font-weight:bold}
+table#t1 {
+    margin-top: 0;
+    font-family: clear-sans;
+}
+table#t1 thead tr th {
+    font-weight: bold;
+}
+table#t1 tbody tr td {
+    padding: 0 20px 0 0;
+    margin: 0;
+    text-align: left;
+    white-space: normal;
+}
+table#t1 tbody tr td:nth-child(1) {
+    width: 10%;
+}
+table#t1 tbody tr td:nth-child(2) {
+    width: 30%;
+}
+table#t1 tbody tr td:nth-child(3) {
+    width: 15%;
+}
+table#t1 tbody tr td:nth-child(4) {
+    width: 20%;
+}
+table#t1 tbody tr td:nth-child(5) {
+    width: 25%;
+    padding-right: 0;
+}
+table.t1.tablesorter .filtered {
+    display: none;
+}
+textarea[id^="text"] {
+    width: 90%;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: right;
+}
+span[id^="save"] {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+span.pin {
+    display: inline-block;
+    float: left;
+}
+i.pin {
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    float: left;
+    clear: both;
+}
+.tablesorter-header-inner {
+    font-family: clear-sans;
+    font-weight: bold;
+}

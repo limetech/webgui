@@ -1,5 +1,89 @@
-div.notice{margin-top:70px;margin-bottom:30px}
-div#selectlang{margin-top:20px}
-label.button{font-family:clear-sans;font-size:1.1rem;font-weight:bold;letter-spacing:1.8px;text-transform:uppercase;min-width:86px;margin:0;padding:8px;text-align:center;text-decoration:none;white-space:nowrap;cursor:pointer;outline:none;border-radius:4px;border:none;color:#ff8c2f;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e22828),to(#e22828)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#ff8c2f),to(#ff8c2f)) 100% 100% no-repeat;background:linear-gradient(90deg,#e22828 0,#ff8c2f) 0 0 no-repeat,linear-gradient(90deg,#e22828 0,#ff8c2f) 0 100% no-repeat,linear-gradient(0deg,#e22828 0,#e22828) 0 100% no-repeat,linear-gradient(0deg,#ff8c2f 0,#ff8c2f) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
-label.button:hover{color:#f2f2f2;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f)}
-input#install{margin:0}
+div.notice {
+    margin-top: 70px;
+    margin-bottom: 30px;
+}
+div#selectlang {
+    margin-top: 20px;
+}
+label.button {
+    font-family: clear-sans;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    min-width: 86px;
+    margin: 0;
+    padding: 8px;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+    border: none;
+    color: var(--orange-500);
+    background:
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--red-800)),
+                to(var(--orange-500))
+            )
+            0 0 no-repeat,
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--red-800)),
+                to(var(--orange-500))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--red-800)),
+                to(var(--red-800))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--orange-500)),
+                to(var(--orange-500))
+            ) 100% 100% no-repeat;
+    background:
+        linear-gradient(90deg, var(--red-800) 0, var(--orange-500)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--red-800) 0, var(--orange-500)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--red-800) 0, var(--red-800)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--orange-500) 0, var(--orange-500)) 100% 100% no-repeat;
+    background-size:
+        100% 2px,
+        100% 2px,
+        2px 100%,
+        2px 100%;
+}
+label.button:hover {
+    color: #f2f2f2;
+    background: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        from(var(--red-800)),
+        to(var(--orange-500))
+    );
+    background: linear-gradient(90deg, var(--red-800) 0, var(--orange-500));
+}
+input#install {
+    margin: 0;
+}
+
+select.wide {
+    min-width: 300px;
+}
+
+.Theme--sidebar {
+    select.wide {
+        min-width: 314px;
+    }
+}

@@ -1,7 +1,0 @@
-span.dfm_filter{position:relative;margin-left:12px;top:-2px}
-span.dfm_filter i{position:absolute;left:10px;top:4px;font-size:1.4rem}
-input.dfm_filter{border:none;width:100px;background-color:#f2f2f2;margin:-8px 0 0 0;padding-left:30px}
-input.dfm_filter:focus{background-color:#f2f2f2}
-input#dfm_target{color:#1c1c1c;width:500px}
-input#dfm_target+.fileTree{background:#f2f2f2;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
-i.dfm_filter{margin-top:-2px}

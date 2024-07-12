@@ -68,3 +68,8 @@ emhttp/plugins/dynamix.my.servers/unraid-components/index.html
 
 # development scripts
 .dev-scripts/
+emhttp/plugins/node_modules/
+emhttp/plugins/.prettierignore
+emhttp/plugins/.prettierrc
+emhttp/plugins/package-lock.json
+emhttp/plugins/package.json

@@ -1,4 +1,15 @@
-table.pre{margin-top:0;background:transparent}
-table.pre td:first-child{width:144px}
-table tr td{padding:0 0 3px 0;margin:0}
-table tr td.thin{line-height:8px;height:8px}
+table.pre {
+    margin-top: 0;
+    background: transparent;
+}
+table.pre td:first-child {
+    width: 144px;
+}
+table tr td {
+    padding: 0 0 3px 0;
+    margin: 0;
+}
+table tr td.thin {
+    line-height: 8px;
+    height: 8px;
+}

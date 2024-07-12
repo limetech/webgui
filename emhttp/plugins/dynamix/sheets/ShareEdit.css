@@ -1,6 +1,48 @@
-div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
-div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
-div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
-div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2,#zfs-name{display:none}
-i.fa-info.i{margin-right:10px}
+:root {
+    --share-edit-shade-azure: #edeaef;
+    --share-edit-shade-gray: #121510;
+    --share-edit-shade-white: var(--gray-150);
+    --share-edit-shade-black: var(gray-800);
+}
+
+div.shade-white {
+    background-color: var(--share-edit-shade-white); /* Condensed from: #ededed */
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-black {
+    background-color: var(--share-edit-shade-black);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-azure {
+    background-color: var(--share-edit-shade-azure);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+div.shade-gray {
+    background-color: var(--share-edit-shade-gray);
+    margin-top: 10px;
+    padding: 8px 0 3px 0;
+}
+#s1,
+#s2,
+#s3,
+#s4,
+#s5,
+#autosize,
+.empty,
+.full2,
+#zfs-name {
+    display: none;
+}
+i.fa-info.i {
+    margin-right: 10px;
+}
+
+.Theme--black,
+.Theme--white {
+    form[name="share_edit"] {
+        margin-top: -20px;
+    }
+}

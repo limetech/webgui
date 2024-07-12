@@ -1,4 +1,0 @@
-.fileTree{background:#f2f2f2;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:relative;z-index:100;display:none}
-#vmform table.multiple{margin:10px 0;background:#f2f2f2;background-size:800px 100%;background-position:-800px;background-repeat:no-repeat;background-clip:content-box;transition:background 0.3s linear}
-#template_img_chooser_outer{position:absolute;display:none;border-radius:5px;border:1px solid <?=$border?>;background:#f2f2f2;z-index:10}
-span#dropbox{border:1px solid <?=$border?>;background:#f2f2f2;padding:28px 12px;line-height:72px;margin-right:16px;}

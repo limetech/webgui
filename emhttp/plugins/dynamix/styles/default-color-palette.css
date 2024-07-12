@@ -1,0 +1,67 @@
+:root {
+    --font-sans: clear-sans, sans-serif;
+    --font-bitstream: bitstream;
+
+    --black: #1d1b1b;
+    --black-opacity-05: rgba(0, 0, 0, 0.05);
+    --black-opacity-10: rgba(0, 0, 0, 0.1);
+    --black-opacity-20: rgba(0, 0, 0, 0.2);
+    --black-opacity-25: rgba(0, 0, 0, 0.25);
+    --black-opacity-30: rgba(0, 0, 0, 0.3);
+
+    --white: #ffffff;
+    --white-opacity-05: rgba(255, 255, 255, 0.05);
+    --white-opacity-10: rgba(255, 255, 255, 0.1);
+    --white-opacity-25: rgba(255, 255, 255, 0.25);
+    --white-opacity-30: rgba(255, 255, 255, 0.3);
+    --white-opacity-50: rgba(255, 255, 255, 0.5);
+    --white-opacity-80: rgba(255, 255, 255, 0.8);
+    --white-opacity-90: rgba(255, 255, 255, 0.9);
+
+    --gray-000: var(--white);
+    --gray-100: #f2f2f2;
+    --gray-120: rgba(242, 242, 242, 0.2); /* Condensed from rgba(237, 234, 239, 0.2). && 242, 242, 242 == --gray-100 */
+    --gray-150: #e8e8e8; /* Condensed from: #eee #e4e2e4 #ededed */
+    --gray-200: #d3d3d3; /* Condensed from: #d9d9d9 #dcdcdc #d4d5d6 #e2e2e2 #e3e3e3 #e5e5e5 #dddddd */
+    --gray-300: #cccccc; /* Condensed from: gray #c0c0c0 #a8a8a8 #c7c5cb #b0b0b0 #bbb */
+    --gray-400: #909090; /* Condensed from: #989898 #a2a2a2 #949494 #a6a7a7 */
+    --gray-500: #808080; /* Condensed from: #606060 #585858 #6c6c6c #82857e #888888 #8b98a7 #707070 #565656 #777 */
+    --gray-600: #404040; /* Condensed from: #42453e #5b5b5b */
+    --gray-700: #303030; /* Condensed from: #383a34 #333333 #262626 #202020 */
+    --gray-800: #212121; /* Condensed from: #222222 #212121 #2b2a29 #2b2b2b */
+    --gray-895: rgba(25, 25, 25, 0.95); /* #191919 */
+    --gray-900: var(--black); /* Condensed from: #1c1c1c #1c1b1b #121510 */
+
+    --orange-100: #ffdfb9;
+    --orange-200: #ff9900;
+    --orange-300: #e68a00;
+    --orange-400: #ce7c10;
+    --orange-500: #ff8c2f;
+    --orange-800: #f15a2c;
+    --orange-900: #d63301;
+
+    --red-100: #ffddd1;
+    --red-300: #ff9e9e;
+    --red-500: #ff3300;
+    --red-600: #f0000c; /* Condensed from: #ff0000 red */
+    --red-700: #de1100;
+    --red-800: #e22828; /* Condensed from: #e80000 #ef3d47 */
+    --red-900: #941c00;
+
+    --green-100: #dff2bf;
+    --green-200: #33cc33;
+    --green-500: #17bf0b;
+    --green-800: #4f8a10;
+    --green-900: #127a05; /* Condensed from: #3D6B00 */
+
+    --blue-100: #d9edf7;
+    --blue-200: #bce8f1;
+    --blue-300: #bde5f8;
+    --blue-700: #0099ff; /* Condensed from: #00529b #0072c6 #08c */
+    --blue-800: #486dba;
+    --blue-900: #3b5998; /* Condensed from: #3D6D8F hsl(205, 40%, 40%) */
+
+    --yellow-100: #fff6bf;
+    --yellow-200: #feefb3;
+    --yellow-500: #ffd324;
+}

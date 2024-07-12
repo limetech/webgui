@@ -1,3 +1,48 @@
-i.top{position:absolute;padding-top:4px;cursor:pointer}
-i#showPass.checked{opacity:0.5}
-.usage-disk.sys{display:inline-block;width:10rem;top:<?=$themes2?'1.2':'.2'?>rem;margin-left:12px;border-radius:4px}
+:root {
+    --useradd-dropbox-border-color: #f2f2f2;
+    --useradd-dropbox-bg-color: #262626;
+    /* non-color vars are possible too */
+    --useradd-usage-disk-sys-top: 0.2rem;
+}
+
+.Theme--sidebar {
+    --useradd-usage-disk-sys-top: 1.2rem;
+}
+
+.Theme--azure {
+    --useradd-dropbox-border-color: #606e7f;
+    --useradd-dropbox-bg-color: #edeaef;
+}
+.Theme--gray {
+    --useradd-dropbox-border-color: #606e7f;
+    --useradd-dropbox-bg-color: #121510;
+}
+.Theme--white {
+    --useradd-dropbox-border-color: #1c1c1c;
+    --useradd-dropbox-bg-color: #e8e8e8;
+}
+
+i.top {
+    position: absolute;
+    padding-top: 4px;
+    cursor: pointer;
+}
+i#showPass.checked {
+    opacity: 0.5;
+}
+
+span#dropbox {
+    border: 1px solid var(--useradd-dropbox-border-color);
+    border-radius: 5px;
+    background: var(--useradd-dropbox-bg-color);
+    padding: 28px 12px;
+    line-height: 72px;
+    margin-right: 16px;
+}
+.usage-disk.sys {
+    display: inline-block;
+    width: 10rem;
+    top: var(--useradd-usage-disk-sys-top);
+    margin-left: 12px;
+    border-radius: 4px;
+}

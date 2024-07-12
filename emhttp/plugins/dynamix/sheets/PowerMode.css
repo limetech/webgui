@@ -1,2 +1,7 @@
-input[type=radio]{margin:0 10px 0 0}
-div#vm{display:none;margin-left:35%}
+input[type="radio"] {
+    margin: 0 10px 0 0;
+}
+div#vm {
+    display: none;
+    margin-left: 35%;
+}

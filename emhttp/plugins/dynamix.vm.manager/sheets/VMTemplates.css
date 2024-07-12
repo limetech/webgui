@@ -1,4 +1,24 @@
-.vmheader{padding:10px;font-size:1.4rem;text-align:left;color:#888}
-.vmtemplate{display:inline-block;width:80px;height:90px;margin-bottom:15px;margin-left:10px;text-align:center;vertical-align:top}
-.vmtemplate img{width:48px;height:48px}
-.vmtemplate p{text-align:center;margin-top:8px;line-height:12px}
+.vmheader {
+    padding: 10px;
+    font-size: 1.4rem;
+    text-align: left;
+    color: var(--gray-500); /* Condensed from: #888 */
+}
+.vmtemplate {
+    display: inline-block;
+    width: 80px;
+    height: 90px;
+    margin-bottom: 15px;
+    margin-left: 10px;
+    text-align: center;
+    vertical-align: top;
+}
+.vmtemplate img {
+    width: 48px;
+    height: 48px;
+}
+.vmtemplate p {
+    text-align: center;
+    margin-top: 8px;
+    line-height: 12px;
+}

@@ -1,25 +1,236 @@
-#countdown{float:left;margin-left:100px}
-#user-notice{float:left}
-div.dfm_info{position:absolute;bottom:4px;width:74%;margin-left:23%}
-div.dfm_template{display:none}
-div#dfm_dialogWindow{overflow-x:hidden}
-div#dfm_dialogWindow dt{width:23%}
-div#dfm_joblist{text-align:left;margin-top:20px;margin-left:56px}
-span.dfm_loc{display:inline-block}
-span.dfm_text{display:inline-block;width:75%;white-space:normal}
-span.dfm_device{display:inline-block;float:left}
-span.dfm_percent{display:inline-block;width:40px}
-span.dfm_speed{display:inline-block;margin-left:10px;width:140px}
-input#dfm_sparse,input#dfm_exist{margin-left:0}
-select.dfm{margin:0 40px 0 10px}
-select#dfm_source{min-width:none;max-width:none;border:none;background-image:none;width:660px;cursor:default}
-select#dfm_source option{background-color:transparent}
-i.dfm{margin-right:8px}
-i.job{cursor:pointer;font-size:1.8rem;vertical-align:middle}
-.ui-dfm .ui-dialog-titlebar-close{background:transparent;border:none;font-size:1.8rem!important;margin-top:-14px!important;margin-right:-18px!important}
-.ui-dfm .ui-dialog-titlebar-close:hover{background:transparent;color:#ff8c2f}
-.ui-dfm .ui-dialog-title{text-align:center;width:100%;font-size:1.8rem}
-.ui-dfm .ui-dialog-content{padding-top:15px;vertical-align:bottom}
-.ui-dfm .ui-button-text{padding:0px 5px}
+:root {
+    --browse-button-ui-dialog-titlebar-close-hover-color: #ff8c2f;
+    --browse-button-ui-dialog-buttonset-button-disabled-text-color: #808080;
+    --browse-button-ui-dialog-buttonset-button-disabled-bg-color-from: #404040;
+    --browse-button-ui-dialog-buttonset-button-disabled-bg-color-to: #808080;
+
+    --input-dfm-filter-bg-color: #1c1c1c;
+    --input-dfm-target-text-color: #f2f2f2;
+    --input-dfm-target-filetree-bg-color: #1c1c1c;
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --input-dfm-filter-bg-color: #f2f2f2;
+    --input-dfm-target-text-color: #1c1c1c;
+    --input-dfm-target-filetree-bg-color: #f2f2f2;
+}
+
+#countdown {
+    float: left;
+    margin-left: 100px;
+}
+#user-notice {
+    float: left;
+}
+div.dfm_info {
+    position: absolute;
+    bottom: 4px;
+    width: 74%;
+    margin-left: 23%;
+}
+div.dfm_template {
+    display: none;
+}
+div#dfm_dialogWindow {
+    overflow-x: hidden;
+}
+div#dfm_dialogWindow dt {
+    width: 23%;
+}
+div#dfm_joblist {
+    text-align: left;
+    margin-top: 20px;
+    margin-left: 56px;
+}
+span.dfm_loc {
+    display: inline-block;
+}
+span.dfm_text {
+    display: inline-block;
+    width: 75%;
+    white-space: normal;
+}
+span.dfm_device {
+    display: inline-block;
+    float: left;
+}
+span.dfm_percent {
+    display: inline-block;
+    width: 40px;
+}
+span.dfm_speed {
+    display: inline-block;
+    margin-left: 10px;
+    width: 140px;
+}
+input#dfm_sparse,
+input#dfm_exist {
+    margin-left: 0;
+}
+select.dfm {
+    margin: 0 40px 0 10px;
+}
+select#dfm_source {
+    min-width: none;
+    max-width: none;
+    border: none;
+    background-image: none;
+    width: 660px;
+    cursor: default;
+}
+select#dfm_source option {
+    background-color: transparent;
+}
+i.dfm {
+    margin-right: 8px;
+}
+i.job {
+    cursor: pointer;
+    font-size: 1.8rem;
+    vertical-align: middle;
+}
+.ui-dfm .ui-dialog-titlebar-close {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem !important;
+    margin-top: -14px !important;
+    margin-right: -18px !important;
+}
+.ui-dfm .ui-dialog-titlebar-close:hover {
+    background: transparent;
+    color: var(--browse-button-ui-dialog-titlebar-close-hover-color);
+}
+.ui-dfm .ui-dialog-title {
+    text-align: center;
+    width: 100%;
+    font-size: 1.8rem;
+}
+.ui-dfm .ui-dialog-content {
+    padding-top: 15px;
+    vertical-align: bottom;
+}
+.ui-dfm .ui-button-text {
+    padding: 0px 5px;
+}
 .ui-dfm .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled],
-.ui-dfm .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]:hover{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
+.ui-dfm .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]:hover {
+    cursor: default;
+    color: var(--browse-button-ui-dialog-buttonset-button-disabled-text-color);
+    background:
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from)),
+                to(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to))
+            )
+            0 0 no-repeat,
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from)),
+                to(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from)),
+                to(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to)),
+                to(var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to))
+            ) 100% 100% no-repeat;
+    background:
+        linear-gradient(
+            90deg,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from) 0,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to)
+        ) 0 0 no-repeat,
+        linear-gradient(
+            90deg,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from) 0,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to)
+        ) 0 100% no-repeat,
+        linear-gradient(
+            0deg,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from) 0,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-from)
+        ) 0 100% no-repeat,
+        linear-gradient(
+            0deg,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to) 0,
+            var(--browse-button-ui-dialog-buttonset-button-disabled-bg-color-to)
+        ) 100% 100% no-repeat;
+    background-size:
+        100% 2px,
+        100% 2px,
+        2px 100%,
+        2px 100%;
+}
+
+span.dfm_filter {
+    position: relative;
+    margin-left: 12px;
+    top: -2px;
+}
+span.dfm_filter i {
+    position: absolute;
+    left: 10px;
+    top: 4px;
+    font-size: 1.4rem;
+}
+input.dfm_filter {
+    border: none;
+    width: 100px;
+    background-color: var(--input-dfm-filter-bg-color);
+    margin: -8px 0 0 0;
+    padding-left: 30px;
+}
+input.dfm_filter:focus {
+    background-color: var(--input-dfm-filter-bg-color);
+}
+input#dfm_target {
+    color: var(--input-dfm-target-text-color);
+    width: 500px;
+}
+input#dfm_target + .fileTree {
+    background: var(--input-dfm-target-filetree-bg-color);
+    width: 500px;
+    max-height: 320px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
+}
+i.dfm_filter {
+    margin-top: -2px;
+}
+div.autoheight {
+    width: 100%;
+    overflow-y: auto;
+    margin-top: -30px;
+}
+
+.Theme--sidebar {
+    span.dfm_filter {
+        margin-left: 0;
+        top: -8px;
+    }
+    span.dfm_filter i {
+        top: 8px;
+    }
+    i.dfm_filter {
+        margin-top: -4px;
+    }
+    div.autoheight {
+        margin-top: 0;
+    }
+}

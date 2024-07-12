@@ -1,0 +1,178 @@
+.Theme--azure:root,
+.Theme--white:root {
+    --dockermanager-button-text-color: var(--orange-500);
+    --dockermanager-button-background-start: var(--red-800);
+    --dockermanager-button-background-end: var(--orange-500);
+    --dockermanager-button-hover-color: var(--gray-100);
+    --dockermanager-default-background: var(--gray-100);
+    --dockermanager-border-color: var(--black);
+    --dockermanager-header-background: var(--gray-150); /* Condensed from: #e3e3e3 */
+    --dockermanager-header-color: var(--black);
+    --dockermanager-content-background: var(--gray-100);
+    --dockermanager-content-color: var(--black);
+    --dockermanager-active-background: var(--gray-150);
+    --dockermanager-dropcontainer-background: var(--gray-100);
+    --dockermanager-disabled-color: var(--black);
+    --dockermanager-disabled-border-color: var(--gray-400); /* Condensed from: #a2a2a2 */
+    --dockermanager-disabled-background: var(--gray-150);
+    --dockermanager-text-color: var(--black);
+}
+
+.Theme--black:root,
+.Theme--gray:root {
+    --dockermanager-button-text-color: var(--orange-500);
+    --dockermanager-button-background-start: var(--red-800);
+    --dockermanager-button-background-end: var(--orange-500);
+    --dockermanager-button-hover-color: var(--gray-100);
+    --dockermanager-default-background: var(--black);
+    --dockermanager-border-color: var(--gray-200); /* Condensed from: #e5e5e5 */
+    --dockermanager-header-background: var(--gray-800); /* Condensed from: #2b2b2b */
+    --dockermanager-header-color: var(--gray-100);
+    --dockermanager-content-background: var(--black);
+    --dockermanager-content-color: var(--gray-100);
+    --dockermanager-active-background: var(--gray-700); /* Condensed from: #262626 */
+    --dockermanager-dropcontainer-background: var(--black);
+    --dockermanager-disabled-color: var(--gray-100);
+    --dockermanager-disabled-border-color: var(--gray-500); /* Condensed from: #6c6c6c */
+    --dockermanager-disabled-background: var(--gray-700); /* Condensed from: #262626 */
+    --dockermanager-text-color: var(--gray-100);
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button {
+    font-family: clear-sans;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 10px 12px 10px 0;
+    padding: 9px 18px;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+    border: 0;
+    color: var(--dockermanager-button-text-color);
+    background:
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--dockermanager-button-background-start)),
+                to(var(--dockermanager-button-background-end))
+            )
+            0 0 no-repeat,
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--dockermanager-button-background-start)),
+                to(var(--dockermanager-button-background-end))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--dockermanager-button-background-start)),
+                to(var(--dockermanager-button-background-start))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--dockermanager-button-background-end)),
+                to(var(--dockermanager-button-background-end))
+            ) 100% 100% no-repeat;
+    background:
+        linear-gradient(90deg, var(--dockermanager-button-background-start) 0, var(--dockermanager-button-background-end)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--dockermanager-button-background-start) 0, var(--dockermanager-button-background-end)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--dockermanager-button-background-start) 0, var(--dockermanager-button-background-start)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--dockermanager-button-background-end) 0, var(--dockermanager-button-background-end)) 100% 100% no-repeat;
+    background-size:
+        100% 2px,
+        100% 2px,
+        2px 100%,
+        2px 100%;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button:hover {
+    color: var(--dockermanager-button-hover-color);
+    background: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        from(var(--dockermanager-button-background-start)),
+        to(var(--dockermanager-button-background-end))
+    );
+    background: linear-gradient(90deg, var(--dockermanager-button-background-start) 0, var(--dockermanager-button-background-end));
+}
+
+.ui-dropdownchecklist .ui-state-default {
+    background: var(--dockermanager-default-background);
+    border: none;
+    box-shadow: none;
+    outline: none;
+    cursor: pointer;
+    height: 2.2rem;
+    line-height: 2.2rem;
+}
+
+.ui-dropdownchecklist-group {
+    font-weight: normal;
+    font-style: italic;
+    padding: 1px 9px 1px 8px;
+}
+
+.ui-dropdownchecklist-selector {
+    border: 1px solid var(--dockermanager-border-color);
+    display: inline-block;
+    cursor: pointer;
+    padding: 1px 9px 1px 8px;
+}
+
+.ui-dropdownchecklist-selector-wrapper {
+    vertical-align: middle;
+    font-size: 0;
+}
+
+.ui-widget-header {
+    border: none;
+    background: var(--dockermanager-header-background);
+    color: var(--dockermanager-header-color);
+    font-weight: bold;
+}
+
+.ui-widget-content {
+    border: 1px solid var(--dockermanager-border-color);
+    background: var(--dockermanager-content-background);
+    color: var(--dockermanager-content-color);
+}
+
+.ui-state-active {
+    background: var(--dockermanager-active-background);
+}
+
+.ui-dropdownchecklist-dropcontainer {
+    background: var(--dockermanager-dropcontainer-background);
+    border: 1px solid var(--dockermanager-border-color);
+}
+
+.ui-state-disabled {
+    color: var(--dockermanager-disabled-color);
+    border-color: var(--dockermanager-disabled-border-color);
+    background: var(--dockermanager-disabled-background);
+    opacity: 0.5;
+}
+
+.ui-dropdownchecklist-indent {
+    padding-left: 7px;
+}
+
+.ui-dropdownchecklist-text {
+    color: var(--dockermanager-text-color);
+    font-size: 1.3rem;
+}
+
+.ui-dropdownchecklist .ui-widget-content .ui-state-default {
+    background: var(--dockermanager-default-background);
+}

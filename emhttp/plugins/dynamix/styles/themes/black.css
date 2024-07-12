@@ -1,0 +1,75 @@
+:root {
+    /* Theme specific vars */
+    --theme-black--mild-gray-700: #262626;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
+    --text-color: var(--gray-100);
+    --blockquote-text-color: var(--gray-800); 
+    --alt-text-color: var(--gray-500); 
+    --disabled-text-color: var(--gray-500); 
+    --inverse-text-color: var(--gray-900); 
+    --link-text-color: var(--blue-800); 
+
+    --background-color: var(--gray-900); 
+    --opac-background-color: var(--gray-895);
+    --mild-background-color: var(--theme-black--mild-gray-700);
+    --usage-bar-background-color: var(--gray-600);
+    --usage-bar-used-background-color: var(--gray-500);
+    --usage-disk-background-color: var(--gray-700); 
+    --inverse-background-color: var(--gray-100);
+    --radio-background-color: var(--gray-700); 
+    --dashboard-background-color: var(--gray-700);
+    --dashboard-title-action-color: var(--white-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
+
+    --border-color: var(--gray-600);
+    --disabled-border-color: var(--gray-500); 
+    --input-border-color: var(--gray-200); 
+    --disabled-input-border-color: var(--gray-500); 
+    --inverse-border-color: var(--white-opacity-25); 
+    --table-border-color: var(--gray-700); 
+    --table-background-color: var(--gray-800);
+    --table-header-background-color: var(--gray-800);
+    --hover-table-row-background-color: var(--white-opacity-05);
+
+    --footer-text: var(--text-color);
+    --footer-background-color: var(--mild-background-color);
+
+    --small-shadow: 0 0 3px var(--gray-700); 
+    --hr-color: var(--gray-800); 
+
+    --checkbox-color: var(--gray-800); 
+    --checkbox-hover-color: var(--gray-600); 
+
+    --brand-orange: var(--orange-500);
+    --brand-red: var(--red-800);
+
+    --header-color: var(--gray-100);
+
+    --title-header-background-color: var(--mild-background-color);
+
+    --scrollbar-color: var(--gray-300);
+    --scrollbar-hover-color: var(--gray-200);
+
+    --bg-opacity-10: var(--black-opacity-10);
+    --bg-opacity-30: var(--black-opacity-30);
+
+    --button-text-color: var(--brand-orange);
+    --button-border: none;
+    --button-background: linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-red) 0, var(--brand-red)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
+    --button-background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+
+    --hover-button-border: var(--blue-700);
+    --hover-button-text-color: var(--white);
+    --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
+
+    --input-border-color: var(--gray-200);
+    --input-bg-color: transparent;
+    /* /End vars used in default-base */
+
+    /* dynamix CSS var values set in base-dynamix.css */
+}

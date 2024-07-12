@@ -79,5 +79,8 @@
         "zip",
         "zlib",
         "libvirt-php"
-    ]
+    ],
+    "search.exclude": {
+        "emhttp/webGui/**/*": true,
+    }
 }

@@ -1,2 +1,0 @@
-div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(580px,1fr));column-gap:20px}
-div.pie::after{background-color:#d7dbdd}

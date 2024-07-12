@@ -1,3 +1,57 @@
-div.basic{display:block}
-div.advanced{display:none}
-textarea.raw{resize:none;font-family:bitstream;width:65.5%}
+:root {
+    --syslinux-span-array-border-color: #f2f2f2;
+    --syslinux-textarea-menu-border-color: #f2f2f2;
+}
+
+.Theme--sidebar:root  {
+    --syslinux-span-array-border-color: #606e7f;
+    --syslinux-textarea-menu-border-color: transparent;
+}
+.Theme--white:root {
+    --syslinux-span-array-border-color: #1c1c1c;
+    --syslinux-textarea-menu-border-color: #1c1b1b;
+}
+
+div.basic {
+    display: block;
+}
+div.advanced {
+    display: none;
+}
+textarea.raw {
+    resize: none;
+    font-family: bitstream;
+    width: 65.5%;
+}
+
+span.array,
+span.system {
+    margin-left: 33.33%;
+    width: 65.5%;
+    padding: 2px 10px;
+    font-weight: bold;
+    border: 1px solid var(--syslinux-span-array-border-color);
+    border-bottom: none;
+}
+textarea.menu {
+    margin-left: 33.33%;
+    width: 65.5%;
+    margin-bottom: 12px;
+    padding: 4px 10px;
+    font-family: bitstream;
+}
+
+.Theme--black,
+.Theme--white {
+    textarea.menu {
+        border: 1px solid var(--syslinux-textarea-menu-border-color);
+        border-top: none;
+    }
+}
+
+.Theme--azure,
+.Theme--gray {
+    textarea.menu {
+        border-top: none;
+    }
+}

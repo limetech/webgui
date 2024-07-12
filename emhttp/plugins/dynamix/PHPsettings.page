@@ -22,7 +22,7 @@ $conf = file_exists($ini) ? parse_ini_file($ini) : [];
 if (!file_exists($log)) touch($log);
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/DockerManager.css")?>">
 
 <div markdown="1" style="width:43%;margin-bottom:40px;padding:5px 15px;border:solid 1px">
 :php_settings_plug:

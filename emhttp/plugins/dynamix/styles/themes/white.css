@@ -1,0 +1,96 @@
+:root {
+    /* Theme specific vars */
+    --theme-white--mild-gray-100: #f7f9f9;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
+    --text-color: var(--gray-900);
+    --blockquote-text-color: var(--gray-800);
+    --alt-text-color: var(--gray-400);
+    --disabled-text-color: var(--gray-500);
+    --inverse-text-color: var(--gray-100);
+    --link-text-color: var(--blue-800);
+
+    --background-color: var(--gray-100);
+    --opac-background-color: var(--gray-895);
+    --mild-background-color: var(--theme-white--mild-gray-100);
+    --usage-bar-background-color: var(--gray-500);
+    --usage-bar-used-background-color: var(--gray-400);
+    --usage-disk-background-color: var(--gray-200);
+    --inverse-background-color: var(--gray-900);
+    --radio-background-color: var(--gray-200);
+    --dashboard-background-color: var(--gray-700);
+    --dashboard-title-action-color: var(--black-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
+
+    --border-color: var(--gray-200);
+    --disabled-border-color: var(--gray-500);
+    --input-border-color: var(--gray-900);
+    --disabled-input-border-color: var(--gray-400);
+    --inverse-border-color: var(--gray-000);
+    --table-border-color: var(--gray-200);
+    --table-background-color: var(--gray-150);
+    --table-header-background-color: var(--gray-150);
+
+    --hover-table-row-background-color: var(--black-opacity-05);
+
+    --footer-text: var(--text-color);
+    --footer-background-color: var(--gray-200);
+
+    --small-shadow: 0 0 3px var(--gray-700);
+    --hr-color: var(--gray-300);
+
+    --checkbox-color: var(--gray-200);
+    --checkbox-hover-color: var(--gray-300);
+
+    --brand-orange: var(--orange-500);
+    --brand-red: var(--red-800);
+
+    --header-color: var(--gray-900);
+
+    --title-header-background-color: var(--gray-150);
+
+    --scrollbar-color: var(--gray-400);
+    --scrollbar-hover-color: var(--gray-500);
+
+    --bg-opacity-10: var(--white-opacity-10);
+    --bg-opacity-30: var(--white-opacity-30);
+
+    --button-text-color: var(--brand-orange);
+    --button-border: none;
+    --button-background: linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-red) 0, var(--brand-red)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
+    --button-background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+
+    --hover-button-border: var(--blue-700);
+    --hover-button-text-color: var(--white);
+    --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
+
+    --input-border-color: var(--black);
+    --input-bg-color: transparent;
+    /* /End vars used in default-base */
+
+    /* Set vars for default-dynamix */
+    --dynamix-ui-dropdownchecklist-color: var(--black);
+    --dynamix-ui-dropdownchecklist-color-alt1: var(--gray-150);
+    --dynamix-ui-dropdownchecklist-color-alt2: var(--gray-400); /* Originally #a2a2a2 */
+
+    --dynamix-sweet-alert-text-color: var(--black);
+    --dynamix-sweet-alert-icon-bg-color: var(--gray-100);
+
+    --dynamix-tablesorter-thead-row-border-color: var(--gray-200); /* Originally #e3e3e3 */
+    --dynamix-tablesorter-thead-th-text-color: var(--black);
+    --dynamix-tablesorter-thead-th-bg-color: var(--gray-150);
+
+    --dynamix-tablesorter-tbody-row-alt-bg-color: var(--gray-150); /* Originally #ededed */
+    --dynamix-tablesorter-tbody-row-bg-color: var(--gray-100);
+    --dynamix-tablesorter-tbody-row-border-color: var(--gray-200); /* Originally #e3e3e3 */
+
+    --dynamix-select-box-shadow: 0 2px 0 var(--orange-500), inset 0 -1px var(--gray-100);
+    --dynamix-select-disabled-bg-color: var(--gray-150);
+    --dynamix-select-disabled-border-color: var(--gray-500);
+    --dynamix-select-disabled-color: var(--black);
+    /* /End vars for default-dynamix */
+}

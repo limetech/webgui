@@ -1,23 +1,140 @@
-th.th1{width:25%}
-th.th2{width:15%}
-th.th3{width:80px}
-div.four{font-size:1.1rem;width:260px}
-div.four label{float:left;display:table-cell;width:25%}
-div.four label:nth-child(4n+4){float:none;clear:both}
-div.four label.cpu1{width:32%}
-div.four label.cpu2{width:26%}
-div.template,div#dialogWindow,input#upload{display:none}
-table.domdisk thead tr th:nth-child(1){width:56%!important}
-table.domdisk thead tr th:nth-child(n+2){width:8%!important}
-table.domdisk thead tr th:nth-child(1){padding-left:72px}
-table.domdisk tbody tr td:nth-child(1){padding-left:72px}
-table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
-table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
-table.snapshot{margin-top:0}
-table tbody td{line-height:normal}
-i.mover{margin-right:8px;display:none}
-i.fa-dot-circle-o{padding-left:12px}
-#resetsort{margin-left:12px;display:inline-block;width:32px}
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
-.dropdown-menu{z-index:10001}
-span.vmgraphics{font-size:1.1rem;text-align:left}
+:root {
+    --vm-machines-file-tree-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --vm-machines-file-tree-background: var(--gray-100);
+}
+
+th.th1 {
+    width: 25%;
+}
+th.th2 {
+    width: 15%;
+}
+th.th3 {
+    width: 80px;
+}
+div.four {
+    font-size: 1.1rem;
+    width: 260px;
+}
+div.four label {
+    float: left;
+    display: table-cell;
+    width: 25%;
+}
+div.four label:nth-child(4n + 4) {
+    float: none;
+    clear: both;
+}
+div.four label.cpu1 {
+    width: 32%;
+}
+div.four label.cpu2 {
+    width: 26%;
+}
+div.template,
+div#dialogWindow,
+input#upload {
+    display: none;
+}
+table.domdisk thead tr th:nth-child(1) {
+    width: 56% !important;
+}
+table.domdisk thead tr th:nth-child(n + 2) {
+    width: 8% !important;
+}
+table.domdisk thead tr th:nth-child(1) {
+    padding-left: 72px;
+}
+table.domdisk tbody tr td:nth-child(1) {
+    padding-left: 72px;
+}
+table.domdisk tbody tr:nth-child(even) {
+    background-color: transparent !important;
+}
+table.domdisk tbody tr:nth-child(4n-1) {
+    background-color: transparent !important;
+}
+table.snapshot {
+    margin-top: 0;
+}
+table tbody td {
+    line-height: normal;
+}
+i.mover {
+    margin-right: 8px;
+    display: none;
+}
+i.fa-dot-circle-o {
+    padding-left: 12px;
+}
+#resetsort {
+    margin-left: 12px;
+    display: inline-block;
+    width: 32px;
+}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled] {
+    cursor: default;
+    color: var(--gray-500);
+    background:
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--gray-600)),
+                to(var(--gray-500))
+            )
+            0 0 no-repeat,
+        -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                from(var(--gray-600)),
+                to(var(--gray-500))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--gray-600)),
+                to(var(--gray-600))
+            ) 0 100% no-repeat,
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                from(var(--gray-500)),
+                to(var(--gray-500))
+            ) 100% 100% no-repeat;
+    background:
+        linear-gradient(90deg, var(--gray-600) 0, var(--gray-500)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--gray-600) 0, var(--gray-500)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--gray-600) 0, var(--gray-600)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--gray-500) 0, var(--gray-500)) 100% 100% no-repeat;
+    background-size:
+        100% 2px,
+        100% 2px,
+        2px 100%,
+        2px 100%;
+}
+.dropdown-menu {
+    z-index: 10001;
+}
+span.vmgraphics {
+    font-size: 1.1rem;
+    text-align: left;
+}
+
+.fileTree {
+    background: var(--vm-machines-file-tree-background);
+    width: 500px;
+    max-height: 320px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
+}

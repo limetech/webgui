@@ -1,2 +1,8 @@
-#plugin_tree{width:33%;height:200px;overflow-y:scroll}
-table tbody td{line-height:normal}
+#plugin_tree {
+    width: 33%;
+    height: 200px;
+    overflow-y: scroll;
+}
+table tbody td {
+    line-height: normal;
+}

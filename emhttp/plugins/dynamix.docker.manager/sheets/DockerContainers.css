@@ -1,12 +1,45 @@
-.basic{display:block}
-.advanced{display:none;white-space:nowrap}
-.log{cursor:zoom-in}
-.exec{cursor:pointer}
-table#docker_containers{text-align:left}
-th.five{width:5%}
-th.nine{width:9%}
-th.load{width:140px}
-input.wait{width:24px;margin:0 4px;padding:0 5px;border:none;box-shadow:none;background-color:transparent}
-table tbody td{line-height:normal}
-i.mover{margin-right:8px;display:none}
-#resetsort{margin-left:12px;display:inline-block;width:32px}
+.basic {
+    display: block;
+}
+.advanced {
+    display: none;
+    white-space: nowrap;
+}
+.log {
+    cursor: zoom-in;
+}
+.exec {
+    cursor: pointer;
+}
+table#docker_containers {
+    text-align: left;
+}
+th.five {
+    width: 5%;
+}
+th.nine {
+    width: 9%;
+}
+th.load {
+    width: 140px;
+}
+input.wait {
+    width: 24px;
+    margin: 0 4px;
+    padding: 0 5px;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+}
+table tbody td {
+    line-height: normal;
+}
+i.mover {
+    margin-right: 8px;
+    display: none;
+}
+#resetsort {
+    margin-left: 12px;
+    display: inline-block;
+    width: 32px;
+}

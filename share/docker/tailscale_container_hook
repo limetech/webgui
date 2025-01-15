@@ -146,8 +146,8 @@ elif [ -d "/config" ]; then
   TSD_STATE_DIR="/config/.tailscale_state"
 elif [ -d "/data" ]; then
   TSD_STATE_DIR="/data/.tailscale_state"
-elif [ ! -z "${TAILSCALE_FALLBACK_DIR}" ]; then
-  TSD_STATE_DIR="${TAILSCALE_FALLBACK_DIR}/.tailscale_state"
+elif [ ! -z "${CA_TS_FALLBACK_DIR}" ]; then
+  TSD_STATE_DIR="${CA_TS_FALLBACK_DIR}/.tailscale_state"
 else
   echo "ERROR: Couldn't detect persistent Docker directory for .tailscale_state!"
   echo "       Please enable Tailscale Advanced Settings in the Docker template and set the Tailscale State Directory manually!"

@@ -447,7 +447,7 @@ if (!empty($TS_no_peers) && !empty($TS_container)) {
   }
   // Construct WebUI URL on container template page
   // Check if webui_url, Tailscale WebUI and MagicDNS are not empty and make sure that MagicDNS is enabled
-  if (!empty($webui_url) && !empty($xml['TailscaleWebUI']) && (!empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']) || $TS_no_peers['CurrentTailnet']['MagicDNSEnabled'])) {
+  if ( !empty($webui_url) && !empty($xml['TailscaleWebUI']) && (!empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']) || ($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']??false))) {
     // Check if serve or funnel are enabled by checking for [hostname] and replace string with TS_DNSName
     if (!empty($xml['TailscaleWebUI']) && strpos($xml['TailscaleWebUI'], '[hostname]') !== false && isset($TS_DNSName)) {
       $TS_webui_url = str_replace("[hostname][magicdns]", rtrim($TS_DNSName, '.'), $xml['TailscaleWebUI']);

@@ -309,32 +309,48 @@ function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
 function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody",$grp = "users") {
-  if (is_dir($dirname)) return(false);
+  write_logging("Check if dir exists\n");
+  if (is_dir($dirname)) {write_logging("Dir exists\n"); return(false);}
+  write_logging("Dir does not exist\n");
   $parent = $dirname;
+  write_logging("Getting $parent\n");
   while (!is_dir($parent)){
+    if (!is_dir($parent)) write_logging("Not parent  $parent\n"); else write_logging("Parent $parent is\n");
     if (!$recursive) return(false);
     $pathinfo2 = pathinfo($parent);
     $parent = $pathinfo2["dirname"];
   }
+  write_logging("Parent $parent\n");
   if (strpos($dirname,'/mnt/user/')===0) {
+    write_logging("Getting real disks\n");
     $realdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($parent)." 2>/dev/null"));
     if (!empty($realdisk)) {
       $dirname = str_replace('/mnt/user/', "/mnt/$realdisk/", $dirname);
       $parent = str_replace('/mnt/user/', "/mnt/$realdisk/", $parent);
     }
   }
-	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+  $fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
   $rtncode = false;
+  write_logging("fstype:$fstype parent $parent dir name $dirname\n");
   switch ($fstype) {
     case "zfs":
-      $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
-      $zfsdataset .= str_replace($parent,"",$dirname);
-      if ($recursive) $rtncode=exec("zfs create -p \"$zfsdataset\"");else $rtncode=exec("zfs create \"$zfsdataset\"");
-      if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($zfsdataset,$permissions);
+      if (is_dir($parent.'/.zfs')) {
+        write_logging("ZFS Volume\n");
+        $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")); 
+        write_logging("Shell $zfsdataset\n");
+        $zfsdataset .= str_replace($parent,"",$dirname);
+        write_logging("Dataset $zfsdataset\n");
+        $zfsoutput = array();
+        if ($recursive) exec("zfs create -p \"$zfsdataset\"",$zfsoutput,$rtncode);else exec("zfs create \"$zfsdataset\"",$zfsoutput,$rtncode);
+        write_logging("Output: {$zfsoutput[0]} $rtncode"); 
+        if ($rtncode == 0)  write_logging( " ZFS Command OK\n"); else  write_logging( "ZFS Command Fail\n");
+      } else {write_logging("Not ZFS dataset\n");$rtncode = 1;}
+      if ($rtncode > 0) { mkdir($dirname, $permissions, $recursive); write_logging( "created dir:$dirname\n");} else chmod($zfsdataset,$permissions);
       break;
     case "btrfs":
-      if ($recursive) $rtncode=exec("btrfs subvolume create --parents \"$dirname\""); else $rtncode=exec("btrfs subvolume create \"$dirname\"");
-      if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($dirname,$permissions);
+      $btrfsoutput = array();
+      if ($recursive) exec("btrfs subvolume create --parents \"$dirname\"",$btrfsoutput,$rtncode); else exec("btrfs subvolume create \"$dirname\"",$btrfsoutput,$rtncode);
+      if ($rtncode > 0) mkdir($dirname, $permissions, $recursive); else chmod($dirname,$permissions);
       break;
     default:
       mkdir($dirname, $permissions, $recursive);
@@ -394,5 +410,11 @@ function get_realvolume($path) {
     $reallocation = $realexplode[0];
   }
   return $reallocation;
+}
+
+function write_logging($value) {
+  $debug = is_file("/tmp/my_mkdir_debug");
+  if (!$debug) return;
+  file_put_contents('/tmp/my_mkdir_output', $value, FILE_APPEND);
 }
 ?>

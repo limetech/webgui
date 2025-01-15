@@ -19,6 +19,12 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
 $cpus = explode(';',$_POST['cpus']??'');
+$corecount = 0;
+foreach ($cpus as $pair) {
+  unset($cpu1,$cpu2);
+  [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
+  if (!$cpu2) 	$corecount++; else $corecount=$corecount+2;
+}
 
 function scan($area, $text) {
   return isset($area) ? strpos($area,$text)!==false : false;
@@ -30,7 +36,7 @@ function create($id, $name, $vcpu) {
   $total = count($cpus);
   $loop = floor(($total-1)/32)+1;
   $text = [];
-  $unit = str_replace([' ','(',')','[',']'],'',$name);
+  $unit = urlencode(str_replace([' ','(',')','[',']'],'',$name));
   $name = urlencode($name);
   echo "<td><span id='$id-$unit' style='color:#267CA8;display:none'><i class='fa fa-refresh fa-spin'></i> "._('updating')."</span></td>";
   for ($c = 0; $c < $loop; $c++) {
@@ -66,6 +72,14 @@ case 'vm':
     $uuid = $lv->domain_get_uuid($lv->get_domain_by_name($vm));
     $cfg = domain_to_config($uuid);
     echo "<tr><td>$vm</td>";
+    if ($cfg['domain']['vcpu'] >0 ) $disabled = "disabled"; else $disabled = "";
+    $vmenc = urlencode($vm);
+    $vcpuselect="<select id='vm-$vmenc-vcpu' name='$vmenc' class='narrow' title='"._("vcpu allocated to vm")."' $disabled>";
+    for ($i = 1; $i <= ($corecount); $i++) {
+        $vcpuselect .= mk_option($cfg['domain']['vcpus'], $i, $i);
+      }
+    $vcpuselect .= '</select>';
+    echo "<td>$vcpuselect</td>";
     create('vm', $vm, $cfg['domain']['vcpu']);
     echo "</tr>";
   }

@@ -16,7 +16,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
-$map = $changes = [];
+$vcpus = $map = $changes = [];
 
 $data = json_decode($_POST['data'], true);
 
@@ -30,6 +30,9 @@ foreach ($data['cpus'] as $key => $val) {
 	[$name, $cpu] = my_explode(':', $key);
 	$map[decode($name)] .= "$cpu,";
 }
+foreach ($data['cores'] as $name => $val) {
+	$vcpu[decode($name)] .= $val;
+}
 /* map holds the list of each vm, container or isolcpus and its newly proposed cpu assignments */
 $map = array_map(function($d) {
 	return substr($d, 0, -1);
@@ -40,13 +43,13 @@ switch ($data['id']) {
 		/* report changed vms in temporary file */
 		require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 		foreach ($map as $name => $cpuset) {
-			if (!strlen($cpuset)) {
-				$reply = ['error' => _("Not allowed to assign ZERO cores")];
-				break 2;
-			}
 			$uuid = $lv->domain_get_uuid($lv->get_domain_by_name($name));
 			$cfg = domain_to_config($uuid);
-			$cpus = implode(',', $cfg['domain']['vcpu']);
+			if ($cfg['domain']['vcpu']) $cpus = implode(',', $cfg['domain']['vcpu']); else $cpus = "";
+			if (!strlen($cpuset)) {
+				$cpuset = -1 * $vcpu[$name];
+				$cpus = -1 * $cfg['domain']['vcpus'];
+			}
 			/* only act on changes */
 			if ($cpus != $cpuset || strlen($cpus) != strlen($cpuset)) {
 				$changes[] = $name;

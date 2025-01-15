@@ -31,6 +31,8 @@ function showCPUs($uuid) {
   global $cpus;
   $vm = domain_to_config($uuid);
   $vcpu = $vm['domain']['vcpu'];
+  $nopining = "";
+  if (!is_array($vcpu)) $nopining = _("No pinning set");
   echo "<div class='four'>";
   foreach ($cpus as $pair) {
     unset($cpu1,$cpu2);
@@ -44,6 +46,7 @@ function showCPUs($uuid) {
       echo "<label class='cpu2'><i class='fa fa-fw $check'></i></label>";
     }
   }
+  echo "<br><span>vCPUs: {$vm['domain']['vcpus']} $nopining</span>";
   echo "</div>";
 }
 function vsize($size,$expand=true) {

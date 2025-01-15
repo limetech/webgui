@@ -1,6 +1,7 @@
 table.tablesorter tr>th+th{text-align:right;vertical-align:top}
-table.tablesorter tr>td+td+td{vertical-align:top}
+table.tablesorter tr>td+td+td+td{vertical-align:top}
 table.tablesorter tr>th+th+th,table.tablesorter tr>td+td{text-align:center}
 table.tablesorter th:first-child,table.tablesorter td:first-child{width:180px;text-align:left}
 input.flat{margin:0}
 input.lock{margin:0}
+select.narrow{min-width:25px;align-items:right;}

@@ -23,7 +23,7 @@ $total = count($cpus);
 $spinner = "<tr><td colspan='".($total+2)."'><div class='spinner'></div></td></tr>";
 $cpuset = implode(';',$cpus);
 
-function create() {
+function create($type = "") {
 	// create the table header. Make multiple rows when CPU cores are many ;)
 	global $total, $cpus;
 	$loop = floor(($total-1)/32) + 1;
@@ -38,6 +38,7 @@ function create() {
 		}
 	}
 	$label = implode('<br />', array_fill(0, $loop, 'CPU:' . ($cpu2 ? '<br />CPU:' : '')));
+	if ($type == "vm") echo "<th>VPCUS</th>";
 	echo "<th>$label</th>" . implode(array_map(function($t) {
 		return "<th>$t</th>";
 	}, $text));
@@ -59,13 +60,21 @@ function apply(form) {
 	var args = {
 		'id': id,
 		'names': form.names.value.encode(),
-		'cpus': {}
+		'cpus': {},
+		'cores': {}
 	};
 
 	/* get the 'checked' cpus */
 	$(form).find('input[type=checkbox]').each(function() {
 		if ($(this).prop('checked')) {
 			args['cpus'][$(this).prop('name').encode()] = 'on';
+		}
+	});
+
+	/* get the vcpus */
+	$(form).find('select').each(function() {
+		if ($(this).prop('id')) {
+			args['cores'][$(this).prop('name').encode()] = $(this).prop('value');
 		}
 	});
 
@@ -94,7 +103,8 @@ function apply(form) {
 			wait = data.length;
 			for (var i = 0; i < data.length; i++) {
 				var name = data[i];
-				$('#' + id + '-' + name.strip()).show('slow');
+				//$('#' + id + '-' + name.strip()).show('slow');
+				$('#' + CSS.escape(id + '-' + name.strip().replace(/!/g, '%21'))).show('slow');
 
 				/* step 2: apply the changes by updating the vm or container */
 				$.post('/webGui/include/UpdateTwo.php', {
@@ -224,10 +234,26 @@ function buttons(form) {
 			var cores = $(form).find(checked).length;
 
 			/* Ensure VMs have at least one core selected */
-			if ($(form).prop('name') == 'vm') $(form).find(checked).prop('disabled', cores < 2);
+			if ($(form).prop('name') == 'vm' ) {
+				value = $(this).prop('name').split(':')[0];
+				if (cores < 1)
+				$(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', false).prop("value",1);
+				else $(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', true).prop("value",cores);
 
+			}
 			/* Ensure isolation does not have all cores selected */
 			if ($(form).prop('name') == 'is' && $(this).prop('checked')) $(this).prop('checked', cores < total);
+
+			/* Enable Apply and Done buttons when changes are made */
+			$(form).find('input[value="_(Apply)_"]').prop('disabled', false);
+			$(form).find('input[value="_(Done)_"]').val("_(Reset)_").prop('onclick', null).off('click').click(function() { reset(form); });
+		});
+	});
+	$(form).find('select').each(function() {
+		$(this).on('change', function() {
+			var total = $(form).find('input[type=checkbox]').length;
+			var checked = 'input[name^="' + $(this).prop('name').split(':')[0] + ':' + '"]:checked';
+			var cores = $(form).find(checked).length;
 
 			/* Enable Apply and Done buttons when changes are made */
 			$(form).find('input[value="_(Apply)_"]').prop('disabled', false);
@@ -252,7 +278,7 @@ $(function() {
 <form name="vm">
 <input type="hidden" name="names" id="names-vm" value="">
 <table class='tablesorter shift' style='width:auto'>
-<thead><tr><th><i class="fa fa-list"></i> _(VM)_</th><?create()?></tr></thead>
+<thead><tr><th><i class="fa fa-list"></i> _(VM)_</th><?create("vm")?></tr></thead>
 <tbody id="table-vm"><?=$spinner?></tbody>
 </table>
 <input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()"><span id="wait-vm" class="red-text" style="display:none"><i class="fa fa-spinner fa-spin"></i> _(Please wait)_...</span>

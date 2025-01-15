@@ -40,7 +40,8 @@ case 'vm':
 	/* Read new CPU assignments and delete the temporary file */
 	$cpuset = explode(',', file_get_contents($file));
 	unlink($file);
-	$vcpus = count($cpuset);
+	$nopin = false;
+	if ($cpuset[0] >= 0) $vcpus = count($cpuset); else {$vcpus = -1 * $cpuset[0]; $nopin = true; }
 
 	/* Initial cores/threads assignment */
 	$cores = $vcpus;
@@ -68,22 +69,26 @@ case 'vm':
 
 	/* Preserve existing emulatorpin attributes */
 	$pin = [];
-	foreach ($xml->cputune->emulatorpin->attributes() as $key => $value) {
-		$pin[$key] = (string) $value;
+	if (isset($xml->cputune)) { 
+		foreach ($xml->cputune->emulatorpin->attributes() as $key => $value) {
+			$pin[$key] = (string) $value;
+		}
 	}
 	unset($xml->cputune);
 
 	/* Add new cputune configuration */
-	$xml->addChild('cputune');
-	for ($i = 0; $i < $vcpus; $i++) {
-		$vcpu = $xml->cputune->addChild('vcpupin');
-		$vcpu['vcpu'] = $i;
-		$vcpu['cpuset'] = _var($cpuset, $i);
-	}
-	if ($pin) {
-		$attr = $xml->cputune->addChild('emulatorpin');
-		foreach ($pin as $key => $value) {
-			$attr[$key] = $value;
+	if (!$nopin) {
+		$xml->addChild('cputune');
+		for ($i = 0; $i < $vcpus; $i++) {
+			$vcpu = $xml->cputune->addChild('vcpupin');
+			$vcpu['vcpu'] = $i;
+			$vcpu['cpuset'] = _var($cpuset, $i);
+		}
+		if ($pin) {
+			$attr = $xml->cputune->addChild('emulatorpin');
+			foreach ($pin as $key => $value) {
+				$attr[$key] = $value;
+			}
 		}
 	}
 
@@ -109,7 +114,7 @@ case 'vm':
 
 	/* Backup NVRAM, undefine the domain, and restore NVRAM */
 	$lv->nvram_backup($uuid);
-	$lv->domain_undefine($dom);
+	#$lv->domain_undefine($dom);
 	$lv->nvram_restore($uuid);
 
 	/* Define the domain with the updated XML configuration */

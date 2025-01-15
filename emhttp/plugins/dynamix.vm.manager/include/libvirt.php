@@ -360,7 +360,7 @@
 				$metadata .= "</metadata>";
 			}
 
-			$vcpus = 1;
+			$vcpus = $domain['vcpus'];
 			$vcpupinstr = '';
 
 			if (!empty($domain['vcpu']) && is_array($domain['vcpu'])) {
@@ -368,13 +368,8 @@
 				foreach($domain['vcpu'] as $i => $vcpu) {
 					$vcpupinstr .= "<vcpupin vcpu='$i' cpuset='$vcpu'/>";
 				}
-			} elseif (!empty($domain['vcpus'])) {
-				$vcpus = $domain['vcpus'];
-				for ($i=0; $i < $vcpus; $i++) {
-					$vcpupinstr .= "<vcpupin vcpu='$i' cpuset='$i'/>";
-				}
-			}
-
+			} 
+			
 			$intCores = $vcpus;
 			$intThreads = 1;
 			$intCPUThreadsPerCore = 1;

@@ -54,7 +54,7 @@ case "$1" in
       echo "$DAEMON running"
     else
       echo "$DAEMON not running"
-      if [ -f $PID ]; then
+      if [[ -f $PID ]]; then
         rm -f $PID
       fi
     fi

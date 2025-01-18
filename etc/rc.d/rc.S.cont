@@ -100,7 +100,7 @@ FREQ=0
 if [[ -r /etc/default/adjtimex ]]; then
   . /etc/default/adjtimex
 fi
-if adjtimex --tick $TICK --frequency $FREQ; then
+if /sbin/adjtimex --tick $TICK --frequency $FREQ; then
   log "Setting the system clock rate: adjtimex --tick $TICK --frequency $FREQ"
 else
   log "Failed to set system clock with adjtimex, possibly invalid parameters? (TICK=$TICK FREQ=$FREQ)"

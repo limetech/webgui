@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,13 +19,19 @@ require_once "$docroot/webGui/include/Wrappers.php";
 if ($argc == 1) exit;
 
 $set = $ifname = $argv[1];
-$run = $set != 'none';
+$run = $set !== 'none';
+$dns = $set === 'renew';
 $ini = parse_ini_file('/var/local/emhttp/network.ini',true); ksort($ini,SORT_NATURAL);
 $cfg = '/boot/config/network.cfg';
 
+function port($x) {
+  $sys = "/sys/class/net";
+  return file_exists("$sys/br{$x}") ? "br${x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
+}
+
 function update_wireguard($ifname) {
   if (!in_array($ifname,['br0','bond0','eth0'])) return;
-  $nic = file_exists('/sys/class/net/br0') ? 'br0' : (file_exists('/sys/class/net/bond0') ? 'bond0' : 'eth0');
+  $nic = port(0);
   exec("wg show interfaces|tr ' ' '\n'",$active);
   foreach (glob("/etc/wireguard/*.conf",GLOB_NOSORT) as $wg) {
     $vtun = basename($wg,'.conf');
@@ -38,6 +44,7 @@ function update_wireguard($ifname) {
     if (in_array($vtun,$active)) exec("wg-quick down $vtun; sleep 1; wg-quick up $vtun");
   }
 }
+
 function ifname($name) {
   global $old;
   if (!$name) return;
@@ -47,10 +54,12 @@ function ifname($name) {
   }
   return $name;
 }
+
 function bond_nics(&$bond,$nic) {
   $bond['BONDNICS'] = str_replace(',',' ',$bond['BONDNICS']);
   return explode(' ',preg_replace("/$nic ?/","",$bond['BONDNICS']));
 }
+
 function bridge_nics(&$bridge,$nic) {
   $bridge['BRNICS'] = str_replace(',',' ',$bridge['BRNICS']);
   return explode(' ',preg_replace("/$nic ?/","",$bridge['BRNICS']));
@@ -59,29 +68,36 @@ function bridge_nics(&$bridge,$nic) {
 // stop interface with existing (old) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  $old = [];
-  if (file_exists($cfg)) {
-    $old = parse_ini_string(preg_replace(['/^#/m',"/\r/m"],[';',''],file_get_contents($cfg)));
-    if (isset($old['SYSNICS'])) {
-      // new syntax
-      $ifname = ifname($set);
-    } else {
-      // legacy syntax
-      if ($set=='eth0') $ifname = $old['BRIDGING']=='yes' ? ($old['BRNAME'] ?? 'br0') : ($old['BONDING']=='yes' ? ($old['BONDNAME'] ?? 'bond0') : $set);
+  if ($dns) {
+    $cmd = 'start_renew';
+    $ifname = port(0);
+    exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop_renew")." >/dev/null");
+  } else {
+    $cmd = 'start';
+    $old = [];
+    if (file_exists($cfg)) {
+      $old = parse_ini_string(preg_replace(['/^#/m',"/\r/m"],[';',''],file_get_contents($cfg)));
+      if (isset($old['SYSNICS'])) {
+        // new syntax
+        $ifname = ifname($set);
+      } else {
+        // legacy syntax
+        if ($set=='eth0') $ifname = $old['BRIDGING']=='yes' ? ($old['BRNAME'] ?? 'br0') : ($old['BONDING']=='yes' ? ($old['BONDNAME'] ?? 'bond0') : $set);
+      }
     }
-  }
-  exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
-  if ($ini[$set]['BONDING']=='yes') {
-    // release additional NICs in bond
-    foreach (bond_nics($ini[$set],$set) as $nic) {
-      if (isset($old['SYSNICS'])) $nic = ifname($nic);
-      if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
-    }
-  } elseif ($ini[$set]['BRIDGING']=='yes') {
-    // release additional NICs in bridge
-    foreach (bridge_nics($ini[$set],$set) as $nic) {
-      if (isset($old['SYSNICS'])) $nic = ifname($nic);
-      if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
+    exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
+    if ($ini[$set]['BONDING']=='yes') {
+      // release additional NICs in bond
+      foreach (bond_nics($ini[$set],$set) as $nic) {
+        if (isset($old['SYSNICS'])) $nic = ifname($nic);
+        if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
+      }
+    } elseif ($ini[$set]['BRIDGING']=='yes') {
+      // release additional NICs in bridge
+      foreach (bridge_nics($ini[$set],$set) as $nic) {
+        if (isset($old['SYSNICS'])) $nic = ifname($nic);
+        if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
+      }
     }
   }
 }
@@ -127,14 +143,14 @@ foreach ($ini as $name => $port) {
   $i++;
 }
 $new[] = "SYSNICS=\"$i\"";
-
 file_put_contents($cfg,implode("\r\n",$new)."\r\n");
+
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  exec("/etc/rc.d/rc.inet1 {$ifname}_start &>/dev/null");
-  exec("/usr/local/sbin/create_network_ini $ifname &>/dev/null &");
-  update_wireguard($ifname);
+  exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_{$cmd}")." >/dev/null");
+  exec("/usr/local/sbin/create_network_ini ".escapeshellarg($ifname)." &>/dev/null &");
+  if (!$dns) update_wireguard($ifname);
 }
 exit(0);
 ?>

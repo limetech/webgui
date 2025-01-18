@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
  * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
@@ -21,10 +21,40 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 if (isset($_POST['ntp'])) {
-  if (exec("pgrep -cf /usr/sbin/ntpd")) {
+  if (exec("pgrep -cf /usr/sbin/ptp4l")) {
+    // ptp sync
+    if (exec("pmc -ub0 'GET TIME_STATUS'|awk '$1==\"gmPresent\"{print $2;exit}'")) {
+      $ptp = abs(exec("pmc -ub0 'GET CURRENT'|awk '$1==\"offsetFromMaster\"{print $2;exit}'"));
+      switch (true) {
+        case ($ptp == 0)   : $unit = 'ns'; $ptp = '???'; break;
+        case ($ptp  < 1E+3): $unit = 'ns'; $ptp = round($ptp); break;
+        case ($ptp  < 1E+6): $unit = 'μs'; $ptp = round($ptp/1E+3); break;
+        case ($ptp  < 1E+9): $unit = 'ms'; $ptp = round($ptp/1E+6); break;
+        default            : $unit = 's' ; $ptp = round($ptp/1E+9); break;
+      }
+      $gm = exec("pmc -ub0 'GET CURRENT'|awk '$1==\"stepsRemoved\"{print $2;exit}'")==1 ? _('grandmaster') : _('master');
+      die(sprintf(_('Clock is synchronized using %s PTP server, time offset is %s %s'),$gm,$ptp,$unit));
+    } else {
+      die(_('Clock is unsynchronized with no PTP servers'));
+    }
+  } elseif (exec("pgrep -cf /usr/sbin/ntpd")) {
+    // ntp sync
     $ntp = exec("ntpq -pn|awk '$1~/^\*/{print $9;exit}'");
-    die($ntp ? sprintf(_('Clock is synchronized using NTP, time offset: %s ms'),abs($ntp)) : _('Clock is unsynchronized with no NTP servers'));
+    if ($ntp) {
+      $ntp = abs($ntp);
+      switch (true) {
+        case ($ntp == 0)   : $unit = 'μs'; $ntp = '< 1'; break;
+        case ($ntp  < 1)   : $unit = 'μs'; $ntp = round($ntp*1E+3); break;
+        case ($ntp  < 1E+3): $unit = 'ms'; $ntp = round($ntp); break;
+        default            : $unit = 's' ; $ntp = round($ntp/1E+3); break;
+      }
+      $count = exec("ntpq -pn|grep -Pc '^[*+]'");
+      die(sprintf(_('Clock is synchronized using %s NTP servers, time offset is %s %s'),$count,$ntp,$unit));
+    } else {
+      die(_('Clock is unsynchronized with no NTP servers'));
+    }
   }
+  // manual sync
   die(_('Clock is unsynchronized, free-running clock'));
 }
 
@@ -99,32 +129,32 @@ if ($_POST['vms']) {
     $arrConfig = domain_to_config($uuid);
     if ($vmrcport > 0) {
       $wsport = $lv->domain_get_ws_port($res);
-      $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
+      $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
       if ($vmrcprotocol == "vnc") $vmrcscale = "&resize=scale"; else $vmrcscale = "";
-      $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).$vmrcscale.'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-      if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) . '&port=/wsproxy/'.$vmrcport.'/' ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+      $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).$vmrcscale.'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'];
+      if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) . '&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
     } elseif ($vmrcport == -1 || $autoport) {
-      $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
-      if ($autoport == "yes") $auto = "auto" ; else $auto="manual" ;
+      $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
+      $auto = ($autoport == "yes") ? "auto" : "manual";
     } elseif (!empty($arrConfig['gpu'])) {
       $arrValidGPUDevices = getValidGPUDevices();
       foreach ($arrConfig['gpu'] as $arrGPU) {
         foreach ($arrValidGPUDevices as $arrDev) {
           if ($arrGPU['id'] == $arrDev['id']) {
             if (count(array_filter($arrValidGPUDevices, function($v) use ($arrDev) { return $v['name'] == $arrDev['name']; })) > 1) {
-              $vmrcprotocol = "VGA" ;
+              $vmrcprotocol = "VGA";
             } else {
-              $vmrcprotocol = "VGA" ;
+              $vmrcprotocol = "VGA";
             }
           }
         }
       }
-     }
+    }
     $template = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@name');
     if (empty($template)) $template = 'Custom';
     $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
-    if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-    if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no" ; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"] ;
+    if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web"; else $vmrcconsole = $domain_cfg["CONSOLE"];
+    if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no"; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"];
     $WebUI = html_entity_decode($arrConfig["template"]["webui"]);
     $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", htmlentities($vm,ENT_QUOTES), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), htmlentities($log,ENT_QUOTES),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
     $icon = $lv->domain_get_icon_url($res);
@@ -153,7 +183,7 @@ if ($_POST['vms']) {
       #Build VM Usage array.
       $menuusage = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole,true,addslashes(str_replace('"',"'",$WebUI)));
       $vmusagehtml[] = "<span class='outer solid vmsuse $status'><span id='vmusage-$uuid' $menuusage class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span>";
-      $vmusagehtml[] =  "<br><br><span id='vmmetrics-gcpu-".$uuid."'>"._("Loading")."....</span>";
+      $vmusagehtml[] = "<br><br><span id='vmmetrics-gcpu-".$uuid."'>"._("Loading")."....</span>";
       $vmusagehtml[] = "<br><span id='vmmetrics-hcpu-".$uuid."'>"._("Loading")."....</span>";
       $vmusagehtml[] = "<br><span id='vmmetrics-mem-".$uuid."'>"._("Loading")."....</span>";
       $vmusagehtml[] = "<br><span id='vmmetrics-disk-".$uuid."'>"._("Loading")."....</span>";

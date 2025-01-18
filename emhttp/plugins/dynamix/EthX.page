@@ -3,8 +3,8 @@ Title="_(Interface)_ ethX"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -41,37 +41,22 @@ if (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
 }
 ?>
 <script>
-function portcheck_ethX() {
-  $.post('/webGui/include/CheckPort.php',{port:'ethX'},function(text) {
-    var html = $('#user-notice').html();
-    if (!html || html.indexOf('ethX')>0) showNotice(text);
-    setTimeout(portcheck_ethX,10000);
-  });
-}
+arg1.ethX = 'none';
+
 $(function() {
-  var ctrl = "<span id='wait_ethX' class='status vshift red-text' style='display:none;font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
   var form = document.ethX_settings;
-<?if ($tabbed && !$service):?>
+<?if (!$service):?>
   $('#tabX').bind({click:function(){
-    $('#bond-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-    $('#bridge-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
+    $('#bond-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:166});
+    $('#bridge-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:166});
   }});
 <?endif;?>
-  if (!$.cookie('#view-ethX')) {$('#view-ethX').show(); $('#tag-ethX').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
-<?foreach ($vlan_ethX as $i):?>
-  if (!$.cookie('#view-ethX-<?=$i?>')) {$('#view-ethX-<?=$i?>').show(); $('#tag-ethX-<?=$i?>').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
-<?endforeach;?>
-  $('#bond-ethX').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-  $('#bridge-ethX').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-  checkBondingSettings(form,0,'ethX');
-  checkBridgingSettings(form,0,'ethX');
-  checkNetworkAccess(form,'ethX');
-  selectProtocol(form,'ethX');
-<?if (!$tabbed):?>
-  $('div.title').each(function(){
-    if ($(this).text().indexOf('Interface ethX')==0) $(this).find('span.left').append(ctrl);
-  });
-<?endif;?>
+  $('#bond-ethX').dropdownchecklist({emptyText:"_(None)_", width:166});
+  $('#bridge-ethX').dropdownchecklist({emptyText:"_(None)_", width:166});
+  checkBondingSettings(form,0);
+  checkBridgingSettings(form,0);
+  checkNetworkAccess(form);
+  selectProtocol(form);
 <?if (isset($master_ethX)):?>
   $('div.slave-ethX').hide();
   disableForm(form);
@@ -81,10 +66,13 @@ $(function() {
 <?if ($no_eth0):?>
   $('input[name="#shut_ethX"]').prop('disabled',true);
 <?endif;?>
-  setTimeout(portcheck_ethX,Number('ethX'.substr(3))*1000);
+  portcheck('ethX');
+  presetRun(form);
 });
 </script>
-<form markdown="1" name="ethX_settings" method="POST" action="/update.php" target="progressFrame" onchange="doRun(this)" onsubmit="return prepareSettings(this)">
+
+<div class="title nocontrol shift">&nbsp;</div>
+<form markdown="1" name="ethX_settings" method="POST" action="/update.php" target="progressFrame" onchange="signalRun(this,2)" onsubmit="return prepareSettings(this)">
 <input type="hidden" name="#file" value="<?=$ini?>">
 <input type="hidden" name="#include" value="/webGui/include/update.ethernet.php">
 <input type="hidden" name="#section" value="ethX">
@@ -96,16 +84,15 @@ $(function() {
 <input type="hidden" name="BRSTP" value="no">
 <input type="hidden" name="BRFD" value="0">
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-ethX" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('ethX')"></i></span>
 <?if (!$more):?>
-  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:0"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:0" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:0"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('ethX')">
 <?else:?>
-  <span class="<?=$class?>"><?=$reason?></span>
+: <span class="<?=$class?>"><?=$reason?></span>
 <?endif;?>
 
 :eth_interface_description_help:
 
-<div markdown="1" id="view-ethX" style="display:none">
 _(MAC address)_:
 : <?=strtoupper(exec("ip link show ethX|grep -Pom1 'ether \K\S+'"))?>
 
@@ -113,16 +100,16 @@ _(MAC address)_:
 
 <div markdown="1" class="slave-ethX">
 _(Enable bonding)_:
-: <select name="BONDING" onchange="checkBondingSettings(this.form,1,'ethX')">
+: <select name="BONDING" onchange="checkBondingSettings(this.form,1)">
   <?=mk_option(_var($ethX,'BONDING'), "no", _("No"))?>
   <?=mk_option(_var($ethX,'BONDING'), "yes", _("Yes"))?>
   </select>
 
 :eth_enable_bonding_help:
 
-<div markdown="1" id="bond-members-ethX" style="display:none">
+<div markdown="1" id="bond-members-ethX" class="'hide">
 _(Bonding mode)_:
-: <select name="BONDING_MODE" onchange="checkBondingSettings(this.form,-1,'ethX')">
+: <select name="BONDING_MODE" onchange="checkBondingSettings(this.form,-1)">
   <?=mk_option(_var($ethX,'BONDING_MODE'), "0", _("balance-rr")." (0)")?>
   <?=mk_option(_var($ethX,'BONDING_MODE'), "1", _("active-backup")." (1)",isset($ethX['BONDING_MODE'])?'':'selected')?>
   <?=mk_option(_var($ethX,'BONDING_MODE'), "2", _("balance-xor")." (2)")?>
@@ -131,12 +118,12 @@ _(Bonding mode)_:
   <?=mk_option(_var($ethX,'BONDING_MODE'), "5", _("balance-tlb")." (5)")?>
   <?=mk_option(_var($ethX,'BONDING_MODE'), "6", _("balance-alb")." (6)")?>
   </select>
-  <span id="attention0" style="display:none">**_(Attention)_:** _(this mode requires a network switch with proper setup and support)_...</span>
+  <span id="attention0" class="hide">**_(Attention)_:** _(this mode requires a network switch with proper setup and support)_...</span>
 
 :eth_bonding_mode_help:
 
 _(Bonding members of)_ bondX:
-: <select id="bond-ethX" name="BONDNICS" multiple="multiple" style="display:none">
+: <select id="bond-ethX" name="BONDNICS" multiple="multiple" class="'hide">
   <?=mk_option(_var($ethX,'BONDNICS'),'ethX','ethX','selected disabled')?>
   <?foreach ($ports as $port):?>
   <?if ($port!='ethX' && !locked('ethX',$port)) echo mk_option_check(_var($ethX,'BONDNICS'),$port,$port)?>
@@ -147,16 +134,16 @@ _(Bonding members of)_ bondX:
 
 </div>
 _(Enable bridging)_:
-: <select name="BRIDGING" onchange="checkBridgingSettings(this.form,1,'ethX')">
+: <select name="BRIDGING" onchange="checkBridgingSettings(this.form,1)">
   <?=mk_option(_var($ethX,'BRIDGING'), "no", _("No"))?>
   <?=mk_option(_var($ethX,'BRIDGING'), "yes", _("Yes"))?>
   </select>
 
 :eth_enable_bridging_help:
 
-<div markdown="1" id="bridge-members-ethX" style="display:none">
+<div markdown="1" id="bridge-members-ethX" class="'hide">
 _(Bridging members of)_ brX:
-: <select id="bridge-ethX" name="BRNICS" multiple="multiple" style="display:none">
+: <select id="bridge-ethX" name="BRNICS" multiple="multiple" class="'hide">
   <?=mk_option(_var($ethX,'BRNICS'),'ethX','ethX','selected disabled')?>
   <?foreach ($ports as $port):?>
   <?if ($port!='ethX' && !locked('ethX',$port)) echo mk_option_check(_var($ethX,'BRNICS'),$port,$port)?>
@@ -167,7 +154,7 @@ _(Bridging members of)_ brX:
 
 </div>
 _(Network protocol)_:
-: <select name="PROTOCOL:0" onchange="selectProtocol(this.form,'ethX',0)">
+: <select name="PROTOCOL:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($ethX,"PROTOCOL:0"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:0"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:0"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
@@ -175,9 +162,9 @@ _(Network protocol)_:
 
 :eth_network_protocol_help:
 
-<div markdown="1" class="ipv4-ethX-0" style="display:none">
+<div markdown="1" class="ipv4-ethX-0 hide">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:0" onchange="selectProtocol(this.form,'ethX',0)">
+: <select name="USE_DHCP:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP:0"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:0"), '', _('None'))?>
@@ -185,9 +172,9 @@ _(IPv4 address assignment)_:
 
 :eth_ipv4_address_assignment_help:
 
-<div markdown="1" class="more-ipv4-ethX-0" style="display:none">
+<div markdown="1" class="more-ipv4-ethX-0 hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:0" maxlength="15" value="<?=_var($ethX,"IPADDR:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
+: <input type="text" name="IPADDR:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
   <?=mk_option(_var($ethX,"NETMASK:0"), "255.0.0.0", "8")?>
   <?=mk_option(_var($ethX,"NETMASK:0"), "255.255.0.0", "16")?>
   <?=mk_option(_var($ethX,"NETMASK:0"), "255.255.128.0", "17")?>
@@ -209,16 +196,16 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:0" maxlength="15" value="<?=_var($ethX,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="0" max="9999" value="<?=_var($ethX,"METRIC:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
 </div>
 </div>
-<div markdown="1" class="ipv6-ethX-0" style="display:none">
+<div markdown="1" class="ipv6-ethX-0 hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:0" onchange="selectProtocol(this.form,'ethX',0)">
+: <select name="USE_DHCP6:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), '', _('None'))?>
@@ -226,18 +213,20 @@ _(IPv6 address assignment)_:
 
 :eth_ipv6_address_assignment_help:
 
-<div markdown="1" class="more-ipv6-ethX-0" style="display:none">
+<div markdown="1" class="more-ipv6-ethX-0 hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:0" maxlength="39" value="<?=_var($ethX,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" value="<?=_var($ethX,"NETMASK6:0")?>" class="slim">
+: <input type="text" name="IPADDR6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:0")?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:0" maxlength="39" value="<?=_var($ethX,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="0" max="9999" value="<?=_var($ethX,"METRIC6:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-ethX-0 hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:0">
   <?=mk_option(_var($ethX,"PRIVACY6:0"), "0", _("Disabled"))?>
@@ -249,38 +238,38 @@ _(IPv6 privacy extensions)_:
 </div>
 </div>
 _(Desired MTU)_:
-: <input type="number" name="MTU" min="68" max="9198" value="<?=_var($ethX,'MTU')?>" class="narrow" placeholder="1500">
+: <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($ethX,'MTU')?>" class="narrow" placeholder="1500">
 
 :eth_desired_mtu_help:
 
 _(Enable VLANs)_:
-: <select name="TYPE" onchange="checkNetworkAccess(this.form,'ethX')">
+: <select name="TYPE" onchange="checkNetworkAccess(this.form)">
   <?=mk_option(_var($ethX,'TYPE'), 'access', _('No'))?>
   <?=mk_option(_var($ethX,'TYPE'), 'trunk', _('Yes'))?>
   </select>
+  <input type="button" id="button-vlan-ethX" class="form hide" value="_(Show)_" onclick="showVLAN('ethX')">
 
 :eth_enable_vlans_help:
 
 </div>
-</div>
 <div id='index-ethX-0'></div>
+<div id="vlan-list-ethX" class="hide">
 <?foreach ($vlan_ethX as $i):?>
-<div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?>" style="display:none">
+<div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?> hide">
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-ethX-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('ethX','<?=$i?>')"></i></span>
-  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:$i"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:$i"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($ethX,"VLANID:$i")?>)">
 
 :eth_interface_description_help:
 
-<div markdown="1" id="view-ethX-<?=$i?>" style="display:none">
 _(VLAN number)_:
-: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=_var($ethX,"VLANID:$i")?>" class="narrow gap" required>
+: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"VLANID:$i")?>" class="narrow gap" required>
   <?if (!$service):?><input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-ethX-<?=$i?>'))"><?endif;?>
 
 :eth_vlan_number_help:
 
 _(Network protocol)_:
-: <select name="PROTOCOL:<?=$i?>" onchange="selectProtocol(this.form,'ethX',<?=$i?>)">
+: <select name="PROTOCOL:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($ethX,"PROTOCOL:$i"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:$i"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:$i"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
@@ -288,9 +277,9 @@ _(Network protocol)_:
 
 :eth_network_protocol_help:
 
-<div markdown="1" class="ipv4-ethX-<?=$i?>" style="display:none">
+<div markdown="1" class="ipv4-ethX-<?=$i?> hide">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,'ethX',<?=$i?>)">
+: <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), '', _('None'))?>
@@ -298,9 +287,9 @@ _(IPv4 address assignment)_:
 
 :eth_ipv4_address_assignment_help:
 
-<div markdown="1" class="more-ipv4-ethX-<?=$i?>" style="display:none">
+<div markdown="1" class="more-ipv4-ethX-<?=$i?> hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=_var($ethX,"IPADDR:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
   <?=mk_option(_var($ethX,"NETMASK:$i"), "255.0.0.0", "8")?>
   <?=mk_option(_var($ethX,"NETMASK:$i"), "255.255.0.0", "16")?>
   <?=mk_option(_var($ethX,"NETMASK:$i"), "255.255.128.0", "17")?>
@@ -322,16 +311,16 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=_var($ethX,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" value="<?=_var($ethX,"METRIC:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
 </div>
 </div>
-<div markdown="1" class="ipv6-ethX-<?=$i?>" style="display:none">
+<div markdown="1" class="ipv6-ethX-<?=$i?> hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:<?=$i?>" onchange="selectProtocol(this.form,'ethX',<?=$i?>)">
+: <select name="USE_DHCP6:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), '', _('None'))?>
@@ -339,18 +328,20 @@ _(IPv6 address assignment)_:
 
 :eth_ipv6_address_assignment_help:
 
-<div markdown="1" class="more-ipv6-ethX-<?=$i?>" style="display:none">
+<div markdown="1" class="more-ipv6-ethX-<?=$i?> hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=_var($ethX,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=_var($ethX,"NETMASK6:$i")?>" class="slim">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:$i")?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=_var($ethX,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" value="<?=_var($ethX,"METRIC6:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-ethX-<?=$i?> hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:<?=$i?>">
   <?=mk_option(_var($ethX,"PRIVACY6:$i"), "0", _("Disabled"))?>
@@ -362,46 +353,44 @@ _(IPv6 privacy extensions)_:
 </div>
 </div>
 </div>
-</div>
 <?endforeach;?>
+</div>
 
 &nbsp;
 : <input type="submit" value="_(Apply)_" onclick="$('#wait_<?=$tabbed?'eth0':'ethX'?>').show()" disabled><input type="button" value="_(Done)_" onclick="done()">
 <input type="button" name="#shut_ethX" value="<?=_('Port '.$cmd)?>" onclick="portToggle('ethX','<?=$cmd?>')">
 <?if (!$service):?>
-<input type="button" class="access-ethX" value="_(Add VLAN)_" onclick="addVLAN('ethX')" style="display:none">
+<input type="button" id="button-add-ethX" class="hide" value="_(Add VLAN)_" onclick="addVLAN('ethX')">
 <?else:?><?=sprintf(_('Stop **%s** to make changes, see'),$service).' (<a href="/Settings">'._('Settings').'</a>)'?><?endif;?>
 </form>
 
 <script markdown="1" type="text/html" id="network-template-ethX">
 <div markdown="1" id="index-ethX-INDEX" class="access-ethX shade-<?=$display['theme']?>">
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-ethX-INDEX" class="fa fa-fw fa-chevron-up" style="cursor:pointer" onclick="viewToggle('ethX','INDEX')"></i></span>
-  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:INDEX"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:INDEX"))?>">
 
-<div markdown="1" id="view-ethX-INDEX">
 _(VLAN number)_:
-: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=_var($ethX,"VLANID:INDEX")?>" class="narrow gap" required>
+: <input type="number" name="VLANID:INDEX" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"VLANID:INDEX")?>" class="narrow gap" required>
   <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-ethX-INDEX'))">
 
 _(Network protocol)_:
-: <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,'ethX',INDEX)">
+: <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($ethX,"PROTOCOL:INDEX"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:INDEX"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($ethX,"PROTOCOL:INDEX"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
   </select>
 
-<div markdown="1" class="ipv4-ethX-INDEX" style="display:none">
+<div markdown="1" class="ipv4-ethX-INDEX">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,'ethX',INDEX)">
+: <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), '', _('None'))?>
   </select>
 
-<div markdown="1" class="more-ipv4-ethX-INDEX" style="display:none">
+<div markdown="1" class="more-ipv4-ethX-INDEX hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=_var($ethX,"IPADDR:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
+: <input type="text" name="IPADDR:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
   <?=mk_option(_var($ethX,"NETMASK:INDEX"), "255.0.0.0", "8")?>
   <?=mk_option(_var($ethX,"NETMASK:INDEX"), "255.255.0.0", "16")?>
   <?=mk_option(_var($ethX,"NETMASK:INDEX"), "255.255.128.0", "17")?>
@@ -421,34 +410,35 @@ _(IPv4 address)_:
   </select>
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=_var($ethX,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=_var($ethX,"METRIC:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 </div>
 </div>
-<div markdown="1" class="ipv6-ethX-INDEX" style="display:none">
+<div markdown="1" class="ipv6-ethX-INDEX hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:INDEX" onchange="selectProtocol(this.form,'ethX',INDEX)">
+: <select name="USE_DHCP6:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), '', _('None'))?>
   </select>
 
-<div markdown="1" class="more-ipv6-ethX-INDEX" style="display:none">
+<div markdown="1" class="more-ipv6-ethX-INDEX hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=_var($ethX,"IPADDR6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=_var($ethX,"NETMASK6:INDEX")?>" class="slim">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:INDEX")?>" class="slim">
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=_var($ethX,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=_var($ethX,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
+</div>
+<div markdown="1" class="priv-ipv6-ethX-INDEX hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:INDEX">
   <?=mk_option(_var($ethX,'PRIVACY6:INDEX'), "0", _("Disabled"))?>
   <?=mk_option(_var($ethX,'PRIVACY6:INDEX'), "2", _("Enabled"))?>
   </select>
 
-</div>
 </div>
 </div>
 </div>

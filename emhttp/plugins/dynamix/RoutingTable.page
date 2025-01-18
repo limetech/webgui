@@ -3,8 +3,8 @@ Title="Routing Table"
 Tag="icon-share"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -48,32 +48,10 @@ function resetTable() {
   clearTimeout(timers.routeTable);
   routeTable();
 }
-<?if (!$tabbed):?>
-function toggleTable() {
-  var tag = '#tag_table';
-  var view = '#route_table';
-  if ($(view).is(':visible')) {
-    $(tag).removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    $.cookie(view,'hide',{expires:3650});
-  } else {
-    $(tag).removeClass('fa-chevron-down').addClass('fa-chevron-up');
-    $.removeCookie(view);
-  }
-  $(view).toggle('slow');
-}
 $(function(){
-  $('div.title').last().find('span.left').append("<span class='status vhshift'><i id='tag_table' class='fa fa-fw fa-chevron-up' style='cursor:pointer' onclick='toggleTable()'></i></span>");
-  if (!$.cookie('#route_table')) $('#route_table').show(); else $('#tag_table').removeClass('fa-chevron-up').addClass('fa-chevron-down');
   routeTable();
 });
-<?else:?>
-$(function(){
-  $('#route_table').show();
-  routeTable();
-});
-<?endif;?>
 </script>
-<div markdown="1" id="route_table" style="display:none">
 <table class="unraid">
 <thead><tr><td>_(Protocol)_</td><td>_(Route)_</td><td>_(Gateway)_</td><td>_(Metric)_</td><td style="width:8%;text-align:center">_(Delete)_</td></tr></thead>
 <tbody id="route_list"></tbody>
@@ -92,5 +70,4 @@ _(Enter route + gateway + metric)_:
 &nbsp;
 : <input type="submit" value="_(Add Route)_"><input type="button" value="_(Done)_" class="lock" onclick="done()">
 </form>
-</div>
 </div>

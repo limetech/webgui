@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# script: rc.ptpd
+#
+# Start/stop/restart services ptp4l and phc2sys.
+#
+# Bergware - created for Unraid OS, December 2024
+
+DAEMON="PTP server daemon"
+CALLER="ptp"
+PTPD="/usr/sbin/ptp4l"
+PHC="/usr/sbin/phc2sys"
+OPTIONS1="-s -l 5 -f /etc/ptp4l.conf"
+OPTIONS2="-a -r -l 5"
+CONF="/etc/ptp4l.conf"
+CFG="/boot/config/plugins/dynamix/dynamix.cfg"
+IDENT="/boot/config/ident.cfg"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+ptpd_running(){
+  sleep 0.1
+  [[ $(pgrep -cf $PTPD) -gt 0 ]]
+}
+
+ptpd_build(){
+  echo "[global]" >$CONF
+  TRANSPORT=$(var PTP TRANSPORT $CFG)
+  echo "network_transport $TRANSPORT" >>$CONF
+  echo "time_stamping $(var PTP CLOCK $CFG)" >>$CONF
+  [[ $(var PTP MODE $CFG) == unicast ]] && UNICAST=1 || UNICAST=0
+  if [[ $UNICAST == 1 ]]; then
+    echo "unicast_req_duration 60" >>$CONF
+    echo "" >>$CONF
+    echo "[unicast_master_table]" >>$CONF
+    echo "table_id 1" >>$CONF
+    echo "logQueryInterval 1" >>$CONF
+    for n in {1..4}; do
+      PTP=$(var PTP "SERVER$n" $CFG)
+      [[ -n $PTP ]] && echo "$TRANSPORT $PTP" >>$CONF
+    done
+  fi
+  echo "" >>$CONF
+  echo "[$(var PTP PORT $CFG)]" >>$CONF
+  [[ $UNICAST == 1 ]] && echo "unicast_master_table 1" >>$CONF
+}
+
+ptpd_start(){
+  log "Starting $DAEMON..."
+  local REPLY
+  # read Unraid settings
+  [[ -r $IDENT ]] && . <(fromdos <$IDENT)
+  # if time sync not enabled, don't start ptp
+  if [[ $USE_NTP != yes ]]; then
+    REPLY="Service not enabled"
+  elif [[ $(var PTP SYNC $CFG) == yes || $FORCE == yes ]]; then
+    if ptpd_running; then
+      REPLY="Already started"
+    else
+      # generate our config file
+      ptpd_build
+      $PTPD $OPTIONS1 &>/dev/null &
+      if ptpd_running; then 
+        $PHC $OPTIONS2 &>/dev/null &
+        REPLY="Started"
+      else
+        REPLY="Failed"
+      fi
+    fi
+  else
+    REPLY="Not started"
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+ptpd_stop(){
+  log "Stopping $DAEMON..."
+  local REPLY
+  if ! ptpd_running; then
+    REPLY="Already stopped"
+  else
+    pkill -f $PTPD 2>/dev/null
+    pkill -f $PHC 2>/dev/null
+    if ! ptpd_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+ptpd_restart(){
+  log "Restarting $DAEMON..."
+  ptpd_stop
+  sleep 1
+  ptpd_start
+}
+
+ptpd_status(){
+  if ptpd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
+case "$1" in
+'start')
+  ptpd_start
+  ;;
+'forcestart')
+  FORCE=yes
+  ptpd_start
+  ;;
+'stop')
+  ptpd_stop
+  ;;
+'restart')
+  ptpd_restart
+  ;;
+'status')
+  ptpd_status
+  ;;
+*)
+  echo "Usage: $BASENAME start|forcestart|stop|restart|status"
+  exit 1
+esac
+exit 0

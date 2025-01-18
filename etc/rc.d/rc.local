@@ -15,21 +15,19 @@
 . /etc/rc.d/rc.runlog
 
 # import CA proxy
-UnProxy=/boot/config/plugins/dynamix/outgoingproxy.cfg
-CAProxy=/boot/config/plugins/community.applications/proxy.cfg
-if [[ -f "${CAProxy}" && ! -f "${UnProxy}" ]]; then
-  proxy=
-  port=
-  . "${CAProxy}"
+UNPROXY=/boot/config/plugins/dynamix/outgoingproxy.cfg
+CAPROXY=/boot/config/plugins/community.applications/proxy.cfg
+if [[ -f $CAPROXY && ! -f $UNPROXY ]]; then
+  . $CAPROXY
   # proxy and port were set by the previous command
-  if [[ -n "${proxy}" && -n "${port}" ]]; then
-cat << EOF > "${UnProxy}"
+  if [[ -n $proxy && -n $port ]]; then
+cat << EOF > $UNPROXY
 proxy_active="1"
-proxy_url_1="${proxy}:${port}"
+proxy_url_1="$proxy:$port"
 proxy_name_1="Imported from CA"
 EOF
   fi
-  mv "${CAProxy}" "${CAProxy}~"
+  mv "$CAPROXY" "$CAPROXY~"
 fi
 
 # load proxy environment vars so it is used for plugin updates and the go script

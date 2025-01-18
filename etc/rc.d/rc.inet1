@@ -7,6 +7,7 @@
 # @(#)/etc/rc.d/rc.inet1 10.2  Sun Jul 24 12:45:56 PDT 2005 (pjv)
 
 # LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, January 2025
 
 # Adapted by Bergware for use in Unraid OS - April 2016
 # - improved interface configuration
@@ -72,7 +73,9 @@
 # Adapted by Bergware for use in Unraid OS - February 2024
 # - revised bond interface creation for linux kernel 6.6.14 and later point releases
 
-# Bergware - modified for Unraid OS, February 2024
+# Adapted by Bergware for use in Unraid OS - January 2025
+# - added 'renew' command to restart interface without reconfiguring
+# - fixed dns assigment may be missing in some cases
 
 ###########
 # LOGGING #
@@ -337,21 +340,23 @@ ipv6_addr(){
 
 # function to assign IP address
 ipaddr_up(){
-  # disable IPv6 per interface when IPv4 only
-  [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
-  [[ -d $CONF6/$IFACE ]] && echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
-  [[ -d $CONF6/$VHOST ]] && echo $DISABLE6 >$CONF6/$VHOST/disable_ipv6
-  # repeat action on related interfaces
-  if [[ ${IFACE:0:4} == bond ]]; then
-    ipv6_up bond br eth $DISABLE6
-  elif [[ ${IFACE:0:2} == br ]]; then
-    ipv6_up br bond eth $DISABLE6
-  else
-    ipv6_up eth bond br $DISABLE6
+  if [[ -z $RENEW ]]; then
+    # disable IPv6 per interface when IPv4 only
+    [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
+    [[ -d $CONF6/$IFACE ]] && echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
+    [[ -d $CONF6/$VHOST ]] && echo $DISABLE6 >$CONF6/$VHOST/disable_ipv6
+    # repeat action on related interfaces
+    if [[ ${IFACE:0:4} == bond ]]; then
+      ipv6_up bond br eth $DISABLE6
+    elif [[ ${IFACE:0:2} == br ]]; then
+      ipv6_up br bond eth $DISABLE6
+    else
+      ipv6_up eth bond br $DISABLE6
+    fi
   fi
   if [[ $DHCP == yes ]]; then
     # bring up interface using DHCP/SLAAC
-    ipv6_addr 1 1
+    [[ -z $RENEW ]] && ipv6_addr 1 1
     DHCP_OPTIONS="-q -n -p -t ${DHCP_TIMEOUT[$i]:-10}"
     [[ -n $DHCP_HOSTNAME ]] && DHCP_OPTIONS="$DHCP_OPTIONS -h $DHCP_HOSTNAME"
     [[ $DHCP_KEEP_RESOLV == yes ]] && DHCP_OPTIONS="$DHCP_OPTIONS -C resolv.conf"
@@ -436,11 +441,12 @@ ipaddr_down(){
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     # release DHCP assigned addresses
     run dhcpcd $DHCP_OPTIONS $IFACE
-    sleep 1
   fi
-  # release assigned addresses and routes
-  [[ $IP != ipv6 ]] && ipaddr_flush 4
-  [[ $IP != ipv4 ]] && ipaddr_flush 6
+  if [[ -z $RENEW ]]; then
+    # release assigned addresses and routes
+    [[ $IP != ipv6 ]] && ipaddr_flush 4
+    [[ $IP != ipv4 ]] && ipaddr_flush 6
+  fi
 }
 
 # function to bring up network interface
@@ -452,18 +458,21 @@ if_up(){
   done
   # exit when interface is not found
   [[ $i -eq $MAXNICS ]] && break
-  [[ -n ${BONDNICS[$i]} ]] && bond_up    # create interface as bond
-  [[ -n ${VLANS[$i]} ]] && vlan_up       # create interface VLANs
-  [[ -n ${BRNICS[$i]} ]] && br_up        # create interface as bridge
-  [[ -z ${BRNICS[$i]} ]] && macvtap_up   # create macvtap interfaces
-  # if the interface isn't in the kernel yet
-  # but there's an alias for it in modules.conf
-  # then it should be loaded first
-  if [[ ! -e $SYSTEM/$1 ]]; then
-    if modprobe -c | grep -v "^#" | grep -w "alias $1" | grep -qvw "alias $1 off"; then
-      run modprobe $1
-    else
-      [[ $DEBUG_ETH_UP == yes ]] && log "interface $1 not present nor aliased, can't create"
+  # skip interface creation when renew only
+  if [[ -z $RENEW ]]; then
+    [[ -n ${BONDNICS[$i]} ]] && bond_up    # create interface as bond
+    [[ -n ${VLANS[$i]} ]] && vlan_up       # create interface VLANs
+    [[ -n ${BRNICS[$i]} ]] && br_up        # create interface as bridge
+    [[ -z ${BRNICS[$i]} ]] && macvtap_up   # create macvtap interfaces
+    # if the interface isn't in the kernel yet
+    # but there's an alias for it in modules.conf
+    # then it should be loaded first
+    if [[ ! -e $SYSTEM/$1 ]]; then
+      if modprobe -c | grep -v "^#" | grep -w "alias $1" | grep -qvw "alias $1 off"; then
+        run modprobe $1
+      else
+        [[ $DEBUG_ETH_UP == yes ]] && log "interface $1 not present nor aliased, can't create"
+      fi
     fi
   fi
   # loop thru main and VLAN interfaces
@@ -477,13 +486,15 @@ if_up(){
     fi
     # macvtap interface name
     VHOST=vhost${IFACE//[^0-9.]}
-    # set main interface
-    if [[ $j -eq 0 ]]; then
-      # set hardware address before interface goes up
-      [[ -n ${HWADDR[$i]} ]] && run ip link set $1 addr ${HWADDR[$i]}
-      set_mtu $1
+    if [[ -z $RENEW ]]; then
+      # set main interface
+      if [[ $j -eq 0 ]]; then
+        # set hardware address before interface goes up
+        [[ -n ${HWADDR[$i]} ]] && run ip link set $1 addr ${HWADDR[$i]}
+        set_mtu $1
+      fi
+      run ip link set $IFACE up
     fi
-    run ip link set $IFACE up
     # set interface address
     [[ $i -eq 0 && $j -eq 0 ]] && MAIN=1 || MAIN=
     if [[ $IP == ipv4 ]]; then
@@ -545,23 +556,27 @@ if_down(){
       else
         [[ $j -eq 0 ]] && DHCP=${USE_DHCP[$i]} || DHCP=${USE_DHCP[$i,$j]}
         [[ $j -eq 0 ]] && DHCP6=${USE_DHCP6[$i]} || DHCP6=${USE_DHCP6[$i,$j]}
-        [[ $j -eq 0 ]] && DHCP_KEEP_RESOLV=$DHCP_KEEPRESOLV || DHCP_KEEP_RESOLV=yes
+        [[ -n $MAIN ]] && DHCP_KEEP_RESOLV=$DHCP_KEEPRESOLV || DHCP_KEEP_RESOLV=yes
+        [[ -n $MAIN ]] && DHCP6_KEEP_RESOLV=$DHCP6_KEEPRESOLV || DHCP6_KEEP_RESOLV=yes
         IP=ipv4
         ipaddr_down
         IP=ipv6
         DHCP=$DHCP6
-        [[ $j -eq 0 ]] && DHCP_KEEP_RESOLV=$DHCP6_KEEPRESOLV || DHCP_KEEP_RESOLV=yes
+        DHCP_KEEP_RESOLV=$DHCP6_KEEP_RESOLV
         ipaddr_down
       fi
-      run ip link set $IFACE down
+      [[ -z $RENEW ]] && run ip link set $IFACE down
     else
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE not present, can't take down"
     fi
   done
-  [[ -z ${BRNICS[$i]} ]] && macvtap_down   # delete macvtap interfaces
-  [[ -n ${BRNICS[$i]} ]] && br_down        # delete interface as bridge
-  [[ -n ${VLANS[$i]} ]] && vlan_down       # delete interface VLANs
-  [[ -n ${BONDNICS[$i]} ]] && bond_down    # delete interface as bond
+  # skip interface deletion when renew only
+  if [[ -z $RENEW ]]; then
+    [[ -z ${BRNICS[$i]} ]] && macvtap_down   # delete macvtap interfaces
+    [[ -n ${BRNICS[$i]} ]] && br_down        # delete interface as bridge
+    [[ -n ${VLANS[$i]} ]] && vlan_down       # delete interface VLANs
+    [[ -n ${BONDNICS[$i]} ]] && bond_down    # delete interface as bond
+  fi
 }
 
 #####################
@@ -717,6 +732,13 @@ restart)
   if_up $INTERFACE
   gateway_up
   ;;
+*_renew)
+  RENEW=1
+  INTERFACE=$(echo $1 | cut -d_ -f1)
+  CMD=$(echo $1 | cut -d_ -f2)
+  [[ $CMD == start ]] && if_up $INTERFACE
+  [[ $CMD == stop ]] && if_down $INTERFACE
+  ;;
 *_add)
   INTERFACE=$(echo $1 | cut -d_ -f1)
   ROUTE=$(echo $1 | cut -d_ -f2)
@@ -731,11 +753,11 @@ restart)
   [[ $METRIC == del ]] && METRIC=
   route_down $INTERFACE $ROUTE $METRIC
   ;;
-  # default is to bring up the entire network
 status)
   status $2
   ;;
 *)
+  # default is to bring up the entire network
   start
 esac
 exit 0

@@ -4,8 +4,8 @@ Icon="icon-clock"
 Tag="clock-o"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,122 +16,308 @@ Tag="clock-o"
  */
 ?>
 <?
-$keys = explode("\n",file_get_contents("$docroot/webGui/include/timezones.key"));
+$validIP4 = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$";
+$validIP6 = "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)$";
+$validMAC = "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$";
+$tmzones  = file("$docroot/webGui/include/timezones.key",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
+$system   = "/sys/class/net";
+$hwclock  = $ports = $member = [];
+
+exec("ls --indicator-style=none $system|grep -P '^(bond|br|eth)[0-9]*$'",$net);
+foreach ($net as $port) {
+  switch (preg_replace('/[0-9]+$/','',$port)) {
+  case 'bond':
+    if (!file_exists($system.'/'.str_replace('bond','br',$port))) $ports[] = $port;
+    $member = array_merge($member,explode(' ',exec("cat $system/$port/bonding/slaves")));
+    break;
+  case 'br':
+    $member = array_merge($member,explode(' ',exec("ls --indicator-style=none $system/$port/brif")));
+    break;
+  case 'eth':
+    if (!in_array($port,$member)) $ports[] = $port;
+    break;
+  }
+}
+foreach ($ports as $port) $hwclock[$port] = exec("ethtool -T $port|grep -Pom1 '^PTP Hardware Clock: \K.+'")=='none' ? 'disabled' : '';
 ?>
-<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
+<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onchange="signal(this)">
 <input type="hidden" name="setDateTime" value="apply">
 _(Current date and time)_:
 : <?=_(my_time(time()),0)?>
 
 _(Date format)_:
 : <select name="display_date" onchange="presetTime(this.form)">
-  <?=mk_option($display['date'], "%c","_(System Setting)_")?>
-  <?=mk_option($display['date'], "%A, %Y %B %e",_('Day, YYYY Month D'))?>
-  <?=mk_option($display['date'], "%A, %e %B %Y",_('Day, D Month YYYY'))?>
-  <?=mk_option($display['date'], "%A, %B %e, %Y",_('Day, Month D, YYYY'))?>
-  <?=mk_option($display['date'], "%A, %m/%d/%Y",_('Day, MM/DD/YYYY'))?>
-  <?=mk_option($display['date'], "%A, %d-%m-%Y",_('Day, DD-MM-YYYY'))?>
-  <?=mk_option($display['date'], "%A, %d.%m.%Y",_('Day, DD.MM.YYYY'))?>
-  <?=mk_option($display['date'], "%A, %Y-%m-%d",_('Day, YYYY-MM-DD'))?>
+  <?=mk_option($display['date'], "%c", _('System Setting'))?>
+  <?=mk_option($display['date'], "%A, %Y %B %e", _('Day, YYYY Month D'))?>
+  <?=mk_option($display['date'], "%A, %e %B %Y", _('Day, D Month YYYY'))?>
+  <?=mk_option($display['date'], "%A, %B %e, %Y", _('Day, Month D, YYYY'))?>
+  <?=mk_option($display['date'], "%A, %m/%d/%Y", _('Day, MM/DD/YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d-%m-%Y", _('Day, DD-MM-YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d.%m.%Y", _('Day, DD.MM.YYYY'))?>
+  <?=mk_option($display['date'], "%A, %Y-%m-%d", _('Day, YYYY-MM-DD'))?>
   </select>
 
 _(Time format)_:
 : <select name="display_time">
-  <?=mk_option($display['time'], "%I:%M %p",_('12 hours'))?>
-  <?=mk_option($display['time'], "%R",_('24 hours'))?>
+  <?=mk_option($display['time'], "%I:%M %p", _('12 hours'))?>
+  <?=mk_option($display['time'], "%R", _('24 hours'))?>
   </select>
 
 _(Time zone)_:
 : <select name="timeZone"><?
-  foreach ($keys as $key) {
-    [$timezone, $city] = my_explode('|', $key);
+  foreach ($tmzones as $zone) {
+    [$timezone, $city] = my_explode('|', $zone);
     echo mk_option($var['timeZone'], $timezone, $city);
   }
 ?></select>
 
 :timezone_help:
 
-_(Use NTP)_:
-: <select name="USE_NTP" onchange="checkDateTimeSettings(this.form)">
-  <?=mk_option($var['USE_NTP'], "yes", _('Yes'))?>
-  <?=mk_option($var['USE_NTP'], "no", _('No'))?>
+_(Time state)_:
+: <span id="timeState"><i class="fa fa-spin fa-spinner"></i></span>
+
+_(Time sync)_:
+: <select name="USE_NTP" onchange="updatePage(this.form,'slow')">
+  <?=mk_option($var['USE_NTP'], "yes", _('NTP'))?>
+  <?=mk_option($var['USE_NTP'], "yes", _('PTP'))?>
+  <?=mk_option($var['USE_NTP'], "no", _('Manual'))?>
   </select>
+  <span id="noports" class="red-text"><i class="fa fa-warning"></i> _(No suitable interfaces found for PTP)_</span>
 
-:use_ntp_help:
-
+<div markdown="1" id="ntp-setup" class="extra">
 _(NTP interval)_:
-: <select name="display_ntppoll">
-  <?=mk_option(_var($display,'ntppoll'), "", _('Default'))?>
-  <?=mk_option(_var($display,'ntppoll'), "8", _('Slow'))?>
-  <?=mk_option(_var($display,'ntppoll'), "5", _('Medium'))?>
-  <?=mk_option(_var($display,'ntppoll'), "3", _('Fast'))?>
-  </select><span class="ntp orange-text">_(Use DEFAULT setting when public NTP servers are defined)_</span>
+: <select name="NTP_POLL">
+  <?=mk_option(_var($NTP,'POLL'), "", _('Default'))?>
+  <?=mk_option(_var($NTP,'POLL'), "8", _('Slow'))?>
+  <?=mk_option(_var($NTP,'POLL'), "5", _('Medium'))?>
+  <?=mk_option(_var($NTP,'POLL'), "3", _('Fast'))?>
+  </select>
+  <span class="orange-text">_(Use DEFAULT setting when public NTP servers are defined)_</span>
 
 _(NTP server)_ 1:
 : <input type="text" name="NTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
-
-:ntp_server1_help:
+  <span class="orange-text">_(Input a NTP server name, NTP pool name or IP address)_</span>
 
 _(NTP server)_ 2:
 : <input type="text" name="NTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
 
-:ntp_server2_help:
-
 _(NTP server)_ 3:
 : <input type="text" name="NTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
-
-:ntp_server3_help:
 
 _(NTP server)_ 4:
 : <input type="text" name="NTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
 
-:ntp_server4_help:
+</div>
+<div markdown="1" id="ptp-setup" class="extra">
+_(PTP profile)_:
+: PTPv2 (IEEE 1588)
 
+_(PTP transport)_:
+: <select name="PTP_TRANSPORT" onchange="updatePage(this.form,'slow')">
+  <?=mk_option(_var($PTP,'TRANSPORT'), "UDPv4", _('UDPv4'))?>
+  <?=mk_option(_var($PTP,'TRANSPORT'), "UDPv6", _('UDPv6'))?>
+  <?=mk_option(_var($PTP,'TRANSPORT'), "L2", _('IEEE 802.3'))?>
+  </select>
+
+_(PTP mode)_:
+: <select name="PTP_MODE" onchange="updatePage(this.form,'slow')">
+  <?=mk_option(_var($PTP,'MODE'), "multicast", _('Multicast'))?>
+  <?=mk_option(_var($PTP,'MODE'), "unicast", _('Unicast'))?>
+  </select>
+
+<div markdown="1" id="unicast" class="extra">
+_(PTP server)_ 1:
+: <input type="text" name="PTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP,'SERVER1'))?>">
+  <span class="ipv4 orange-text">_(Input a IPv4 address)_</span><span class="ipv6 orange-text">_(Input a IPv6 address)_</span><span class="mac orange-text">_(Input a MAC address)_</span>
+
+_(PTP server)_ 2:
+: <input type="text" name="PTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP,'SERVER2'))?>">
+
+_(PTP server)_ 3:
+: <input type="text" name="PTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP,'SERVER3'))?>">
+
+_(PTP server)_ 4:
+: <input type="text" name="PTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP,'SERVER4'))?>">
+
+</div>
+_(PTP interface)_:
+: <select name="PTP_PORT" onchange="hwclock(this.form,this.value)">
+  <?if (empty($ports)) echo mk_option(0, '', '---');?>
+  <?foreach($ports as $port):?>
+  <?=mk_option(_var($PTP,'PORT','eth0'), $port, $port)?>
+  <?endforeach;?>
+  </select>
+
+_(PTP clock)_:
+: <select name="PTP_CLOCK">
+  <?=mk_option(_var($PTP,'CLOCK'), "hardware", _('Hardware'), empty($ports) ? 'disabled' : _var($hwclock,_var($PTP,'PORT')))?>
+  <?=mk_option(_var($PTP,'CLOCK'), "software", _('Software'))?>
+  </select>
+
+</div>
+<div markdown="1" id="manual-setup" class="extra">
 _(New date and time)_:
-: <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(), "%F %T")?>">
+: <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(),"%F %T")?>">
+  <span class="orange-text">_(Input the correct date and time manually)_</span>
 
 :current_time_help:
 
+</div>
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="doDispatch(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="button" value="_(Apply)_" onclick="dispatch(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
 <script>
-function doDispatch(form) {
-  var fields = {};
-  var old_tz = "<?=$var['timeZone']?>";
-  $(form).find('button').prop('disabled',true);
-  fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
-  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val();});
-  $.post('/webGui/include/Dispatcher.php',fields);
-  if (form.timeZone.value != old_tz) $.post('/webGui/include/ResetTZ.php');
-  form.submit();
+// update time service
+var service = false;
+var oldDate, oldTime, oldZone;
+
+// ptp daemon is running?
+var ptpd = <?=exec("pgrep -cf /usr/sbin/ptp4l") ? 'true' : 'false'?>;
+
+function hwclock(form,port) {
+  // disable hardware clock if not supported
+  var hwc = {};
+<?foreach ($hwclock as $port => $disabled):?>
+  hwc.<?=$port?> = <?=$disabled ? 'true' : 'false'?>;
+<?endforeach;?>
+  form.PTP_CLOCK.options[0].disabled = hwc[port];
 }
+
+function signal(form) {
+  if (service) return;
+  if (form.display_date.selectedIndex != oldDate) {
+    oldDate = form.display_date.selectedIndex;
+    return;
+  }
+  if (form.display_time.selectedIndex != oldTime) {
+    oldTime = form.display_time.selectedIndex;
+    return
+  }
+  // time service needs update
+  service = true;
+}
+
+function disableButtons(state) {
+  setTimeout(function(){$('input[type=button]').prop('disabled',state);});
+}
+
+function dispatch(form) {
+  var save = {};
+  var valid = true;
+  disableButtons(true);
+  if (form.USE_NTP.selectedIndex==1 && form.PTP_MODE.selectedIndex==1) {
+    let tr = form.PTP_TRANSPORT.value;
+    let pattern = tr=='L2' ? /<?=$validMAC?>/ : (tr=='UDPv4' ? /<?=$validIP4?>/ : /<?=$validIP6?>/);
+    // validate syntax of ptp server addresses
+    $(form).find('input[name^="PTP_SERVER"]').each(function(){
+      var text = $(this).val();
+      if (text!='' && pattern.test(text)==false) valid = false;
+    });
+  } else if (form.USE_NTP.selectedIndex==1) {
+    // clear ptp server addresses
+    $('input[name^="PTP_SERVER"]').val('');
+  }
+  if (valid) {
+    clearTimeout(timers.timeState);
+    $('#timeState').html('<i class="fa fa-spin fa-spinner"></i>');
+    let index = form.USE_NTP.selectedIndex;
+    let cmd = index==1 ? (ptpd ? 'restart' : 'start') : 'stop';
+    save['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
+    save.PTP_SYNC = index==1 ? 'yes' : 'no';
+    $(form).find('select[name^="display_"],select[name="NTP_POLL"],select[name^="PTP_"],input[name^="display_"],input[name^="PTP_"]').each(function(){
+      save[$(this).attr('name')] = $(this).val();
+      // exclude setting for emhttpd
+      $(this).prop('disabled',true);
+    });
+    // save dispatched variables
+    $.post('/webGui/include/Dispatcher.php',save,function(){
+      if (service) {
+        // start/stop ptp daemon separately (emhttpd does not support it)
+        $.post('/webGui/include/StartStopPTP.php',{cmd:cmd},function(){
+          // reset timezone when it has changed
+          if (form.timeZone.selectedIndex != oldZone) $.post('/webGui/include/ResetTZ.php');
+          // start/stop ntp daemon (using emhttpd)
+          form.submit();
+        });
+      } else {
+        // no time service update needed
+        refresh();
+      }
+    });
+  } else {
+    disableButtons(false);
+    swal("_(Wrong PTP server address)_");
+  }
+}
+
 function presetTime(form) {
   var system = form.display_date.selectedIndex==0;
   if (system) form.display_time.selectedIndex = 0;
   form.display_time.disabled = system;
 }
-function checkDateTimeSettings(form) {
-  if (form.USE_NTP.value=="yes") {
+
+function updatePage(form,step) {
+  if (form.USE_NTP.selectedIndex==0) {
+    // ntp
+    $('#ptp-setup,#manual-setup').hide(step);
+    $('#ntp-setup').show(step);
+    $('#noports').hide();
     form.newDateTime.disabled=true;
-    form.display_ntppoll.disabled=false;
     form.NTP_SERVER1.disabled=false;
     form.NTP_SERVER2.disabled=false;
     form.NTP_SERVER3.disabled=false;
     form.NTP_SERVER4.disabled=false;
+  } else if (form.USE_NTP.selectedIndex==1) {
+    // ptp
+    $('#ntp-setup,#manual-setup').hide(step);
+    $('#ptp-setup').show(step);
+<?if (empty($ports)):?>
+    $('#noports').show();
+<?else:?>
+    $('#noports').hide();
+<?endif;?>
+    if (form.PTP_MODE.selectedIndex==0) $('#unicast').hide(step); else $('#unicast').show(step);
+    form.newDateTime.disabled=true;
+    form.NTP_SERVER1.disabled=true;
+    form.NTP_SERVER2.disabled=true;
+    form.NTP_SERVER3.disabled=true;
+    form.NTP_SERVER4.disabled=true;
+    $('span.ipv4,span.ipv6,span.mac').hide();
+    switch (form.PTP_TRANSPORT.selectedIndex) {
+      case 0: $('span.ipv4').show(); break;
+      case 1: $('span.ipv6').show(); break;
+      case 2: $('span.mac').show(); break;
+    }
   } else {
+    // manual
+    $('#ntp-setup,#ptp-setup').hide(step);
+    $('#manual-setup').show(step);
+    $('#noports').hide();
     form.newDateTime.disabled=false;
-    form.display_ntppoll.disabled=true;
     form.NTP_SERVER1.disabled=true;
     form.NTP_SERVER2.disabled=true;
     form.NTP_SERVER3.disabled=true;
     form.NTP_SERVER4.disabled=true;
   }
 }
+
+function timeState() {
+  $.post('/webGui/include/DashboardApps.php',{ntp:'ntp'},function(ntp){$('#timeState').html(ntp);});
+  timers.timeState = setTimeout(timeState,2000);
+}
+
 $(function() {
   var form = document.datetime_settings;
   presetTime(form);
-  checkDateTimeSettings(form);
+  oldDate = form.display_date.selectedIndex;
+  oldTime = form.display_time.selectedIndex;
+  oldZone = form.timeZone.selectedIndex;
+  form.USE_NTP.selectedIndex = <?=_var($PTP,'SYNC')=='yes' ? 1 : ($var['USE_NTP']=='yes' ? 0 : 2)?>;
+<?if (empty($ports)):?>
+  if (form.USE_NTP.selectedIndex==1) $('#noports').show();
+<?endif;?>
+  updatePage(form);
+  timeState();
 });
 </script>

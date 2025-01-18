@@ -241,11 +241,11 @@ if [[ -z $interface || "eth0 br0 bond0" =~ $interface ]]; then
   # find management interface
   [[ -e /sys/class/net/bond0 ]] && dev=bond0 || dev=eth0
   [[ -e /sys/class/net/br0 ]] && dev=br0
-  IPv4=$(ip -br -4 addr show $dev scope global|sed -r 's/metric [0-9]+//g'|awk '{print $3;exit}')
-  IPv6=$(ip -br -6 addr show $dev scope global|sed -r 's/metric [0-9]+//g'|awk '{print $NF;exit}')
+  IPv4=$(ip -br -4 addr show $dev scope global | sed -r 's/metric [0-9]+//g; s/\/[0-9]+//g' | awk '{print $3;exit}')
+  IPv6=$(ip -br -6 addr show $dev scope global -temporary -deprecated | sed -r 's/metric [0-9]+//g; s/\/[0-9]+//g' | awk '{print $3;exit}')
   # show current IP assignment
-  [[ -n $IPv4 ]] && echo " IPv4 address: ${IPv4%/*}" >>/etc/issue || echo " IPv4 address: not set" >>/etc/issue
-  [[ -n $IPv6 ]] && echo " IPv6 address: ${IPv6%/*}" >>/etc/issue || echo " IPv6 address: not set" >>/etc/issue
+  [[ -n $IPv4 ]] && echo " IPv4 address: $IPv4" >>/etc/issue || echo " IPv4 address: not set" >>/etc/issue
+  [[ -n $IPv6 ]] && echo " IPv6 address: $IPv6" >>/etc/issue || echo " IPv6 address: not set" >>/etc/issue
   echo >>/etc/issue
 fi
 exit 0

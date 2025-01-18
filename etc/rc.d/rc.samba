@@ -38,6 +38,7 @@ samba_running(){
 }
 
 samba_waitfor_shutdown(){
+  local i
   for i in {1..5}; do
     if ! samba_running; then break; fi
     sleep 1

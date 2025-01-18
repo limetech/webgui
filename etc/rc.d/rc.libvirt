@@ -60,7 +60,7 @@ vmlist(){
 waitfor(){
   local C=0
   while [[ $C -lt $TIMEOUT && $(virsh list --state-$1 | awk "NR>2 && /${2:-^.+$}/" | wc -l) -gt 0 ]]; do
-    if [ $C -eq 0 ]; then # echo Timeout info just one time and only if virsh returned something
+    if [[ $C -eq 0 ]]; then # echo Timeout info just one time and only if virsh returned something
       log "Waiting $TIMEOUT seconds for VMs with state: $1"
     fi
     ((C++))

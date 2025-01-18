@@ -42,7 +42,7 @@
 
 	if (is_file($templateslocation)){
 		$arrAllTemplates["User-templates"] = "";
-		$ut = json_decode(file_get_contents($templateslocation),true) ;
+		$ut = json_decode(file_get_contents($templateslocation),true);
 		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 	}
 
@@ -152,7 +152,7 @@
 				$protocol = $lv->domain_get_vmrc_protocol($dom);
 				$reply = ['success' => true];
 				if ($vmrcport > 0) {
-					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'];
 					if ($protocol == "spice") $reply['vmrcurl']  .= '&port=/wsproxy/'.$vmrcport.'/'; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
 				}
 			} else {
@@ -185,9 +185,9 @@
 
 			// hot-attach any new usb devices
 			foreach ($arrNewUSBIDs as $strNewUSBID) {
-				if (strpos($strNewUSBID,"#remove")) continue ;
-				$remove = explode('#', $strNewUSBID) ;
-				$strNewUSBID2 = $remove[0] ;
+				if (strpos($strNewUSBID,"#remove")) continue;
+				$remove = explode('#', $strNewUSBID);
+				$strNewUSBID2 = $remove[0];
 				foreach ($arrExistingConfig['usb'] as $arrExistingUSB) {
 					if ($strNewUSBID2 == $arrExistingUSB['id']) continue 2;
 				}
@@ -240,7 +240,7 @@
 			// XML view
 			$xml = $_POST['xmldesc'];
 			$arrExistingConfig = custom::createArray('domain',$xml);
-			$newuuid = $arrExistingConfig['uuid'] ;
+			$newuuid = $arrExistingConfig['uuid'];
 			$xml = str_replace($olduuid,$newuuid,$xml);
 		} else {
 			// form view
@@ -250,7 +250,7 @@
 				array_update_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$arrConfig = array_replace_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$xml = custom::createXML('domain',$arrConfig)->saveXML();
-				$xml = $lv->appendqemucmdline($xml,$_POST["qemucmdline"]) ;
+				$xml = $lv->appendqemucmdline($xml,$_POST["qemucmdline"]);
 			} else {
 				echo json_encode(['error' => $error]);
 				exit;
@@ -283,24 +283,24 @@
 		$strXML = $lv->domain_get_xml($dom);
 		$boolNew = false;
 		$arrConfig = array_replace_recursive($arrConfigDefaults, domain_to_config($uuid));
-		$arrVMUSBs = getVMUSBs($strXML) ;
+		$arrVMUSBs = getVMUSBs($strXML);
 	} else {
 		// edit new VM
 		$boolRunning = false;
 		$strXML = '';
 		$boolNew = true;
 		$arrConfig = $arrConfigDefaults;
-		$arrVMUSBs = getVMUSBs($strXML) ;
+		$arrVMUSBs = getVMUSBs($strXML);
 	}
 	// Add any custom metadata field defaults (e.g. os)
 	if (!$arrConfig['template']['os']) {
 		$arrConfig['template']['os'] = ($arrConfig['domain']['clock']=='localtime' ? 'windows' : 'linux');
 	}
 	$os_type = ((empty($arrConfig['template']['os']) || stripos($arrConfig['template']['os'], 'windows') === false) ? 'other' : 'windows');
-	if (isset($arrConfig['clocks'])) $arrClocks = json_decode($arrConfig['clocks'],true) ; else {
+	if (isset($arrConfig['clocks'])) $arrClocks = json_decode($arrConfig['clocks'],true); else {
 		if ($os_type == "windows") {
-			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv'] ; else $arrClocks = $arrDefaultClocks['windows'] ;
-		} else $arrClocks = $arrDefaultClocks['other'] ;
+			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv']; else $arrClocks = $arrDefaultClocks['windows'];
+		} else $arrClocks = $arrDefaultClocks['other'];
 	}
 
 	if (strpos($arrConfig['template']['name'],"User-") !== false) {
@@ -356,7 +356,7 @@
 			<?
 			$default_storage=htmlspecialchars($arrConfig['template']['storage']);
 			echo mk_option($default_storage, 'default', _('Default'));
-			
+
 			$strShareUserLocalInclude = '';
 			$strShareUserLocalExclude = '';
 			$strShareUserLocalUseCache = 'no';
@@ -396,7 +396,7 @@
 					$strLabel = _(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 					echo mk_option($default_storage, $name, $strLabel);
 				}
-			}	
+			}
 			?>
 			</td></tr>
 	</table>
@@ -407,10 +407,9 @@
 		</p>
 	</blockquote>
 
-
 	<?
-				$migratehidden =  "disabled hidden" ;
-				if ($arrConfig['domain']['cpumode'] == 'host-passthrough') $migratehidden = "" ;
+	$migratehidden =  "disabled hidden";
+	if ($arrConfig['domain']['cpumode'] == 'host-passthrough') $migratehidden = "";
 	?>
 
 	<table>
@@ -425,7 +424,7 @@
 				<select name="domain[cpumigrate]" id="domain_cpumigrate"  <?=$migratehidden?> class="narrow" title="_(define if migratable)_">
 				<?
 				echo mk_option($arrConfig['domain']['cpumigrate'], 'on', 'On');
-				echo mk_option($arrConfig['domain']['cpumigrate'], 'off', 'Off') ;
+				echo mk_option($arrConfig['domain']['cpumigrate'], 'off', 'Off');
 				?>
 				</select>
 			</td>
@@ -493,8 +492,8 @@
 					}
 				?>
 				</select>
-	
-			<span class="advanced">_(Max)_ _(Memory)_:</span>		
+
+			<span class="advanced">_(Max)_ _(Memory)_:</span>
 				<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="_(define the maximum amount of memory)_">
 				<?
 					echo mk_option($arrConfig['domain']['maxmem'], 128 * 1024, '128 MB');
@@ -525,7 +524,7 @@
 		$arrConfig['domain']['machine'] = ValidateMachineType($arrConfig['domain']['machine']);
 	}
 	?>
-	
+
 	<table>
 		<tr class="advanced">
 			<td>_(Machine)_:</td>
@@ -567,8 +566,8 @@
 				</select>
 
 			<?
-			$usbboothidden =  "hidden" ;
-				if ($arrConfig['domain']['ovmf'] != '0') $usbboothidden = "" ;
+				$usbboothidden = "hidden";
+				if ($arrConfig['domain']['ovmf'] != '0') $usbboothidden = "";
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 
@@ -778,9 +777,7 @@
 									}
 								}
 							}
-
 						}
-
 						echo mk_option($default_option, 'manual', _('Manual'));
 					?>
 					</select><input type="text" name="disk[<?=$i?>][new]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
@@ -932,9 +929,7 @@
 									}
 								}
 							}
-
 						}
-
 						echo mk_option('', 'manual', _('Manual'));
 					?>
 					</select><input type="text" name="disk[{{INDEX}}][new]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" class="disk" id="disk_{{INDEX}}" value="" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
@@ -980,7 +975,7 @@
 	</script>
 
 	<?
-	 $arrUnraidShares = getUnraidShares() ;
+	 $arrUnraidShares = getUnraidShares();
 	 foreach ($arrConfig['shares'] as $i => $arrShare) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
@@ -996,11 +991,11 @@
 				</select>
 				_(Unraid Share)_:
 				<select name="shares[<?=$i?>][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
-				    <?	$UnraidShareDisabled = ' disabled="disabled"' ;
-					    $arrUnraidIndex = array_search("User:".$arrShare['target'],$arrUnraidShares) ;
-					    if ($arrUnraidIndex != false && substr($arrShare['source'],0,10) != '/mnt/user/') $arrUnraidIndex = false ;
-					    if ($arrUnraidIndex == false) $arrUnraidIndex = array_search("Disk:".$arrShare['target'],$arrUnraidShares) ;
-						if ($arrUnraidIndex == false) { $arrUnraidIndex = '' ; $UnraidShareDisabled = "" ;}
+				    <?	$UnraidShareDisabled = ' disabled="disabled"';
+					    $arrUnraidIndex = array_search("User:".$arrShare['target'],$arrUnraidShares);
+					    if ($arrUnraidIndex != false && substr($arrShare['source'],0,10) != '/mnt/user/') $arrUnraidIndex = false;
+					    if ($arrUnraidIndex == false) $arrUnraidIndex = array_search("Disk:".$arrShare['target'],$arrUnraidShares);
+						if ($arrUnraidIndex == false) { $arrUnraidIndex = ''; $UnraidShareDisabled = "";}
 						mk_dropdown_options($arrUnraidShares, $arrUnraidIndex);?>
 				</select>
 				</td>
@@ -1114,7 +1109,7 @@
 					?>
 					</select>
 					<?
-					if ($arrGPU['id'] != 'virtual') $multifunction = "" ; else $multifunction =  " disabled " ;
+					if ($arrGPU['id'] != 'virtual') $multifunction = ""; else $multifunction =  " disabled ";
 					?>
 					<span id="GPUMulti<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced gpumultiline<?=$i?>"   >_(Multifunction)_:</span>
 
@@ -1128,10 +1123,10 @@
 			</tr>
 
 			<?if ($i == 0) {
-				$hiddenport = $hiddenwsport = "hidden" ;
+				$hiddenport = $hiddenwsport = "hidden";
 				if ($arrGPU['autoport'] == "no"){
-				if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
-				if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
+				if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "";
+				if ($arrGPU['protocol'] == "spice") $hiddenport = "";
 				}
 				?>
 				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
@@ -1164,11 +1159,11 @@
 
 					<span id="Porttext"  <?=$hiddenport?>>_(VM Console Port)_:</span>
 
-				    <input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"   title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
+					<input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"   title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
 
 					<span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
 
-				    <input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"   title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
+					<input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"   title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 			</tr>
 
@@ -1329,7 +1324,7 @@
 				'network' => $domain_bridge,
 				'mac' => "",
 				'model' => 'virtio-net'
-			] ;
+			];
 		}
 	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
@@ -1419,9 +1414,7 @@
 					<select name="nic[{{INDEX}}][network]">
 					<?
 					foreach (array_keys($arrValidNetworks) as $key) {
-
 						echo mk_option("", $key, "- "._($key)." -", "disabled");
-
 						foreach ($arrValidNetworks[$key] as $strNetwork) {
 							echo mk_option($domain_bridge, $strNetwork, $strNetwork);
 						}
@@ -1497,11 +1490,10 @@
 					if (!empty($arrValidOtherDevices)) {
 						foreach($arrValidOtherDevices as $i => $arrDev) {
 							$bootdisable = $extra = $pciboot = '';
-							if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $bootdisable = ' disabled="disabled"' ;
+							if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $bootdisable = ' disabled="disabled"';
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
-								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
-
+								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];
 							} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 								//$extra .= ' disabled="disabled"';
 								continue;
@@ -1514,7 +1506,6 @@
 					<?
 						}
 					}
-
 					if (empty($intAvailableOtherPCIDevices)) {
 						echo "<i>"._('None available')."</i>";
 					}
@@ -1527,8 +1518,6 @@
 		<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
 		<p>Use boot order to set device as bootable and boot sequence. Only NVMe and Network devices (PCI types 0108 and 02xx) supported for boot order.</p>
 	</blockquote>
-
-
 
 	<table>
 		<tr>
@@ -1559,7 +1548,7 @@
 		<tr>
 			<td>_(QEMU Command Line)_:</td>
 			<?
-				if ($arrConfig['qemucmdline'] == "") $qemurows = 2 ; else $qemurows = 15 ;
+				if ($arrConfig['qemucmdline'] == "") $qemurows = 2; else $qemurows = 15;
 				?>
 			<td>
 			<textarea id="qemucmdline" name="qemucmdline" rows=<?=$qemurows?> style="width: 850px" onchange="QEMUChgCmd(this)"><?=htmlspecialchars($arrConfig['qemucmdline'])?> </textarea></td></tr>
@@ -1576,8 +1565,8 @@
 		<tr><td></td><td>_(Clocks)_</td></tr>
 		<tr><td>_(Clocks Offset)_:</td>
 		<td>
-			<?$clockdisabled = "" ;?>
-			<select name="domain[clock]" <?=$clockdisabled?> id="clockoffset" class="narrow" title="_(Clock Offset)_" <?=$arrConfig["domain"]['clock']?>> 
+			<?$clockdisabled = "";?>
+			<select name="domain[clock]" <?=$clockdisabled?> id="clockoffset" class="narrow" title="_(Clock Offset)_" <?=$arrConfig["domain"]['clock']?>>
 				<?
 					echo mk_option($arrConfig['domain']['clock'], 'localtime', 'Localtime');
 					echo mk_option($arrConfig['domain']['clock'], 'utc', "UTC");
@@ -1585,18 +1574,18 @@
 				</select>
 			</td>
 		</tr>
-					<?$clockcount = 0 ;
+					<?$clockcount = 0;
 					if (!empty($arrClocks)) {
 						foreach($arrClocks as $i => $arrTimer) {
-							if ($i =="offset") continue ;
-							if ($clockcount == 0)  $clocksourcetext = _("Timer Source").":" ;else $clocksourcetext = "" ;
+							if ($i =="offset") continue;
+							if ($clockcount == 0)  $clocksourcetext = _("Timer Source").":"; else $clocksourcetext = "";
 					?>
 		<tr><td><?=$clocksourcetext?></td>
 		<td>
 						<span class="narrow" style="width: 50px"><?=ucfirst($i)?>:</span></td>
 						<td class="present">
 						<span>_(Present)_:</span>
-						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
+						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>>
 						<?
 							echo mk_option($arrTimer["present"], 'yes', 'Yes');
 							echo mk_option($arrTimer["present"], 'no', "No");
@@ -1604,7 +1593,7 @@
 						</select></td>
 						<td>
 						<span class="narrow" style="width: 50px">_(Tickpolicy)_:</span>
-						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
+						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>>
 						<?
 							echo mk_option($arrTimer["tickpolicy"], 'delay', 'Delay');
 							echo mk_option($arrTimer["tickpolicy"], 'catchup', 'Catchup');
@@ -1614,7 +1603,7 @@
 						</select>
 						</td></tr>
 						<?
-							$clockcount++ ;
+							$clockcount++;
 						}
 					}
 					?>
@@ -1678,8 +1667,6 @@
 			</td>
 		</tr>
 
-
-
 		</table>
 		<?if ($i == 0) {?>
 		<div class="advanced">
@@ -1696,15 +1683,15 @@
 
 				<p>
 					<b>Grab</b><br>
-					All grabs all input devices instead of just one	
+					All grabs all input devices instead of just one
 				</p>
 
 				<p>
 					<b>Repeat</b><br>
-					Repeat with value 'on'/'off' to enable/disable auto-repeat events 
+					Repeat with value 'on'/'off' to enable/disable auto-repeat events
 				</p>
 
-				<p>	
+				<p>
 					<b>GrabToggle</b><br>
 					GrabToggle with values ctrl-ctrl, alt-alt, shift-shift, meta-meta, scrolllock or ctrl-scrolllock to change the grab key combination</p>
 
@@ -1757,7 +1744,6 @@
 			</tr>
 		</table>
 	</script>
-
 
 	<table>
 		<tr>
@@ -1819,82 +1805,82 @@
 <script type="text/javascript">
 
 function ShareChange(share) {
-		var value = share.value;
-		var text = share.options[share.selectedIndex].text;
-		var strArray = text.split(":");
-		var index = share.name.indexOf("]") + 1;
-		var name = share.name.substr(0,index) ;
-		if (strArray[0] === "User") {
-			var path = "/mnt/user/" + strArray[1] ;
-		} else {
-			var path = "/mnt/" + strArray[1] ;
-		}
-		if (strArray[0] != "Manual") {
-		document.getElementById(name+"[target]").value = strArray[1] ;
-		document.getElementById(name+"[source]").value = path ;
-		document.getElementById(name+"[target]").setAttribute("disabled","disabled");
-		document.getElementById(name+"[source]").setAttribute("disabled","disabled");
-		} else {
-			document.getElementById(name+"[target]").removeAttribute("disabled");
-			document.getElementById(name+"[source]").removeAttribute("disabled");
-		}
+	var value = share.value;
+	var text = share.options[share.selectedIndex].text;
+	var strArray = text.split(":");
+	var index = share.name.indexOf("]") + 1;
+	var name = share.name.substr(0,index);
+	if (strArray[0] === "User") {
+		var path = "/mnt/user/" + strArray[1];
+	} else {
+		var path = "/mnt/" + strArray[1];
+	}
+	if (strArray[0] != "Manual") {
+	document.getElementById(name+"[target]").value = strArray[1];
+	document.getElementById(name+"[source]").value = path;
+	document.getElementById(name+"[target]").setAttribute("disabled","disabled");
+	document.getElementById(name+"[source]").setAttribute("disabled","disabled");
+	} else {
+		document.getElementById(name+"[target]").removeAttribute("disabled");
+		document.getElementById(name+"[source]").removeAttribute("disabled");
+	}
 }
 
 function BusChange(bus) {
-		var value = bus.value;
-		var index = bus.name.indexOf("]") + 1;
-		var name = bus.name.substr(0,index) ;
-		if (value == "virtio" || value == "usb" ) {
-		document.getElementById(name+"[rotatetext]").style.visibility="hidden";
-		document.getElementById(name+"[rotation]").style.visibility="hidden";
-		} else {
-			document.getElementById(name+"[rotation]").style.display="inline";
-			document.getElementById(name+"[rotation]").style.visibility="visible";
-			document.getElementById(name+"[rotatetext]").style.display="inline";
-			document.getElementById(name+"[rotatetext]").style.visibility="visible";
-		}
+	var value = bus.value;
+	var index = bus.name.indexOf("]") + 1;
+	var name = bus.name.substr(0,index);
+	if (value == "virtio" || value == "usb" ) {
+	document.getElementById(name+"[rotatetext]").style.visibility="hidden";
+	document.getElementById(name+"[rotation]").style.visibility="hidden";
+	} else {
+		document.getElementById(name+"[rotation]").style.display="inline";
+		document.getElementById(name+"[rotation]").style.visibility="visible";
+		document.getElementById(name+"[rotatetext]").style.display="inline";
+		document.getElementById(name+"[rotatetext]").style.visibility="visible";
+	}
 }
 
 function updateSSDCheck(ssd) {
-		var value = ssd.value;
-		var index = ssd.name.indexOf("]") + 1;
-		var name = ssd.name.substr(0,index) ;
-		if (document.getElementById(name+"[rotation]").checked) ssd.value = "1"; else ssd.value = "0";
+	var value = ssd.value;
+	var index = ssd.name.indexOf("]") + 1;
+	var name = ssd.name.substr(0,index);
+	if (document.getElementById(name+"[rotation]").checked) ssd.value = "1"; else ssd.value = "0";
 }
 
 function BIOSChange(bios) {
-		var value = bios.value;
-		if (value == "0") {
-			document.getElementById("USBBoottext").style.visibility="hidden";
-			document.getElementById("domain_usbboot").style.visibility="hidden";
-		} else {
-			document.getElementById("USBBoottext").style.display="inline";
-			document.getElementById("USBBoottext").style.visibility="visible";
-			document.getElementById("domain_usbboot").style.display="inline";
-			document.getElementById("domain_usbboot").style.visibility="visible";
-		}
+	var value = bios.value;
+	if (value == "0") {
+		document.getElementById("USBBoottext").style.visibility="hidden";
+		document.getElementById("domain_usbboot").style.visibility="hidden";
+	} else {
+		document.getElementById("USBBoottext").style.display="inline";
+		document.getElementById("USBBoottext").style.visibility="visible";
+		document.getElementById("domain_usbboot").style.display="inline";
+		document.getElementById("domain_usbboot").style.visibility="visible";
+	}
 }
 
 function QEMUChgCmd(qemu) {
-		var value = qemu.value;
-		if (value != "") {
-			document.getElementById("qemucmdline").setAttribute("rows","15");
-		} else {
-			document.getElementById("qemucmdline").setAttribute("rows","2");
-		}
+	var value = qemu.value;
+	if (value != "") {
+		document.getElementById("qemucmdline").setAttribute("rows","15");
+	} else {
+		document.getElementById("qemucmdline").setAttribute("rows","2");
+	}
 }
 
 function HypervChgNew(hyperv) {
-		var value = hyperv.value;
-		if (value == "0") {
-			var clockdefault = "windows" ;
-			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['windows']['rtc']['present']?>" ;
-			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['windows']['pit']['present']?>" ;
-		} else {
-			var clockdefault = "hyperv" ;
-			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['hyperv']['rtc']['present']?>" ;
-			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['hyperv']['pit']['present']?>";
-		}
+	var value = hyperv.value;
+	if (value == "0") {
+		var clockdefault = "windows";
+		document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['windows']['rtc']['present']?>";
+		document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['windows']['pit']['present']?>";
+	} else {
+		var clockdefault = "hyperv";
+		document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['hyperv']['rtc']['present']?>";
+		document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['hyperv']['pit']['present']?>";
+	}
 }
 
 function SetBootorderfields(usbbootvalue) {
@@ -1907,16 +1893,16 @@ function SetBootorderfields(usbbootvalue) {
 	}
 	var bootelements = document.getElementsByClassName("pcibootorder");
 	const bootpcidevs = <?
-		$devlist = [] ;
+		$devlist = [];
 		foreach($arrValidOtherDevices as $i => $arrDev) {
-			if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+			if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $devlist[$arrDev['id']] = "N"; else $devlist[$arrDev['id']] = "Y";
 		}
-		echo json_encode($devlist) ;
-		?>
+		echo json_encode($devlist);
+	?>
 
 	for(var i = 0; i < bootelements.length; i++) {
-		let bootpciid = bootelements[i].name.split('[') ;
-		bootpciid= bootpciid[1].replace(']', '') ;
+		let bootpciid = bootelements[i].name.split('[');
+		bootpciid= bootpciid[1].replace(']', '');
 
 		if (usbbootvalue == "Yes") {
 		bootelements[i].value = "";
@@ -1930,61 +1916,57 @@ function SetBootorderfields(usbbootvalue) {
 
 function USBBootChange(usbboot) {
 	// Remove all boot orders if changed to Yes
-	var value = usbboot.value ;
-	SetBootorderfields(value) ;
+	var value = usbboot.value;
+	SetBootorderfields(value);
 }
 
 function AutoportChange(autoport) {
-		if (autoport.value == "yes") {
-			document.getElementById("port").style.visibility="hidden";
-			document.getElementById("Porttext").style.visibility="hidden";
+	if (autoport.value == "yes") {
+		document.getElementById("port").style.visibility="hidden";
+		document.getElementById("Porttext").style.visibility="hidden";
+		document.getElementById("wsport").style.visibility="hidden";
+		document.getElementById("WSPorttext").style.visibility="hidden";
+	} else {
+		var protocol = document.getElementById("protocol").value;
+		document.getElementById("port").style.display="inline";
+		document.getElementById("port").style.visibility="visible";
+		document.getElementById("Porttext").style.display="inline";
+		document.getElementById("Porttext").style.visibility="visible";
+		if (protocol == "vnc") {
+			document.getElementById("wsport").style.display="inline";
+			document.getElementById("wsport").style.visibility="visible";
+			document.getElementById("WSPorttext").style.display="inline";
+			document.getElementById("WSPorttext").style.visibility="visible";
+		} else {
 			document.getElementById("wsport").style.visibility="hidden";
 			document.getElementById("WSPorttext").style.visibility="hidden";
-		} else {
-			var protocol = document.getElementById("protocol").value ;
-			document.getElementById("port").style.display="inline";
-			document.getElementById("port").style.visibility="visible";
-			document.getElementById("Porttext").style.display="inline";
-			document.getElementById("Porttext").style.visibility="visible";
-			if (protocol == "vnc") {
-				document.getElementById("wsport").style.display="inline";
-				document.getElementById("wsport").style.visibility="visible";
-				document.getElementById("WSPorttext").style.display="inline";
-				document.getElementById("WSPorttext").style.visibility="visible";
-			} else {
-				document.getElementById("wsport").style.visibility="hidden";
-				document.getElementById("WSPorttext").style.visibility="hidden";
-			}
 		}
 	}
+}
 
 function ProtocolChange(protocol) {
-		var autoport = document.getElementById("autoport").value ;
-		if (autoport == "yes") {
-			document.getElementById("port").style.visibility="hidden";
-			document.getElementById("Porttext").style.visibility="hidden";
+	var autoport = document.getElementById("autoport").value;
+	if (autoport == "yes") {
+		document.getElementById("port").style.visibility="hidden";
+		document.getElementById("Porttext").style.visibility="hidden";
+		document.getElementById("wsport").style.visibility="hidden";
+		document.getElementById("WSPorttext").style.visibility="hidden";
+	} else {
+		document.getElementById("port").style.display="inline";
+		document.getElementById("port").style.visibility="visible";
+		document.getElementById("Porttext").style.display="inline";
+		document.getElementById("Porttext").style.visibility="visible";
+		if (protocol.value == "vnc") {
+			document.getElementById("wsport").style.display="inline";
+			document.getElementById("wsport").style.visibility="visible";
+			document.getElementById("WSPorttext").style.display="inline";
+			document.getElementById("WSPorttext").style.visibility="visible";
+		} else {
 			document.getElementById("wsport").style.visibility="hidden";
 			document.getElementById("WSPorttext").style.visibility="hidden";
-		} else {
-			document.getElementById("port").style.display="inline";
-			document.getElementById("port").style.visibility="visible";
-			document.getElementById("Porttext").style.display="inline";
-			document.getElementById("Porttext").style.visibility="visible";
-			if (protocol.value == "vnc") {
-				document.getElementById("wsport").style.display="inline";
-				document.getElementById("wsport").style.visibility="visible";
-				document.getElementById("WSPorttext").style.display="inline";
-				document.getElementById("WSPorttext").style.visibility="visible";
-			} else {
-				document.getElementById("wsport").style.visibility="hidden";
-				document.getElementById("WSPorttext").style.visibility="hidden";
-			}
 		}
 	}
-
-
-
-
+}
 
 $(function() {
 	function completeAfter(cm, pred) {
@@ -2012,7 +1994,6 @@ $(function() {
 		});
 	}
 
-
 	var editor = CodeMirror.fromTextArea(document.getElementById("addcode"), {
 		mode: "xml",
 		lineNumbers: true,
@@ -2028,7 +2009,7 @@ $(function() {
 		hintOptions: {schemaInfo: getLibvirtSchema()}
 	});
 
-	SetBootorderfields("<?=$arrConfig['domain']['usbboot']?>") ;
+	SetBootorderfields("<?=$arrConfig['domain']['usbboot']?>");
 
 	function resetForm() {
 		$("#vmform .domain_vcpu").change(); // restore the cpu checkbox disabled states
@@ -2052,7 +2033,6 @@ $(function() {
 		}
 	});
 
-
 	var regenerateDiskPreview = function (disk_index) {
 		var domaindir = '<?=$domain_cfg['DOMAINDIR']?>' + $('#domain_oldname').val();
 		var tl_args = arguments.length;
@@ -2072,7 +2052,7 @@ $(function() {
 			var $disk_serial = $table.find('.disk_serial');
 			var $disk_driver = $table.find('.disk_driver').val();
 			var $disk_ext = "img";
-			if ($disk_driver == "raw") $disk_ext = "img"; 
+			if ($disk_driver == "raw") $disk_ext = "img";
 				else if(disk_select != 'manual') $disk_ext = $disk_driver;
 
 			if (disk_select == 'manual') {
@@ -2089,18 +2069,14 @@ $(function() {
 					if (info.isfile || info.isblock) {
 						slideUpRows($disk_file_sections);
 						$disk_file_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
-
 						$disk_input.attr('name', $disk_input.attr('name').replace('new', 'image'));
 					} else {
 						$disk_file_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 						slideDownRows($disk_file_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
-
 						$disk_input.attr('name', $disk_input.attr('name').replace('image', 'new'));
 					}
 				});
-
 			} else if (disk_select !== '') {
-
 				// Auto disk
 				var auto_disk_path = domaindir + '/vdisk' + (index+1) + '.' + $disk_ext;
 				$disk_preview.html(auto_disk_path);
@@ -2124,15 +2100,12 @@ $(function() {
 						$disk_input.attr('name', $disk_input.attr('name').replace('image', 'new'));
 					}
 				});
-
 			} else {
-
 				// No disk
 				var $hide_el = $table.find('.disk_bus_options,.disk_file_options,.disk_preview,.disk');
 				$disk_preview.html('');
 				slideUpRows($hide_el);
 				$hide_el.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
-
 			}
 		});
 	};
@@ -2154,11 +2127,9 @@ $(function() {
 			 if (disk_select !== '') {
 
 				// Auto disk serial
-				var auto_serial = 'vdisk' + (index+1) ;
+				var auto_serial = 'vdisk' + (index+1);
 				$disk_serial.val(auto_serial);
-
 			}
-
 		});
 	};
 
@@ -2209,7 +2180,7 @@ $(function() {
 	$("#vmform").on("spawn_section", function spawnSectionEvent(evt, section, sectiondata) {
 		if (sectiondata.category == 'vDisk') {
 			regenerateDiskPreview(sectiondata.index);
-			setDiskserial(sectiondata.index) ;
+			setDiskserial(sectiondata.index);
 		}
 		if (sectiondata.category == 'Graphics_Card') {
 			$(section).find(".gpu").change();
@@ -2250,8 +2221,8 @@ $(function() {
 	$("#vmform").on("change", ".cpu", function changeCPUEvent() {
 		var myvalue = $(this).val();
 		var mylabel = $(this).children('option:selected').text();
-		var cpumigrate = document.getElementById("domain_cpumigrate_text") ;
-		var cpumigrate_text = document.getElementById("domain_cpumigrate") ;
+		var cpumigrate = document.getElementById("domain_cpumigrate_text");
+		var cpumigrate_text = document.getElementById("domain_cpumigrate");
 		if (myvalue == "custom") {
 			document.getElementById("domain_cpumigrate_text").style.visibility="hidden";
 			document.getElementById("domain_cpumigrate").style.visibility="hidden";
@@ -2261,8 +2232,7 @@ $(function() {
 			document.getElementById("domain_cpumigrate").style.display="inline";
 			document.getElementById("domain_cpumigrate").style.visibility="visible";
 		}
-
-	}) ;
+	});
 
 	$("#vmform").on("change", ".gpu", function changeGPUEvent() {
 		var myvalue = $(this).val();
@@ -2274,13 +2244,13 @@ $(function() {
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
-				var MultiSel = document.getElementById("GPUMultiSel0") ;
-				MultiSel.disabled = true ;
+				var MultiSel = document.getElementById("GPUMultiSel0");
+				MultiSel.disabled = true;
 			} else {
 				slideUpRows($vnc_sections);
 				$vnc_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
-				var MultiSel = document.getElementById("GPUMultiSel0") ;
-				MultiSel.disabled = false ;
+				var MultiSel = document.getElementById("GPUMultiSel0");
+				MultiSel.disabled = false;
 			}
 		}
 
@@ -2388,7 +2358,6 @@ $(function() {
 		form.append('<input type="hidden" name="createvmtemplate" value="1" />');
 		var createVmInput = form.find('input[name="createvm"],input[name="updatevm"]');
 		createVmInput.remove();
-		
 
 		$("#vmform .disk_select option:selected").not("[value='manual']").closest('table').each(function () {
 			var v = $(this).find('.disk_preview').html();
@@ -2435,20 +2404,17 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: "_(Template Name)_",
+			text: "_(Enter name)_:\n_(If name already exists it will be replaced)_.",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
-			},
-			function(inputValue){
-
-
-	  	postdata=postdata+"&templatename="+inputValue;
-		
-		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
+			inputPlaceholder: "_(Leaving blank will use OS name)_."
+		},
+		function(inputValue){
+			postdata=postdata+"&templatename="+inputValue;
+			$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vmrcurl) {
 					var vmrc_window=window.open(data.vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
@@ -2516,18 +2482,17 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: "_(Template Name)_",
+			text: "_(Enter name)_:\n_(If name already exists it will be replaced)_.",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name)_."
 			},
 			function(inputValue){
 
-
-	  	postdata=postdata+"&templatename="+inputValue;
+			postdata=postdata+"&templatename="+inputValue;
 
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {

@@ -10,7 +10,7 @@
 # VMs, bare metal, OpenStack clusters, public clouds and more.
 #
 # LimeTech - modified for Unraid OS
-# Bergware - modified for Unraid OS, October 2023
+# Bergware - modified for Unraid OS, January 2025
 
 DAEMON="Docker daemon"
 UNSHARE="/usr/bin/unshare"
@@ -314,7 +314,7 @@ docker_network_start(){
       fi
       # add auto defined networks
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
-      IPV4=$(ip -br -4 addr show $NETWORK | awk '{print $3;exit}')
+      IPV4=$(ip -4 -br addr show $NETWORK scope global | awk '{print $3;exit}')
       if [[ -n $IPV4 ]]; then
         SUBNET=$(ip -4 route show $IPV4 dev $NETWORK | awk '{print $1;exit}')
         SERVER=${IPV4%/*}
@@ -323,16 +323,12 @@ docker_network_start(){
         RANGE=${!DHCP}
         GATEWAY=$(ip -4 route show default dev $NETWORK | awk '{print $3;exit}')
       fi
-      SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
-      IPV6=$(ip -br -6 addr show $NETWORK scope global mngtmpaddr|awk '{print $3;exit}')
-      [[ -z $IPV6 ]] && IPV6=$(ip -br -6 addr show $NETWORK scope global permanent|awk '{print $3;exit}')
+      SUBNET6=; GATEWAY6=; SERVER6=;
+      IPV6=$(ip -6 -br addr show $NETWORK scope global -temporary -deprecated | awk '{print $3;exit}')
       if [[ -n $IPV6 ]]; then
         # get IPV6 subnet, preset to /64 if single host address is given
         [[ ${IPV6#*/} == 128 ]] && SUBNET6=$(echo $IPV6 | sed -r 's/^([^:]+):([^:]+):([^:]+):([^:]+).*$/\1:\2:\3:\4::\/64/') || SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK | awk '{print $1;exit}')
         SERVER6=${IPV6%/*}
-        DHCP6=${NETWORK/./_}
-        DHCP6=DOCKER_DHCP6_${DHCP6^^}
-        RANGE6=${!DHCP6}
         GATEWAY6=$(ip -6 route show default dev $NETWORK | awk '{print $3;exit}')
         # replace link local address for first address in subnet
         [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%/*}1
@@ -354,8 +350,6 @@ docker_network_start(){
       GATEWAY6=DOCKER_GATEWAY6_$DEVICE
       GATEWAY6=${!GATEWAY6}
       SERVER6=;
-      RANGE6=DOCKER_RANGE6_$DEVICE
-      RANGE6=${!RANGE6}
     fi
     # custom network already existing and changed?
     if [[ $NETWORKS =~ "$NETWORK " ]]; then
@@ -375,7 +369,7 @@ docker_network_start(){
       [[ -n ${SERVERS[1]} && ${SERVERS[1]} =~ '.' ]] && SERVER0=${SERVERS[1]} || SERVER1=${SERVERS[1]}
       # check for changes
       [[ $SUBNET != $SUBNET0 || $SUBNET6 != $SUBNET1 ]] && UPDATE=1
-      [[ $RANGE != $RANGE0 || $RANGE6 != $RANGE1 ]] && UPDATE=1
+      [[ $RANGE != $RANGE0 ]] && UPDATE=1
       [[ (-n $GATEWAY && $GATEWAY != $GATEWAY0) || (-n $GATEWAY6 && $GATEWAY6 != $GATEWAY1) ]] && UPDATE=1
       [[ (-n $SERVER && $SERVER != $SERVER0) || (-n $SERVER6 && $SERVER6 != $SERVER1) ]] && UPDATE=1
       if [[ -z $UPDATE ]]; then
@@ -388,20 +382,19 @@ docker_network_start(){
     fi
     # set parameters for custom network creation
     N4=$SUBNET;  R4=$RANGE;
-    N6=$SUBNET6; R6=$RANGE6;
+    N6=$SUBNET6;
     [[ -n $SUBNET && -n $GATEWAY ]] && GATEWAY="--gateway=$GATEWAY" || GATEWAY=;
     [[ -n $SUBNET && -n $SERVER ]] && SERVER="--aux-address=server=$SERVER" || SERVER=;
     [[ -n $SUBNET && -n $RANGE ]] && RANGE="--ip-range=$RANGE" || RANGE=;
     [[ -n $SUBNET ]] && SUBNET="--subnet=$SUBNET"
     [[ -n $SUBNET6 && -n $GATEWAY6 ]] && GATEWAY6="--gateway=$GATEWAY6" || GATEWAY6=;
     [[ -n $SUBNET6 && -n $SERVER6 ]] && SERVER6="--aux-address=server6=$SERVER6" || SERVER6=;
-    [[ -n $SUBNET6 && -n $RANGE6 ]] && RANGE6="--ip-range=$RANGE6" || RANGE6=;
     [[ -n $SUBNET6 ]] && SUBNET6="--ipv6 --subnet=$SUBNET6"
     if [[ -n $SUBNET || -n $SUBNET6 ]]; then
       TYPE=${NETWORK//[0-9.]/}
       driver $TYPE
       [[ $TYPE == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
-      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
+      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
         CONTAINER=${CONNECT%,*}

@@ -39,13 +39,13 @@ fi
 if grep -q quota /etc/fstab ; then
   if [[ -x /sbin/quotaoff ]]; then
     log "Turning off filesystem quotas."
-    run quotaoff -a
+    run /sbin/quotaoff -a
   fi
 fi
 
 # Try to turn off accounting:
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
-  accton off
+  /sbin/accton off
 fi
 
 # Run any local shutdown scripts:

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,8 +26,8 @@ case 'Add Route':
   if ($gateway && $route) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$gateway}_{$route}_{$metric}_add"));
   break;
 default:
-  exec("ip -4 route show table all|grep -Pv '^(127\\.0\\.0\\.0)|table local'",$ipv4);
-  exec("ip -6 route show table all|grep -Pv '^([am:]|(f[ef][0-9][0-9])::)|expires|table local'",$ipv6);
+  exec("ip -4 route show table all|grep -Pv '^(127\\.0\\.0\\.0)|table local|unreachable'",$ipv4);
+  exec("ip -6 route show table all|grep -Pv '^([am:]|(f[ef][0-9][0-9])::)|expires|table local|unreachable'",$ipv6);
   foreach ($ipv4 as $info) {
     $cell = explode(' ',$info);
     $route = $cell[0];

@@ -16,19 +16,19 @@ if [[ -f /boot/unraidsafemode ]] || grep -wq unraidsafemode /proc/cmdline; then
   log "Unraid Safe Mode (unraidsafemode) has been set, skip driver installation"
 else
   log "Installing third-party drivers..."
-  find /boot/config/plugins/*/packages/${RELEASE%%-*}/ -maxdepth 1 -type f 2>/dev/null | while read -r PKG; do
+  /usr/bin/find /boot/config/plugins/*/packages/${RELEASE%%-*}/ -maxdepth 1 -type f 2>/dev/null | while read -r PKG; do
     if [[ $PKG == *"-$RELEASE-"*.t?z ]]; then
       if [[ -f $PKG.md5 ]]; then
-        HASH1=$(md5sum $PKG)
-        HASH2=$(cat $PKG.md5)
+        HASH1=$(/bin/md5sum $PKG)
+        HASH2=$(/bin/cat $PKG.md5)
         if [[ ${HASH1:0:32} != ${HASH2:0:32} ]]; then
           log "Package $PKG has MD5 error, not installing"
           continue
         fi
       fi
       if [[ -f $PKG.sha256 ]]; then
-        HASH1=$(sha256sum $PKG)
-        HASH2=$(cat $PKG.sha256)
+        HASH1=$(/bin/sha256sum $PKG)
+        HASH2=$(/bin/cat $PKG.sha256)
         if [[ ${HASH1:0:64} != ${HASH2:0:64} ]]; then
           log "Package $PKG has SHA256 error, not installing"
           continue

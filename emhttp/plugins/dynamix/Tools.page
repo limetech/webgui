@@ -5,9 +5,9 @@ Code="e909"
 ---
 <?PHP 
 if (!isset($display['favorites'])) {
-  $favorites = true;
+  $favorites = 'true';
 } else {
-  $favorites = $display['favorites'] == "yes" ? true : false;
+  $favorites = $display['favorites'] == 'yes' ? 'true' : 'false';
 }
 ?>
 <script>

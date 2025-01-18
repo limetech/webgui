@@ -252,7 +252,7 @@ function openWindow(cmd,title,height,width) {
 }
 function openTerminal(tag,name,more) {
   if (/MSIE|Edge/.test(navigator.userAgent)) {
-    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",type:'error',html:true,animation:'none',confirmButtonText:"_(Ok)_"});
     return;
   }
   // open terminal window (run in background)
@@ -409,7 +409,7 @@ function openDone(data) {
   if (data == '_DONE_') {
     $('div.spinner.fixed').hide();
     $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
-    if ( typeof ca_done_override !== 'undefined' ) {
+    if (typeof ca_done_override !== 'undefined') {
       if (ca_done_override == true) {
         $("button.confirm").trigger("click");
         ca_done_override = false;
@@ -529,7 +529,7 @@ function hideUpgrade(set) { /** @note can likely be removed, not used in webgui 
 }
 function confirmUpgrade(confirm) {
   if (confirm) {
-    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
       openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
     });
   } else {
@@ -654,6 +654,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
     </div>
     <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
+  <a href="#" class="move_to_end" title="<?=_('Move To End')?>"><i class="fa fa-arrow-circle-down"></i></a>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
 // Build page menus
@@ -1034,13 +1035,12 @@ nchan_vmaction.on('message', function(data) {
   box.scrollTop(box[0].scrollHeight);
 });
 
-var backtotopoffset = 250;
-var backtotopduration = 500;
+const scrollDuration = 500;
 $(window).scroll(function() {
-  if ($(this).scrollTop() > backtotopoffset) {
-    $('.back_to_top').fadeIn(backtotopduration);
+  if ($(this).scrollTop() > 0) {
+    $('.back_to_top').fadeIn(scrollDuration);
   } else {
-    $('.back_to_top').fadeOut(backtotopduration);
+    $('.back_to_top').fadeOut(scrollDuration);
   }
 <?if ($themes1):?>
   var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
@@ -1049,9 +1049,16 @@ $(window).scroll(function() {
   $('div.upgrade_notice').css($(this).scrollTop() > 24 ? {position:'fixed',top:'0'} : {position:'absolute',top:'24px'});
 <?endif;?>
 });
+
+$('.move_to_end').click(function(event) {
+  event.preventDefault();
+  $('html,body').animate({scrollTop:$(document).height()},scrollDuration);
+  return false;
+});
+
 $('.back_to_top').click(function(event) {
   event.preventDefault();
-  $('html,body').animate({scrollTop:0},backtotopduration);
+  $('html,body').animate({scrollTop:0},scrollDuration);
   return false;
 });
 
@@ -1128,6 +1135,7 @@ $(function() {
     });
   }
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
+  setInterval(function(){if ($(document).height() > $(window).height()) $('.move_to_end').fadeIn(scrollDuration); else $('.move_to_end').fadeOut(scrollDuration);},250);
 });
 
 var gui_pages_available = [];
@@ -1147,56 +1155,43 @@ function isValidURL(url) {
   }
 }
 
-$('body').on("click","a,.ca_href", function(e) {
-  if ($(this).hasClass("ca_href") ) {
+$('body').on('click','a,.ca_href', function(e) {
+  if ($(this).hasClass('ca_href')) {
     var ca_href = true;
-    var href=$(this).attr("data-href");
-    var target=$(this).attr("data-target");
+    var href=$(this).attr('data-href');
+    var target=$(this).attr('data-target');
   } else {
     var ca_href = false;
-    var href = $(this).attr("href");
-    var target = $(this).attr("target");
+    var href = $(this).attr('href');
+    var target = $(this).attr('target');
   }
-  if ( href ) {
+  if (href) {
     href = href.trim();
-    if ( href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" || href.indexOf("http://lime-technology.com") == 0) {
-      if ( ca_href ) {
-        window.open(href,target);
-      }
+    if (href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf('https://unraid.net/') == 0 || href == 'https://unraid.net' || href.indexOf('http://lime-technology.com') == 0) {
+      if (ca_href) window.open(href,target);
       return;
-    } 
-
-    if (href !== "#" && href.indexOf("javascript") !== 0) {
+    }
+    if (href !== '#' && href.indexOf('javascript') !== 0) {
       var dom = isValidURL(href);
-      if ( dom == false ) {
-        if ( href.indexOf("/") == 0 ) {   // all internal links start with "/"
-        return;
+      if (dom == false) {
+        if (href.indexOf('/') == 0) return;  // all internal links start with "/"
+      var baseURLpage = href.split('/');
+        if (gui_pages_available.includes(baseURLpage[0])) return;
       }
-      var baseURLpage = href.split("/");
-        if ( gui_pages_available.includes(baseURLpage[0]) ) {
-          return;
-        }
-      }
-      if ( $(this).hasClass("localURL") ) {
-        return;
-      }
-
+      if ($(this).hasClass('localURL')) return;
       try {
-        var domainsAllowed = JSON.parse($.cookie("allowedDomains"));
+        var domainsAllowed = JSON.parse($.cookie('allowedDomains'));
       } catch(e) {
         var domainsAllowed = new Object();
       }
-      $.cookie("allowedDomains",JSON.stringify(domainsAllowed),{expires:3650}); // rewrite cookie to further extend expiration by 400 days
-
-      if ( domainsAllowed[dom.hostname] ) {
-        return;
-      }
-
+      $.cookie('allowedDomains',JSON.stringify(domainsAllowed),{expires:3650}); // rewrite cookie to further extend expiration by 400 days
+      if (domainsAllowed[dom.hostname]) return;
       e.preventDefault();
       swal({
         title: "<?=_('External Link')?>",
         text: "<span title='"+href+"'><?=_('Clicking OK will take you to a 3rd party website not associated with Lime Technology')?><br><br><b>"+href+"<br><br><input id='Link_Always_Allow' type='checkbox'></input><?=_('Always Allow')?> "+dom.hostname+"</span>",
         html: true,
+        animation: 'none',
         type: 'warning',
         showCancelButton: true,
         showConfirmButton: true,
@@ -1204,16 +1199,14 @@ $('body').on("click","a,.ca_href", function(e) {
         confirmButtonText: "<?=_('OK')?>"
       },function(isConfirm) {
         if (isConfirm) {
-          if ( $("#Link_Always_Allow").is(":checked") ) {
+          if ($('#Link_Always_Allow').is(':checked')) {
             domainsAllowed[dom.hostname] = true;
-            $.cookie("allowedDomains",JSON.stringify(domainsAllowed),{expires:3650});
+            $.cookie('allowedDomains',JSON.stringify(domainsAllowed),{expires:3650});
           }
           var popupOpen = window.open(href,target);
-          if ( !popupOpen || popupOpen.closed || typeof popupOpen == "undefined" ) {
-            var popupWarning = addBannerWarning("<?=_('Popup Blocked.');?>");
-            setTimeout(function() {
-              removeBannerWarning(popupWarning);}
-            ,10000);
+          if (!popupOpen || popupOpen.closed || typeof popupOpen == 'undefined') {
+            var popupWarning = addBannerWarning("<?=_('Popup Blocked');?>");
+            setTimeout(function(){removeBannerWarning(popupWarning);},10000);
           }
         }
       });

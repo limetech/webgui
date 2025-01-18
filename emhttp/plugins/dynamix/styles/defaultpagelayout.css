@@ -3,7 +3,8 @@
 .upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
 .upgrade_notice.alert{color:#f0000c;background-color:#ff9e9e;border-color:#f0000c}
 .upgrade_notice i{float:right;cursor:pointer}
-.back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
+.move_to_end{display:none;position:fixed;bottom:24px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
+.back_to_top{display:none;position:fixed;bottom:24px;right:40px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
 span.strong.tour{margin-left:5px;padding-left:0}
 i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}

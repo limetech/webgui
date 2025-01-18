@@ -66,16 +66,16 @@ done
 # Handle System V init conventions...
 case "$1" in
 'start')
-  action="start"
+  ACTION="start"
   ;;
 'stop')
-  action="stop"
+  ACTION="stop"
   ;;
 *)
-  action="start"
+  ACTION="start"
 esac
 
-if [[ $action == stop ]]; then
+if [[ $ACTION == stop ]]; then
   if [[ -n $SETSERIAL && $LOADED != no && "$(head -1 $SERIAL)X" == "###AUTOSAVE###X" ]]; then
     log "Saving state of serial devices."
     grep "^#" $SERIAL >/etc/.serial.conf.new

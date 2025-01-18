@@ -4,11 +4,19 @@
 #
 # Library used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
 #
-# Bergware - created for Unraid OS, December 2023
+# Bergware - created for Unraid OS, December 2024
 
 WIREGUARD="/etc/wireguard"
 NETWORK_INI="/var/local/emhttp/network.ini"
 NETWORK_EXTRA="/boot/config/network-extra.cfg"
+
+var(){
+  if [[ $# -eq 3 ]]; then
+    [[ -r "$3" ]] && sed -n "/^\[$1\]\$/,/^\[/p" "$3" | grep -Pom1 "^$2=\"\K[^\"]+"
+  elif [[ $# -eq 2 ]]; then
+    [[ -r "$2" ]] && grep -Pom1 "^$1=\"\K[^\"]+" "$2"
+  fi
+}
 
 ipv(){
   local t=${1//[^:]}
@@ -151,7 +159,7 @@ check(){
       fi
       [[ $(ipv $ADDR) == 4 ]] && IPV4=yes || IPV6=yes
     done
-  done <<< $(ip -br addr show scope global | awk '$1~"^(br|bond|eth|wg)[0-9]+(.[0-9]+)?" && $3!="" {gsub("@.+","",$1);$2="";print}' | sed -r 's/ metric [0-9]+//g' | sort)
+  done <<< $(ip -br addr show scope global -temporary -deprecated | awk '$1~"^(br|bond|eth|wg)[0-9]+(.[0-9]+)?" && $3!="" {gsub("@.+","",$1);$2="";print}' | sed -r 's/ metric [0-9]+//g' | sort)
   # add loopback interface
   if [[ "smb nfs" =~ "$CALLER" ]]; then
     [[ $IPV4 == yes ]] && BIND+=(127.0.0.1)

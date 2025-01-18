@@ -4,8 +4,8 @@ Icon="icon-docker"
 Tag="icon-docker"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
@@ -52,12 +52,12 @@ $include = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $p
 $wide = false;
 foreach ($custom as $network) {
   if (in_array($network,$slaves)) continue;
-  $ip4    = exec("ip -br -4 addr show $network scope global|awk '{print $3}'");
-  $ip6    = exec("ip -br -6 addr show $network scope global|awk '{print $3}'");
-  $gw4    = $ip4 ? exec("ip -4 route show dev $network default|awk '{print $3;exit}'") : '';
-  $gw6    = $ip6 ? exec("ip -6 route show dev $network default|awk '{print $3;exit}'") : '';
-  $route4 = $ip4 ? exec("ip -4 route show dev $network $ip4|awk '{print $1;exit}'") : '';
-  $route6 = $ip6 ? exec("ip -6 route show dev $network|awk '/^".substr($ip6,0,strposX($ip6,':',4))."/{print $1;exit}'") : '';
+  $ip4    = exec("ip -4 -br addr show $network scope global | awk '{print $3;exit}'");
+  $ip6    = exec("ip -6 -br addr show $network scope global -temporary -deprecated | awk '{print $3;exit}'");
+  $gw4    = $ip4 ? exec("ip -4 route show dev $network default | awk '{print $3;exit}'") : '';
+  $gw6    = $ip6 ? exec("ip -6 route show dev $network default | awk '{print $3;exit}'") : '';
+  $route4 = $ip4 ? exec("ip -4 route show dev $network $ip4 | awk '{print $1;exit}'") : '';
+  $route6 = $ip6 ? exec("ip -6 route show dev $network | awk '/^".substr($ip6,0,strposX($ip6,':',4))."/{print $1;exit}'") : '';
   [$eth,$vlan] = my_explode('.',$network);
   $eth = str_replace(['bond','br'],'eth',$eth);
   if (!$vlan) {
@@ -392,14 +392,6 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
   <span id="<?=$docker_dhcp6?>_line" class="<?=$auto6Disabled?>">
   <span class="ip6">**_(Subnet)_:** <?=$route?></span>
   <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
-  <input type="checkbox" id="<?=$docker_dhcp6?>_dhcp" onchange="changeDHCP(this.id,6)"<?=$dhcp6?'checked':''?><?=$auto6Disabled?>>
-  **_(DHCP pool)_:**<span id="<?=$docker_dhcp6?>_net" class="net <?=$dhcp6Disabled?>"><?=$net?>:</span>
-<?
-  echo "<input type=\"text\" id=\"{$docker_dhcp6}_text\" value=\"$net_user\" class=\"pool6\" $dhcp6Disabled>/ ";
-  echo "<select id=\"{$docker_dhcp6}_mask\" class=\"mask\" $dhcp6Disabled>";
-  for ($m=$mask+8; $m<=120; $m+=8) echo mk_option($mask_user,$m,$m);
-  echo "</select><input type=\"hidden\" name=\"$docker_dhcp6\" value=\"\"></span>";
-?>
 
 <?endforeach;?>
 <?if ($include6):?>
@@ -422,10 +414,6 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
   <select id="DOCKER_CUSTOM6_<?=$port?>_mask" name="DOCKER_MASK6_<?=$port?>" class="mask"<?=$disabled?>>
   <?for ($m=64; $m<=120; $m+=8) echo mk_option($mask6?:64,$m,$m)?></select></span>
   <span class="gw6">**_(Gateway)_:**<input type="text" id="DOCKER_CUSTOM6_<?=$port?>_gw" name="DOCKER_GATEWAY6_<?=$port?>" class="gw6" value="<?=_var($dockercfg,"DOCKER_GATEWAY6_$port")?>" title="_(IPv6 address nnnn:xxxx::yyyy)_"<?=$disabled?>></span>
-  <input type="checkbox" id="DOCKER_CUSTOM6_<?=$port?>_dhcp" onchange="customDHCP(this.id,6)"<?=$subnet6?'checked':''?><?=$dhcpDisabled?>>
-  **_(DHCP pool)_:**<input type="text" id="DOCKER_CUSTOM6_<?=$port?>_pool" name="DOCKER_RANGE6_<?=$port?>" class="ip6" value="<?=$range6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_"<?=$disabled?>>/
-  <select id="DOCKER_CUSTOM6_<?=$port?>_size" name="DOCKER_SIZE6_<?=$port?>" class="mask"<?=$disabled?>>
-  <?for ($m=64; $m<=120; $m+=8) echo mk_option($size6?:72,$m,$m)?></select></span>
 
 <?endif;?>
 <?endforeach;?>
@@ -528,7 +516,6 @@ if (isset($dockercfg[$docker_dhcp6]) || empty($dockercfg["DOCKER_AUTO_$net"])):?
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="gw6">**_(Subnet)_:** <?=$route?></span>
   <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
-  **_(DHCP pool)_:** <?=_var($dockercfg,$docker_dhcp6) ?: "_(not set)_"?>
 
 <?endif;?>
 <?endforeach;?>
@@ -551,7 +538,7 @@ if (!$vlan) {
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="gw6">**_(Subnet)_:** <?=$subnet6?>/<?=$mask6?></span>
   <span class="gw6">**_(Gateway)_:** <?=_var($dockercfg,"DOCKER_GATEWAY6_$port")?></span>
-  **_(DHCP pool)_:** <?=$range6 ? "$range6/$size6" : "_(not set)_"?>
+
 <?endif;?>
 <?endforeach;?>
 </div>

@@ -1,10 +1,10 @@
 Menu="NetworkSettings"
 Title="Interface Extra"
-Tag="icon-ethernet"
+Tag="icon-custom"
 ---
 <?PHP
-/* Copyright 2023, Lime Technology
- * Copyright 2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -52,28 +52,6 @@ function prepareText(form) {
   return true;
 }
 
-<?if (!$tabbed):?>
-function toggleExtra() {
-  var tag = '#tag_extra';
-  var view = '#extra_table';
-  if ($(view).is(':visible')) {
-    $(tag).removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    $.cookie(view,'hide',{expires:3650});
-  } else {
-    $(tag).removeClass('fa-chevron-down').addClass('fa-chevron-up');
-    $.removeCookie(view);
-  }
-  $(view).toggle('slow');
-}
-$(function(){
-  $('div.title').eq(-3).find('span.left').append("<span class='status vhshift'><i id='tag_extra' class='fa fa-fw fa-chevron-up' style='cursor:pointer' onclick='toggleExtra()'></i></span>");
-  if (!$.cookie('#extra_table')) $('#extra_table').show(); else {$('#extra_table').hide(); $('#tag_extra').removeClass('fa-chevron-up').addClass('fa-chevron-down');}
-});
-<?else:?>
-$(function(){
-  $('#extra_table').show();
-});
-<?endif;?>
 $(function(){
   $('form textarea').on('input',function(){
     $(this).prop('rows',($(this).val().match(/\n/g)||[]).length+1);
@@ -81,7 +59,7 @@ $(function(){
 });
 </script>
 
-<div markdown="1" id="extra_table" style="display:none">
+<div class="title nocontrol shift">&nbsp;</div>
 <form markdown="1" name="network_extra" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareText(this)">
 <input type="hidden" name="#file" value="<?=$cfg?>">
 <input type="hidden" name="#command" value="/webGui/scripts/reload_services">
@@ -105,5 +83,3 @@ _(Exclude listening interfaces)_:
 &nbsp;
 : <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
-
-</div>

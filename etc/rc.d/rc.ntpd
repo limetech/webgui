@@ -5,15 +5,15 @@
 # Start/stop/restart ntpd.
 #
 # LimeTech - modified to initialize ntp.conf file from config
-# Bergware - modified for Unraid OS, October 2023
+# Bergware - modified for Unraid OS, December 2024
 
 DAEMON="NTP server daemon"
 CALLER="ntp"
 NTPD="/usr/sbin/ntpd"
 OPTIONS="-g -u ntp:ntp"
 CONF="/etc/ntp.conf"
+CFG="/boot/config/plugins/dynamix/dynamix.cfg"
 IDENT="/boot/config/ident.cfg"
-CONFIG="/boot/config/plugins/dynamix/dynamix.cfg"
 
 # run & log functions
 . /etc/rc.d/rc.runlog
@@ -39,24 +39,25 @@ ntpd_build(){
       echo "interface listen $NET" >>$CONF
     done
   fi
+  NTP_POLL=$(var NTP POLL $CFG)
   # ntp poll interval may be adjusted to predefined values
-  if [[ -f $CONFIG ]]; then
-    NTP_POLL=$(grep -Po '^ntppoll="\K[^"]+' $CONFIG)
-    if [[ -n $NTP_POLL ]]; then
-      MINPOLL="minpoll $NTP_POLL"
-      MAXPOLL="maxpoll $NTP_POLL"
-    fi
+  if [[ -n $NTP_POLL ]]; then
+    MINPOLL="minpoll $NTP_POLL"
+    MAXPOLL="maxpoll $NTP_POLL"
   fi
-  # add configured ntp servers or pools
-  for n in {1..4}; do
-    NTP="NTP_SERVER$n"
-    if [[ -n ${!NTP} ]]; then
-      # use either server or pool peers depending on remote ntp name
-      # pools use a round-robin mechanism to get a server out of the pool
-      [[ ${!NTP} =~ "pool" ]] && PEER=pool || PEER=server
-      echo "$PEER ${!NTP} iburst $MINPOLL $MAXPOLL" >>$CONF
-    fi
-  done
+  # allow ntp to use ptp as sync source
+  if [[ $(var PTP SYNC $CFG) != yes ]]; then
+    # add configured ntp servers or pools
+    for n in {1..4}; do
+      NTP="NTP_SERVER$n"
+      if [[ -n ${!NTP} ]]; then
+        # use either server or pool peers depending on remote ntp name
+        # pools use a round-robin mechanism to get a server out of the pool
+        [[ ${!NTP} =~ "pool" ]] && PEER=pool || PEER=server
+        echo "$PEER ${!NTP} iburst $MINPOLL $MAXPOLL" >>$CONF
+      fi
+    done
+  fi
 }
 
 ntpd_start(){
@@ -64,7 +65,7 @@ ntpd_start(){
   local REPLY
   # read Unraid settings
   [[ -r $IDENT ]] && . <(fromdos <$IDENT)
-  # if ntp not enabled, don't start ntp
+  # if time sync not enabled, don't start ntp
   if [[ $USE_NTP != yes ]]; then
     REPLY="Service not enabled"
   elif ntpd_running; then
@@ -90,7 +91,7 @@ ntpd_stop(){
       kill -HUP $(cat /var/run/ntpd.pid)
       rm -f /var/run/ntpd.pid
     else
-      killall --ns $$  -HUP -q ntpd
+      killall --ns $$ -HUP -q ntpd
     fi
     if ! ntpd_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
@@ -107,7 +108,7 @@ ntpd_restart(){
 }
 
 ntpd_reload(){
-  killall --ns $$  -HUP -q ntpd
+  killall --ns $$ -HUP -q ntpd
   . <(fromdos <$IDENT)
   ntpd_build
   $NTPD $OPTIONS 2>/dev/null

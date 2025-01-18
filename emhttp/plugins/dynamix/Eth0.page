@@ -3,8 +3,8 @@ Title="_(Interface)_ eth0"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,7 +23,6 @@ $ini = '/var/local/emhttp/network.ini';
 
 $validIP4 = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6 = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
-$width    = [166,300];
 
 // get available ethernet ports (excluding eth0)
 exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$ports);
@@ -71,13 +70,49 @@ $vlan_eth0 = $sort_eth0 = [];
 if (isset($eth0)) foreach (vlanID($eth0) as $key => $val) {$vlan_eth0[] = index($key); $sort_eth0[] = (int)$val;}
 array_multisort($sort_eth0,$vlan_eth0);
 ?>
+
 <script>
 <?if ($build):?>
 refresh(); // automatically include new ethernet ports
 <?endif;?>
 Array.prototype.same = function(){return this.sort().filter(function(v,i,o){return i&&v===o[i-1]?v:0;}).length;}
 
+const arg1 = {};
+const run  = {};
+const eth0 = document.eth0_settings;
+arg1.eth0  = 'none';
+
+function presetRun(form) {
+  var port = form.name.replace('_settings','');
+  $(form).find('input[name^="DESCRIPTION:"]').each(function(){
+    var name = $(this).prop('name').replace(':','');
+    run[port+name] = $(this).val();
+  });
+}
+
+function signalRun(form,id) {
+  switch (id) {
+  case 1:
+    if (arg1.eth0=='none') arg1.eth0 = 'renew';
+    break;
+  case 2:
+    var port = form.name.replace('_settings','');
+    $(form).find('input[name^="DESCRIPTION:"]').each(function(){
+      var name = $(this).prop('name').replace(':','');
+      var data = $(this).val();
+      if (run[port+name] != data) {
+        run[port+name] = data;
+        port = 'none';
+      }
+    });
+    if (port!='none') arg1[port] = port;
+    break;
+  }
+}
+
 function prepareSettings(form) {
+  var dns = document.dns_settings;
+  var port = form.name.replace('_settings','');
   var bondnics = [], brnics = [];
   for (var i=0,nic; nic=form.BONDNICS.options[i]; i++) {
     if (nic.selected) {
@@ -106,7 +141,7 @@ function prepareSettings(form) {
   $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
-    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',animation:'none',type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   if (form.TYPE.value == 'access') {
@@ -127,19 +162,18 @@ function prepareSettings(form) {
     var vlans = [];
     $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
     if (vlans.same()) {
-      swal({title:"_(VLAN assignment mismatch)_",text:"_(List of VLANs contains duplicate VLAN numbers)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+      swal({title:"_(VLAN assignment mismatch)_",text:"_(List of VLANs contains duplicate VLAN numbers)_",animation:'none',type:'error',html:true,confirmButtonText:"_(Ok)_"});
       return false;
     }
   }
   $(form).find('select[name^="PROTOCOL:"]').each(function() {
     var protocol = $(this).val() || 'ipv4';
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     if (protocol == 'ipv6') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
       $(form).find('select[name="NETMASK:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="METRIC:'+i+'"]').prop('disabled',false).val('');
-      if (i==0) $(form).find('input[name^="DNS_SERVER"]').prop('disabled',false).val('');
     }
     if (protocol == 'ipv4') {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
@@ -147,67 +181,65 @@ function prepareSettings(form) {
       $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',false).val('');
       $(form).find('select[name="PRIVACY6:'+i+'"]').prop('disabled',false).val('');
-      if (i==0) $(form).find('input[name^="DNS6_SERVER"]').prop('disabled',false).val('');
     }
   });
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
-    if ($(this).prop('disabled')==false && $(this).val()=='yes') {
-      if (protocol != 'ipv6') {
-        $(form).find('input[name="IPADDR:'+i+'"]').val('_(Obtaining IPv4 address)_...');
-        $(form).find('input[name="GATEWAY:'+i+'"]').val(metric!='0'?'_(Obtaining IPv4 gateway)_...':'');
-      }
-    } else if (protocol != 'ipv6' && $(this).val()=='yes') {
+    if (protocol != 'ipv6' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
     }
   });
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
-    if ($(this).prop('disabled')==false && $(this).val()=='yes') {
-      if (protocol != 'ipv4') {
-        $(form).find('input[name="IPADDR6:'+i+'"]').val('_(Obtaining IPv6 address)_...');
-        $(form).find('input[name="GATEWAY6:'+i+'"]').val(metric!='0'?'_(Obtaining IPv6 gateway)_...':'');
-      }
-    } else if (protocol != 'ipv4' && $(this).val()=='yes') {
+    if (protocol != 'ipv4' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',false).val('');
     }
     if ($(this).val()!='yes') $(form).find('input[name="PRIVACY6:'+i+'"]').prop('disabled',false).val('');
   });
-  if (form.DHCP_KEEPRESOLV !== undefined && form.DHCP_KEEPRESOLV.value=='no') {
-    form.DHCP_KEEPRESOLV.disabled = false;
-    var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
-    if (protocol != 'ipv6') $(form).find('input[name^="DNS_SERVER"]').val('_(Obtaining DNSv4 server)_...');
+  if (port=='eth0') {
+    $(dns).find('select,input').each(function(){
+      var name = $(this).prop('name');
+      var data = $(this).val();
+      $(form).find('input[name="'+name+'"]').val(data);
+    });
   }
-  if (form.DHCP6_KEEPRESOLV !== undefined && form.DHCP6_KEEPRESOLV.value=='no') {
-    form.DHCP6_KEEPRESOLV.disabled = false;
-    var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
-    if (protocol != 'ipv4') $(form).find('input[name^="DNS6_SERVER"]').val('_(Obtaining DNSv6 server)_...');
-  }
+  $(form).find('input[name="#arg[1]"]').val(arg1[port]);
   setTimeout(refresh,25000);
   return true;
 }
-function selectProtocol(form,port,index) {
+
+function selectProtocol(form,index,step) {
+  var port = form.name.replace('_settings','');
   if (index == null) {
     $(form).find('select[name^="PROTOCOL:"]').each(function() {
       var protocol = $(this).val() || 'ipv4';
-      var i = $(this).attr('name').split(':')[1];
+      var i = $(this).prop('name').split(':')[1];
       var net4 = $('.'+'ipv4-'+port+'-'+i);
       var net6 = $('.'+'ipv6-'+port+'-'+i);
       var more4 = $('.'+'more-ipv4-'+port+'-'+i);
       var more6 = $('.'+'more-ipv6-'+port+'-'+i);
+      var priv6 = $('.'+'priv-ipv6-'+port+'-'+i);
       switch (protocol) {
         case 'ipv4': net4.show(); net6.hide(); break;
         case 'ipv6': net4.hide(); net6.show(); break;
         case 'ipv4+ipv6': net4.show(); net6.show(); break;
       }
-      if ($(form).find('select[name="USE_DHCP:'+i+'"]').val()) more4.show(); else more4.hide();
-      if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()) more6.show(); else more6.hide();
+<?if ($service):?>
+      more4.hide();
+      more6.hide();
+      priv6.hide();
+<?else:?>
+      var dhcp4 = $(form).find('select[name="USE_DHCP:'+i+'"]').val();
+      var dhcp6 = $(form).find('select[name="USE_DHCP6:'+i+'"]').val();
+      if (dhcp4=='no') more4.show(); else more4.hide();
+      if (dhcp6=='no') {more6.show(); priv6.hide();} else if (dhcp6=='yes') {more6.hide(); priv6.show();} else {more6.hide(); priv6.hide();}
+<?endif;?>
       checkNetworkSettings(form,i);
     });
   } else {
@@ -216,16 +248,20 @@ function selectProtocol(form,port,index) {
     var net6 = $('.'+'ipv6-'+port+'-'+index);
     var more4 = $('.'+'more-ipv4-'+port+'-'+index);
     var more6 = $('.'+'more-ipv6-'+port+'-'+index);
+    var priv6 = $('.'+'priv-ipv6-'+port+'-'+index);
     switch (protocol) {
-      case 'ipv4': net4.show(); net6.hide(); break;
-      case 'ipv6': net4.hide(); net6.show(); break;
-      case 'ipv4+ipv6': net4.show(); net6.show(); break;
+      case 'ipv4': net4.show(step); net6.hide(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').hide(step);} break;
+      case 'ipv6': net4.hide(step); net6.show(step); if (port=='eth0') {$('#dns4').hide(step); $('#dns6').show(step);} break;
+      case 'ipv4+ipv6': net4.show(step); net6.show(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').show(step);} break;
     }
-    if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()) more4.show(); else more4.hide();
-    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()) more6.show(); else more6.hide();
+    var dhcp4 = $(form).find('select[name="USE_DHCP:'+index+'"]').val();
+    var dhcp6 = $(form).find('select[name="USE_DHCP6:'+index+'"]').val();
+    if (dhcp4=='no') more4.show(step); else more4.hide(step);
+    if (dhcp6=='no') {more6.show(step); priv6.hide(step);} else if (dhcp6=='yes') {more6.hide(step); priv6.show(step);} else {more6.hide(step); priv6.hide(step);}
     checkNetworkSettings(form,index);
   }
 }
+
 function checkNetworkSettings(form,index) {
   var disabled4 = $(form).find('select[name="USE_DHCP:'+index+'"]').val()!='no';
   var disabled6 = $(form).find('select[name="USE_DHCP6:'+index+'"]').val()!='no';
@@ -242,187 +278,238 @@ function checkNetworkSettings(form,index) {
     var privacy = $(form).find('select[name="PRIVACY6:'+index+'"]');
     privacy.prop('disabled',!disabled6);
   }
-  if (index==0) {
-    if (form.DHCP_KEEPRESOLV !== undefined) checkDNSSettings(form);
-    if (form.DHCP6_KEEPRESOLV !== undefined) checkDNSSettings6(form);
+  if (form.name=='eth0_settings' && index==0) {
+    checkDNSsettings(form);
+    checkDNS6settings(form);
   }
 }
-function checkDNSSettings(form) {
+
+function checkDNSsettings(form,step) {
+  var dns = document.dns_settings;
   if ($(form).find('select[name="USE_DHCP:0"]').val()=='no') {
-    form.DHCP_KEEPRESOLV.value = 'yes';
-    form.DHCP_KEEPRESOLV.disabled = true;
+    dns.DHCP_KEEPRESOLV.value = 'yes';
+    dns.DHCP_KEEPRESOLV.disabled = true;
   } else {
-    form.DHCP_KEEPRESOLV.disabled = false;
+    dns.DHCP_KEEPRESOLV.disabled = false;
   }
-  var disabled = form.DHCP_KEEPRESOLV.value=='no';
+  var disabled = dns.DHCP_KEEPRESOLV.value=='no';
   var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
+  if (disabled) $('#dns4server').hide(step); else $('#dns4server').show(step);
   if (protocol != 'ipv6') {
-    form.DNS_SERVER1.disabled = disabled;
-    form.DNS_SERVER1.required = !disabled;
-    form.DNS_SERVER2.disabled = disabled;
-    form.DNS_SERVER3.disabled = disabled;
-    if (!form.DNS_SERVER2.value && disabled) $('#dnsserver2').hide(); else $('#dnsserver2').show();
-    if (!form.DNS_SERVER3.value && disabled) $('#dnsserver3').hide(); else $('#dnsserver3').show();
+    dns.DNS_SERVER1.required = !disabled;
+    $('#dns4').show();
   }
 }
-function checkDNSSettings6(form) {
+
+function checkDNS6settings(form,step) {
+  var dns = document.dns_settings;
   if ($(form).find('select[name="USE_DHCP6:0"]').val()=='no') {
-    form.DHCP6_KEEPRESOLV.value = 'yes';
-    form.DHCP6_KEEPRESOLV.disabled = true;
+    dns.DHCP6_KEEPRESOLV.value = 'yes';
+    dns.DHCP6_KEEPRESOLV.disabled = true;
   } else {
-    form.DHCP6_KEEPRESOLV.disabled = false;
+    dns.DHCP6_KEEPRESOLV.disabled = false;
   }
-  var disabled = form.DHCP6_KEEPRESOLV.value=='no';
+  var disabled = dns.DHCP6_KEEPRESOLV.value=='no';
   var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
+  if (disabled) $('#dns6server').hide(step); else $('#dns6server').show(step);
   if (protocol != 'ipv4') {
-    form.DNS6_SERVER1.disabled = disabled;
-    form.DNS6_SERVER2.disabled = disabled;
-    form.DNS6_SERVER3.disabled = disabled;
-    $('#dns6server1').show();
-    if (!form.DNS6_SERVER2.value && disabled) $('#dns6server2').hide(); else $('#dns6server2').show();
-    if (!form.DNS6_SERVER3.value && disabled) $('#dns6server3').hide(); else $('#dns6server3').show();
+    dns.DNS6_SERVER1.required = !disabled;
+    $('#dns6').show();
   }
 }
-function checkBondingSettings(form,ctrl,port) {
+
+function checkBondingSettings(form,ctrl) {
   var disabled = form.BONDING.value=='no';
   var mode = form.BONDING_MODE.value;
+  var port = form.name.replace('_settings','');
   if (ctrl>=0) {
-    var me = ctrl==0 ? null : 'slow';
+    var step = ctrl==0 ? null : 'slow';
     if (disabled) {
-      $('#bond-members-'+port).hide(me);
+      $('#bond-members-'+port).hide(step);
     } else {
-      $('#bond-members-'+port).show(me);
-      $('#bond-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+      $('#bond-members-'+port).show(step);
+      $('#bond-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:166});
     }
-    if (ctrl==1) checkBridgingSettings(form,1,port);
+    if (ctrl==1) checkBridgingSettings(form,1);
   }
   if (mode==1 || mode>4 || disabled) {$('#attention0').hide();} else {$('#attention0').show();}
 }
-function checkBridgingSettings(form,ctrl,port) {
-  var me = ctrl==0 ? null : 'slow';
+
+function checkBridgingSettings(form,ctrl) {
+  var port = form.name.replace('_settings','');
+  var step = ctrl==0 ? null : 'slow';
   var i = 0;
   if (form.BRIDGING.value=='yes' && form.BONDING.value=='no') {
-    $('#bridge-members-'+port).show(me);
-    $('#bridge-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+    $('#bridge-members-'+port).show(step);
+    $('#bridge-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:166});
   } else {
-    $('#bridge-members-'+port).hide(me);
+    $('#bridge-members-'+port).hide(step);
   }
 }
-function checkNetworkAccess(form,port) {
+
+function checkNetworkAccess(form) {
+  var port = form.name.replace('_settings','');
   if (form.TYPE.value=='access') {
     $('.access-'+port).hide();
+    $('#button-vlan-'+port).hide();
+    $('#button-add-'+port).hide();
     $(form).find('input[name^="VLANID:"]').prop('required',false);
   } else {
     $('.access-'+port).show();
+    if ($(form).find('input[name^="VLANID:"]').length>0) {$('#button-vlan-'+port).show();$('#button-add-'+port).hide();} else $('#button-add-'+port).show();
     $(form).find('input[name^="VLANID:"]').prop('required',true);
   }
 }
+
 function addVLAN(port) {
   var index = 1;
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
   var element = $('[id^="index-'+port+'-"]').last();
   $(element).after(template);
-  $('form[name="'+$(element).parent().attr('name')+'"]').find('select').first().trigger('change');
+  $('form[name="'+$(element).parent().parent().prop('name')+'"]').find('select').first().trigger('change');
 }
+
 function removeVLAN(element) {
-  var id = $(element).attr('id').split('-');
+  var id = $(element).prop('id').split('-');
   $(element).remove();
   $('#view-'+id[1]).find('select').first().trigger('change');
 }
+
+function showVLAN(port) {
+  var button1 = $('#button-vlan-'+port);
+  var button2 = $('#button-add-'+port).hide();
+  var list = $('#vlan-list-'+port);
+  var show = "_(Show)_";
+  var hide = "_(Hide)_";
+  if (list.is(':hidden')) {
+    button1.val(hide);
+    button2.show();
+    list.show('slow');
+  } else {
+    button1.val(show);
+    button2.hide();
+    list.hide('slow');
+  }
+}
+
 function disableForm(form) {
-  $(form).find('input,select').not('input[value="_(Done)_"]').prop('disabled',true);
+  $(form).find('input,select').not('input[value="_(Done)_"],input.form').prop('disabled',true);
   $(form).find('input[name^="DESCRIPTION"],input[name^="#"]').prop('disabled',false);
 }
-var stopEvent = false;
-function noRun(form) {
-  var arg1 = $(form).find('input[name="#arg[1]"]');
-  if (arg1.val()=='') arg1.val('none');
-  stopEvent = true;
-}
-function doRun(form) {
-  if (stopEvent) {stopEvent = false; return;}
-  var arg1 = $(form).find('input[name="#arg[1]"]');
-  arg1.val($(form).find('input[name="#section"]').val());
-}
-function portcheck_eth0() {
-  $.post('/webGui/include/CheckPort.php',{port:'eth0'},function(text) {
+
+function portcheck(port) {
+  $.post('/webGui/include/CheckPort.php',{port:port},function(text) {
     var html = $('#user-notice').html();
-    if (!html || html.indexOf('eth0')>0) showNotice(text);
-    setTimeout(portcheck_eth0,10000);
+    if (!html || html.indexOf(port)>0) showNotice(text);
+    setTimeout(function(){portcheck(port);},10000);
   });
 }
+
 function portToggle(port,cmd) {
   $.post('/webGui/include/PortToggle.php',{port:port,cmd:cmd},function(){refresh();});
 }
-function viewToggle(eth,vlan) {
-  var tag = vlan ? '#tag-'+eth+'-'+vlan : '#tag-'+eth;
-  var view = vlan ? '#view-'+eth+'-'+vlan : '#view-'+eth;
-  if ($(view).is(':visible')) {
-    $(tag).removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    $.cookie(view,'hide',{expires:3650});
-  } else {
-    $(tag).removeClass('fa-chevron-down').addClass('fa-chevron-up');
-    $.removeCookie(view);
-  }
-  $(view).toggle('slow');
-}
-var watchDHCP = new NchanSubscriber('/sub/dhcp',{subscriber:'websocket'});
-watchDHCP.on('message', function(data) {
-  data = data.split(' ');
-  for (var i=0,row; row=data[i]; i++) {
-    var id = row.split('_');
-    var form = $('form[name="'+id[0]+'_settings"]');
-    var key = id[2].split('=');
-    switch (id[1]) {
-      case 'I': form.find('input[name="'+key[0].replace('-','_')+'"]').val(key[1]); break;
-      case 'S': form.find('select[name="'+key[0].replace('-','_')+'"]').val(key[1]); break;
-    }
-  }
-});
+
 $(function() {
-  var ctrl = "<span id='wait_eth0' class='status vshift red-text' style='display:none;font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
-  var form = document.eth0_settings;
-<?if ($tabbed && !$service):?>
+  const ctrl = "<span id='wait_eth0' class='status red-text hide' style='font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
+  const form = document.eth0_settings;
+  const dns  = document.dns_settings;
+<?if (!$service):?>
   $('#tab1').bind({click:function(){
-    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
+    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:166});
+    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:166});
   }});
 <?endif;?>
-  if (!$.cookie('#view-eth0')) {$('#view-eth0').show(); $('#tag-eth0').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
-<?foreach ($vlan_eth0 as $i):?>
-  if (!$.cookie('#view-eth0-<?=$i?>')) {$('#view-eth0-<?=$i?>').show(); $('#tag-eth0-<?=$i?>').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
-<?endforeach;?>
-  $('#bond-eth0').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-  $('#bridge-eth0').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
-  checkBondingSettings(form,0,'eth0');
-  checkBridgingSettings(form,0,'eth0');
-  checkNetworkAccess(form,'eth0');
-  selectProtocol(form,'eth0');
+  $('#bond-eth0').dropdownchecklist({emptyText:"_(None)_", width:166});
+  $('#bridge-eth0').dropdownchecklist({emptyText:"_(None)_", width:166});
+  checkBondingSettings(form,0);
+  checkBridgingSettings(form,0);
+  checkNetworkAccess(form);
+  selectProtocol(form);
 <?if ($service):?>
   disableForm(form);
   $('#bond-eth0').dropdownchecklist('disable');
   $('#bridge-eth0').dropdownchecklist('disable');
-  var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
-  if (form.DNS_SERVER2.value) $('#dnsserver2').show(); else $('#dnsserver2').hide();
-  if (form.DNS_SERVER3.value) $('#dnsserver3').show(); else $('#dnsserver3').hide();
-  if (form.DNS6_SERVER1.value) $('#dns6server1').show(); else $('#dns6server1').hide();
-  if (form.DNS6_SERVER2.value) $('#dns6server2').show(); else $('#dns6server2').hide();
-  if (form.DNS6_SERVER3.value) $('#dns6server3').show(); else $('#dns6server3').hide();
-<?else:?>
-  checkDNSSettings(form);
-  checkDNSSettings6(form);
 <?endif;?>
-<?if ($tabbed):?>
-  $('.tabs').append(ctrl.replace('vshift',''));
-<?else:?>
-  $('div.title').eq(0).find('span.left').append(ctrl);
-<?endif;?>
-  portcheck_eth0();
-  watchDHCP.start();
+  checkDNSsettings(form);
+  checkDNS6settings(form);
+  $('.tabs').append(ctrl);
+  portcheck('eth0');
+  presetRun(form);
+  $(dns).find('select,input').each(function(){$(this).on('input change',function() {
+    $(form).find('input[value="<?=_("Apply")?>"],input[value="Apply"]').prop('disabled',false);
+    $(form).find('input[value="<?=_("Done")?>"],input[value="Done"]').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){refresh($(form).offset().top);});
+  });});
 });
+
+function networkInfo(port,vlan) {
+  $.post('/webGui/include/NetworkInfo.php',{port:port,vlan:vlan},function(text) {
+    swal({title:"_(Network Info)_",text:text,animation:'none',html:true,confirmButtonText:"_(Ok)_"});
+  });
+}
 </script>
-<form markdown="1" name="eth0_settings" method="POST" action="/update.php" target="progressFrame" onchange="doRun(this)" onsubmit="return prepareSettings(this)">
+
+<div class="title nocontrol shift">&nbsp;</div>
+<div class="shade-<?=$display['theme']?> uplift">
+<form name="dns_settings" onchange="signalRun(this,1)">
+<div markdown="1" id="dns4" class="hide">
+_(IPv4 DNS server assignment)_:
+: <select name="DHCP_KEEPRESOLV" onchange="checkDNSsettings(eth0,'slow')">
+  <?=mk_option(_var($eth0,'DHCP_KEEPRESOLV'), "no", _("Automatic"))?>
+  <?=mk_option(_var($eth0,'DHCP_KEEPRESOLV'), "yes", _("Static"))?>
+  </select>
+
+:eth_ipv4_dns_server_assignment_help:
+
+<div markdown="1" id="dns4server" class="hide">
+_(IPv4 DNS server)_ 1:
+: <input type="text" name="DNS_SERVER1" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS_SERVER1')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+
+:eth_ipv4_dns_server_help:
+
+_(IPv4 DNS server)_ 2:
+: <input type="text" name="DNS_SERVER2" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS_SERVER2')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+
+:eth_ipv4_dns_server2_help:
+
+_(IPv4 DNS server)_ 3:
+: <input type="text" name="DNS_SERVER3" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS_SERVER3')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+
+:eth_ipv4_dns_server3_help:
+
+</div>
+</div>
+<div markdown="1" id="dns6" class="hide">
+_(IPv6 DNS server assignment)_:
+: <select name="DHCP6_KEEPRESOLV" onchange="checkDNS6settings(eth0,'slow')">
+  <?=mk_option(_var($eth0,'DHCP6_KEEPRESOLV'), "no", _("Automatic"))?>
+  <?=mk_option(_var($eth0,'DHCP6_KEEPRESOLV'), "yes", _("Static"))?>
+  </select>
+
+:eth_ipv6_dns_server_assignment_help:
+
+<div markdown="1" id="dns6server" class="hide">
+_(IPv6 DNS server)_ 1:
+: <input type="text" name="DNS6_SERVER1" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS6_SERVER1')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+
+:eth_ipv6_dns_server_help:
+
+_(IPv6 DNS server)_ 2:
+: <input type="text" name="DNS6_SERVER2" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS6_SERVER2')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+
+:eth_ipv6_dns_server2_help:
+
+_(IPv6 DNS server)_ 3:
+: <input type="text" name="DNS6_SERVER3" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'DNS6_SERVER3')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+
+:eth_ipv6_dns_server3_help:
+
+</div>
+</div>
+</form>
+</div>
+
+<form markdown="1" name="eth0_settings" method="POST" action="/update.php" target="progressFrame" onchange="signalRun(this,2)" onsubmit="return prepareSettings(this)">
 <input type="hidden" name="#file" value="<?=$ini?>">
 <input type="hidden" name="#include" value="/webGui/include/update.ethernet.php">
 <input type="hidden" name="#section" value="eth0">
@@ -433,29 +520,37 @@ $(function() {
 <input type="hidden" name="BRNAME" value="br0">
 <input type="hidden" name="BRSTP" value="no">
 <input type="hidden" name="BRFD" value="0">
+<input type="hidden" name="DHCP_KEEPRESOLV" value="">
+<input type="hidden" name="DNS_SERVER1" value="">
+<input type="hidden" name="DNS_SERVER2" value="">
+<input type="hidden" name="DNS_SERVER3" value="">
+<input type="hidden" name="DHCP6_KEEPRESOLV" value="">
+<input type="hidden" name="DNS6_SERVER1" value="">
+<input type="hidden" name="DNS6_SERVER2" value="">
+<input type="hidden" name="DNS6_SERVER3" value="">
+
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-eth0" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0')"></i></span>
-  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:0" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0')">
 
 :eth_interface_description_help:
 
-<div markdown="1" id="view-eth0" style="display:none">
 _(MAC address)_:
 : <?=strtoupper(exec("ip link show eth0|grep -Pom1 'ether \K\S+'"))?>
 
 :eth_mac_address_help:
 
 _(Enable bonding)_:
-: <select name="BONDING" onchange="checkBondingSettings(this.form,1,'eth0')">
+: <select name="BONDING" onchange="checkBondingSettings(this.form,1)">
   <?=mk_option(_var($eth0,'BONDING'), "no", _("No"))?>
   <?=mk_option(_var($eth0,'BONDING'), "yes", _("Yes"))?>
   </select>
 
 :eth_enable_bonding_help:
 
-<div markdown="1" id="bond-members-eth0" style="display:none">
+<div markdown="1" id="bond-members-eth0" class="'hide">
 _(Bonding mode)_:
-: <select name="BONDING_MODE" onchange="checkBondingSettings(this.form,-1,'eth0')">
+: <select name="BONDING_MODE" onchange="checkBondingSettings(this.form,-1)">
   <?=mk_option(_var($eth0,'BONDING_MODE'), "0", _("balance-rr")." (0)")?>
   <?=mk_option(_var($eth0,'BONDING_MODE'), "1", _("active-backup")." (1)",isset($eth0['BONDING_MODE'])?'':'selected')?>
   <?=mk_option(_var($eth0,'BONDING_MODE'), "2", _("balance-xor")." (2)")?>
@@ -464,12 +559,12 @@ _(Bonding mode)_:
   <?=mk_option(_var($eth0,'BONDING_MODE'), "5", _("balance-tlb")." (5)")?>
   <?=mk_option(_var($eth0,'BONDING_MODE'), "6", _("balance-alb")." (6)")?>
   </select>
-  <span id="attention0" style="display:none">**_(Attention)_:** _(this mode requires a network switch with proper setup and support)_...</span>
+  <span id="attention0" class="hide">**_(Attention)_:** _(this mode requires a network switch with proper setup and support)_...</span>
 
 :eth_bonding_mode_help:
 
 _(Bonding members of)_ bond0:
-: <select id="bond-eth0" name="BONDNICS" multiple="multiple" style="display:none">
+: <select id="bond-eth0" name="BONDNICS" multiple="multiple" class="'hide">
   <?=mk_option(_var($eth0,'BONDNICS'),'eth0','eth0','selected disabled')?>
   <?foreach ($ports as $port):?>
   <?if (!locked('eth0',$port)) echo mk_option_check(_var($eth0,'BONDNICS'),$port,$port)?>
@@ -480,16 +575,16 @@ _(Bonding members of)_ bond0:
 
 </div>
 _(Enable bridging)_:
-: <select name="BRIDGING" onchange="checkBridgingSettings(this.form,1,'eth0')">
+: <select name="BRIDGING" onchange="checkBridgingSettings(this.form,1)">
   <?=mk_option(_var($eth0,'BRIDGING'), "no", _("No"))?>
   <?=mk_option(_var($eth0,'BRIDGING'), "yes", _("Yes"))?>
   </select>
 
 :eth_enable_bridging_help:
 
-<div markdown="1" id="bridge-members-eth0" style="display:none">
+<div markdown="1" id="bridge-members-eth0" class="'hide">
 _(Bridging members of)_ br0:
-: <select id="bridge-eth0" name="BRNICS" multiple="multiple" style="display:none">
+: <select id="bridge-eth0" name="BRNICS" multiple="multiple" class="'hide">
   <?=mk_option(_var($eth0,'BRNICS'),'eth0','eth0','selected disabled')?>
   <?foreach ($ports as $port):?>
   <?if (!locked('eth0',$port)) echo mk_option_check(_var($eth0,'BRNICS'),$port,$port)?>
@@ -500,7 +595,7 @@ _(Bridging members of)_ br0:
 
 </div>
 _(Network protocol)_:
-: <select name="PROTOCOL:0" onchange="selectProtocol(this.form,'eth0',0)">
+: <select name="PROTOCOL:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($eth0,"PROTOCOL:0"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:0"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:0"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
@@ -508,18 +603,18 @@ _(Network protocol)_:
 
 :eth_network_protocol_help:
 
-<div markdown="1" class="ipv4-eth0-0" style="display:none">
+<div markdown="1" class="ipv4-eth0-0 hide">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:0" onchange="selectProtocol(this.form,'eth0',0)">
+: <select name="USE_DHCP:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:0"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:0"), 'no', _('Static'))?>
   </select>
 
 :eth_ipv4_address_assignment_help:
 
-<div markdown="1" class="more-ipv4-eth0-0" style="display:none">
+<div markdown="1" class="more-ipv4-eth0-0 hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:0" maxlength="15" value="<?=_var($eth0,"IPADDR:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
+: <input type="text" name="IPADDR:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
   <?=mk_option(_var($eth0,"NETMASK:0"), "255.0.0.0", "8")?>
   <?=mk_option(_var($eth0,"NETMASK:0"), "255.255.0.0", "16")?>
   <?=mk_option(_var($eth0,"NETMASK:0"), "255.255.128.0", "17")?>
@@ -541,61 +636,36 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:0" maxlength="15" value="<?=_var($eth0,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="0" max="9999" value="<?=_var($eth0,"METRIC:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
 </div>
-_(IPv4 DNS server assignment)_:
-: <select name="DHCP_KEEPRESOLV" onchange="checkDNSSettings(this.form)">
-  <?=mk_option(_var($eth0,'DHCP_KEEPRESOLV'), "no", _("Automatic"))?>
-  <?=mk_option(_var($eth0,'DHCP_KEEPRESOLV'), "yes", _("Static"))?>
-  </select>
-
-:eth_ipv4_dns_server_assignment_help:
-
-_(IPv4 DNS server)_:
-: <input type="text" name="DNS_SERVER1" maxlength="15" value="<?=_var($eth0,'DNS_SERVER1')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-
-:eth_ipv4_dns_server_help:
-
-<div markdown="1" id="dnsserver2" style="display:none">
-_(IPv4 DNS server)_ 2:
-: <input type="text" name="DNS_SERVER2" maxlength="15" value="<?=_var($eth0,'DNS_SERVER2')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-
-:eth_ipv4_dns_server2_help:
-
 </div>
-<div markdown="1" id="dnsserver3" style="display:none">
-_(IPv4 DNS server)_ 3:
-: <input type="text" name="DNS_SERVER3" maxlength="15" value="<?=_var($eth0,'DNS_SERVER3')?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-
-:eth_ipv4_dns_server3_help:
-
-</div>
-</div>
-<div markdown="1" class="ipv6-eth0-0" style="display:none">
+<div markdown="1" class="ipv6-eth0-0 hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:0" onchange="selectProtocol(this.form,'eth0',0)">
+: <select name="USE_DHCP6:0" onchange="selectProtocol(this.form,0,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP6:0"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:0"), 'no', _('Static'))?>
   </select>
 
 :eth_ipv6_address_assignment_help:
 
-<div markdown="1" class="more-ipv6-eth0-0" style="display:none">
+<div markdown="1" class="more-ipv6-eth0-0 hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:0" maxlength="39" value="<?=_var($eth0,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" value="<?=_var($eth0,"NETMASK6:0")?>" class="slim">
+: <input type="text" name="IPADDR6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"NETMASK6:0")?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:0" maxlength="39" value="<?=_var($eth0,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="0" max="9999" value="<?=_var($eth0,"METRIC6:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-0 hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:0">
   <?=mk_option(_var($eth0,"PRIVACY6:0"), "0", _("Disabled"))?>
@@ -605,68 +675,39 @@ _(IPv6 privacy extensions)_:
 :eth_ipv6_privacy_extensions_help:
 
 </div>
-<div markdown="1" id="dns6server1" style="display:none">
-_(IPv6 DNS server assignment)_:
-: <select name="DHCP6_KEEPRESOLV" onchange="checkDNSSettings6(this.form)">
-  <?=mk_option(_var($eth0,'DHCP6_KEEPRESOLV'), "no", _("Automatic"))?>
-  <?=mk_option(_var($eth0,'DHCP6_KEEPRESOLV'), "yes", _("Static"))?>
-  </select>
-
-:eth_ipv6_dns_server_assignment_help:
-
-_(IPv6 DNS server)_:
-: <input type="text" name="DNS6_SERVER1" maxlength="39" value="<?=_var($eth0,'DNS6_SERVER1')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-
-:eth_ipv6_dns_server_help:
-
-</div>
-<div markdown="1" id="dns6server2" style="display:none">
-_(IPv6 DNS server)_ 2:
-: <input type="text" name="DNS6_SERVER2" maxlength="39" value="<?=_var($eth0,'DNS6_SERVER2')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-
-:eth_ipv6_dns_server2_help:
-
-</div>
-<div markdown="1" id="dns6server3" style="display:none">
-_(IPv6 DNS server)_ 3:
-: <input type="text" name="DNS6_SERVER3" maxlength="39" value="<?=_var($eth0,'DNS6_SERVER3')?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-
-:eth_ipv6_dns_server3_help:
-
-</div>
 </div>
 _(Desired MTU)_:
-: <input type="number" name="MTU" min="68" max="9198" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500">
+: <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500">
 
 :eth_desired_mtu_help:
 
 _(Enable VLANs)_:
-: <select name="TYPE" onchange="checkNetworkAccess(this.form,'eth0')">
+: <select name="TYPE" onchange="checkNetworkAccess(this.form)">
   <?=mk_option(_var($eth0,'TYPE'), 'access', _('No'))?>
   <?=mk_option(_var($eth0,'TYPE'), 'trunk', _('Yes'))?>
   </select>
+  <input type="button" id="button-vlan-eth0" class="form hide" value="_(Show)_" onclick="showVLAN('eth0')">
 
 :eth_enable_vlans_help:
 
-</div>
-<div id='index-eth0-0'></div>
+<div id="index-eth0-0"></div>
+<div id="vlan-list-eth0" class="hide">
 <?foreach ($vlan_eth0 as $i):?>
-<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?>" style="display:none">
+<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-eth0-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0','<?=$i?>')"></i></span>
-  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0,"VLANID:$i")?>)">
 
 :eth_interface_description_help:
 
-<div markdown="1" id="view-eth0-<?=$i?>" style="display:none">
 _(VLAN number)_:
-: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=_var($eth0,"VLANID:$i")?>" class="narrow gap" required>
+: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"VLANID:$i")?>" class="narrow gap" required>
   <?if (!$service):?><input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-<?=$i?>'))"><?endif;?>
 
 :eth_vlan_number_help:
 
 _(Network protocol)_:
-: <select name="PROTOCOL:<?=$i?>" onchange="selectProtocol(this.form,'eth0',<?=$i?>)">
+: <select name="PROTOCOL:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"PROTOCOL:$i"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:$i"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:$i"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
@@ -674,21 +715,19 @@ _(Network protocol)_:
 
 :eth_network_protocol_help:
 
-<div markdown="1" class="ipv4-eth0-<?=$i?>" style="display:none">
+<div markdown="1" class="ipv4-eth0-<?=$i?> hide">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,'eth0',<?=$i?>)">
+: <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'no', _('Static'))?>
-<?if ($i>0):?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), '', _('None'))?>
-<?endif;?>
   </select>
 
 :eth_ipv4_address_assignment_help:
 
-<div markdown="1" class="more-ipv4-eth0-<?=$i?>" style="display:none">
+<div markdown="1" class="more-ipv4-eth0-<?=$i?> hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=_var($eth0,"IPADDR:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
   <?=mk_option(_var($eth0,"NETMASK:$i"), "255.0.0.0", "8")?>
   <?=mk_option(_var($eth0,"NETMASK:$i"), "255.255.0.0", "16")?>
   <?=mk_option(_var($eth0,"NETMASK:$i"), "255.255.128.0", "17")?>
@@ -710,16 +749,16 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=_var($eth0,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" value="<?=_var($eth0,"METRIC:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
 </div>
 </div>
-<div markdown="1" class="ipv6-eth0-<?=$i?>" style="display:none">
+<div markdown="1" class="ipv6-eth0-<?=$i?> hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:<?=$i?>" onchange="selectProtocol(this.form,'eth0',<?=$i?>)">
+: <select name="USE_DHCP6:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP6:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:$i"), 'no', _('Static'))?>
 <?if ($i>0):?>
@@ -729,18 +768,20 @@ _(IPv6 address assignment)_:
 
 :eth_ipv6_address_assignment_help:
 
-<div markdown="1" class="more-ipv6-eth0-<?=$i?>" style="display:none">
+<div markdown="1" class="more-ipv6-eth0-<?=$i?> hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=_var($eth0,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=_var($eth0,"NETMASK6:$i")?>" class="slim">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"NETMASK6:$i")?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=_var($eth0,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" value="<?=_var($eth0,"METRIC6:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-<?=$i?> hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:<?=$i?>">
   <?=mk_option(_var($eth0,"PRIVACY6:$i"), "0", _("Disabled"))?>
@@ -752,45 +793,43 @@ _(IPv6 privacy extensions)_:
 </div>
 </div>
 </div>
-</div>
 <?endforeach;?>
+</div>
 
 &nbsp;
 : <input type="submit" value="_(Apply)_" onclick="$('#wait_eth0').show()" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?if (!$service):?>
-<input type="button" class="access-eth0" value="_(Add VLAN)_" onclick="addVLAN('eth0')" style="display:none">
+<input type="button" id="button-add-eth0" class="hide" value="_(Add VLAN)_" onclick="addVLAN('eth0')">
 <?else:?><?=sprintf(_('Stop **%s** to make changes, see'),$service).' (<a href="/Settings">'._('Settings').'</a>)'?><?endif;?>
 </form>
 
 <script markdown="1" type="text/html" id="network-template-eth0">
 <div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
 _(Interface description)_:
-: <span class="status vshift"><i id="tag-eth0-INDEX" class="fa fa-fw fa-chevron-up" style="cursor:pointer" onclick="viewToggle('eth0','INDEX')"></i></span>
-  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>" oninput="noRun(this.form)">
+: <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>">
 
-<div markdown="1" id="view-eth0-INDEX">
 _(VLAN number)_:
-: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=_var($eth0,"VLANID:INDEX")?>" class="narrow gap" required>
+: <input type="number" name="VLANID:INDEX" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"VLANID:INDEX")?>" class="narrow gap" required>
   <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-INDEX'))">
 
 _(Network protocol)_:
-: <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,'eth0',INDEX)">
+: <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"PROTOCOL:INDEX"), 'ipv4', _('IPv4 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:INDEX"), 'ipv6', _('IPv6 only'))?>
   <?=mk_option(_var($eth0,"PROTOCOL:INDEX"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
   </select>
 
-<div markdown="1" class="ipv4-eth0-INDEX" style="display:none">
+<div markdown="1" class="ipv4-eth0-INDEX">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,'eth0',INDEX)">
+: <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), '', _('None'))?>
   </select>
 
-<div markdown="1" class="more-ipv4-eth0-INDEX" style="display:none">
+<div markdown="1" class="more-ipv4-eth0-INDEX hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=_var($eth0,"IPADDR:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="=_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
+: <input type="text" name="IPADDR:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="=_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
   <?=mk_option(_var($eth0,"NETMASK:INDEX"), "255.0.0.0", "8")?>
   <?=mk_option(_var($eth0,"NETMASK:INDEX"), "255.255.0.0", "16")?>
   <?=mk_option(_var($eth0,"NETMASK:INDEX"), "255.255.128.0", "17")?>
@@ -810,34 +849,35 @@ _(IPv4 address)_:
   </select>
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=_var($eth0,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=_var($eth0,"METRIC:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 </div>
 </div>
-<div markdown="1" class="ipv6-eth0-INDEX" style="display:none">
+<div markdown="1" class="ipv6-eth0-INDEX hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:INDEX" onchange="selectProtocol(this.form,'eth0',INDEX)">
+: <select name="USE_DHCP6:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), '', _('None'))?>
   </select>
 
-<div markdown="1" class="more-ipv6-eth0-INDEX" style="display:none">
+<div markdown="1" class="more-ipv6-eth0-INDEX hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=_var($eth0,"IPADDR6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=_var($eth0,"NETMASK6:INDEX")?>" class="slim">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"IPADDR6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"NETMASK6:INDEX")?>" class="slim">
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=_var($eth0,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=_var($eth0,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-INDEX hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:INDEX">
   <?=mk_option(_var($eth0,'PRIVACY6:INDEX'), "0", _("Disabled"))?>
   <?=mk_option(_var($eth0,'PRIVACY6:INDEX'), "2", _("Enabled"))?>
   </select>
 
-</div>
 </div>
 </div>
 </div>

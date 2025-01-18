@@ -3,10 +3,11 @@ span.blue{color:#00529B}
 span.green{color:#4F8A10}
 span.vshift{margin-top:0!important}
 input.gap{margin-right:6px}
-input.form{font-size:1rem;padding:5px 10px;margin-left:10px}
+input.form{font-size:1rem;padding:5px 10px;margin:0 0 0 10px}
 div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
 select.slim{min-width:47px;margin-left:4px}
 input.slim{width:32px;margin-left:8px}
+.hide{display:none}

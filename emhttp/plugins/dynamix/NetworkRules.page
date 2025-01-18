@@ -4,8 +4,8 @@ Tag="icon-network"
 Cond="file_exists('/boot/config/network-rules.cfg')"
 ---
 <?PHP
-/* Copyright 2023, Lime Technology
- * Copyright 2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -53,30 +53,8 @@ function check_rules(form) {
 function update_info(id,mac) {
   $('#info-'+id).html(info['_'+mac.replace(/:/g,'')]);
 }
-<?if (!$tabbed):?>
-function toggleRules() {
-  var tag = '#tag_rules';
-  var view = '#rules_table';
-  if ($(view).is(':visible')) {
-    $(tag).removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    $.cookie(view,'hide',{expires:3650});
-  } else {
-    $(tag).removeClass('fa-chevron-down').addClass('fa-chevron-up');
-    $.removeCookie(view);
-  }
-  $(view).toggle('slow');
-}
-$(function(){
-  $('div.title').eq(-2).find('span.left').append("<span class='status vhshift'><i id='tag_rules' class='fa fa-fw fa-chevron-up' style='cursor:pointer' onclick='toggleRules()'></i></span>");
-  if (!$.cookie('#rules_table')) $('#rules_table').show(); else {$('#rules_table').hide(); $('#tag_rules').removeClass('fa-chevron-up').addClass('fa-chevron-down');}
-});
-<?else:?>
-$(function(){
-  $('#rules_table').show();
-});
-<?endif;?>
 </script>
-<div markdown="1" id="rules_table" style="display:none">
+<div class="title nocontrol shift">&nbsp;</div>
 <form markdown="1" name="network_rules" method="POST" action="/update.php" target="progressFrame" onsubmit="return check_rules(this)">
 <input type="hidden" name="#file" value="not-used">
 <input type="hidden" name="#include" value="/webGui/include/update.rules.php">
@@ -101,4 +79,3 @@ _(Interface)_ <?=$eth?>:
 <?if (file_exists('/tmp/network-rules.tmp')):?>
 <br><span class="error" style="text-align:center;padding:12px 0">_(Please **Reboot** system to make new rules active)_</span>
 <?endif;?>
-</div>

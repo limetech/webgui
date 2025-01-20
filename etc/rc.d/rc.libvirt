@@ -176,10 +176,7 @@ version(){
 
 libvirtd_start(){
   log "Starting $DAEMON..."
-  if ! mountpoint /etc/libvirt &>/dev/null; then
-    log "$DAEMON...  No image mounted at /etc/libvirt."
-    exit 1
-  elif [[ -f $LIBVIRTD_PIDFILE ]]; then
+  if [[ -f $LIBVIRTD_PIDFILE ]]; then
     log "$DAEMON...  Already started."
     return 1
   fi

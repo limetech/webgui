@@ -105,8 +105,7 @@ $libvirt_log       = file_exists("/var/log/libvirt/libvirtd.log");
 <?endif;?>
 <form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>">
-<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emcmd">
-<input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
+<input type="hidden" name="#command" value="/plugins/dynamix.vm.manager/scripts/libvirt_update">
 _(Enable VMs)_:
 : <select id="SERVICE" name="SERVICE">
   <?= mk_option($libvirt_service, 'disable', _('No'))?>
@@ -163,7 +162,7 @@ _(Libvirt storage location)_:
 
 <?endif;?>
 _(Default VM storage path)_:
-: <input type="text" id="domaindir" name="DOMAINDIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
+: <input type="text" id="domaindir" name="DOMAINDIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 

@@ -157,6 +157,9 @@ $(document).ajaxSend(function(elm, xhr, s){
 </script>
 </head>
 <?
+if ($_SERVER['REQUEST_METHOD'] === 'POST'){
+
+
 $safemode = '/boot/unraidsafemode';
 $progress = (_var($var,'fsProgress')!='') ? "<br><span class='blue'>{$var['fsProgress']}</span>" : "<br>&nbsp;";
 
@@ -187,5 +190,10 @@ default:
 echo '</div>';
 echo '<div class="sub2"></div>';
 echo '</body>';
+}else{
+?>
+echo <body onload="location='/Main'"></body>
+<?
+}
 ?>
 </html>

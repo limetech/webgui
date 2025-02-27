@@ -100,16 +100,40 @@ function my_word($num) {
   $words = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty','twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty'];
   return $num<count($words) ? _($words[$num],1) : $num;
 }
+function my_contains_one_of($haystack, $needles) {
+  foreach ($needles as $needle) {
+      if (str_contains($haystack, $needle)) {
+          return true; // Found a match
+      }
+  }
+  return false; // No match found
+}
+function my_is_data_disk($disk) {
+  if (strpos(_var($disk,'type'), 'Data')!==false) {
+    // Disk is part of the array
+    return true;
+  }
+  if (strpos(_var($disk,'type'), 'Cache')!==false) {
+    if (_var($disk,'fsFree', -1)!=-1) {
+      // Disk is part of a pool and the master
+      return true;
+    }
+  }
+  return false;
+}
 function my_usage() {
   global $disks,$var,$display;
   $arraysize=0;
   $arrayfree=0;
   foreach ($disks as $disk) {
-    if (strpos(_var($disk,'name'),'disk')!==false) {
-      $arraysize += _var($disk,'sizeSb',0);
-      $arrayfree += _var($disk,'fsFree',0);
+    if (my_contains_one_of(_var($disk,'name'), explode(',',_var($display, "usage_disks")))) {
+      if (my_is_data_disk($disk)) {
+        $arraysize += _var($disk,'sizeSb',0);
+        $arrayfree += _var($disk,'fsFree',0);
+      }
     }
   }
+
   if (_var($var,'fsNumMounted',0)>0) {
     $used = $arraysize ? 100-round(100*$arrayfree/$arraysize) : 0;
     echo "<div class='usage-bar'><span style='width:{$used}%' class='".usage_color($display,$used,false)."'>{$used}%</span></div>";

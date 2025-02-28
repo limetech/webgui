@@ -1,0 +1,55 @@
+#!/usr/bin/php
+<?php
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2022-2025, Dan Landon
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+
+<?
+$rsyslog_conf		= "/etc/rsyslog.conf";
+$file				= "/boot/config/plugins/dynamix/syslog_filter.conf";
+$filter_file		= "/boot/default/02-blocklist-extra.conf";
+$escapeSequences	= array("'", '"');
+$file_contents		= str_replace($escapeSequences, "", @file_get_contents($file));
+$text				= explode("\n", $file_contents);
+
+/* Set up the log filter. */
+$filter = array();
+
+foreach ($text as $line) {
+	/* Trim whitespace */
+	$line = trim($line);
+
+	/* Skip empty lines */
+	if ($line === '') {
+		continue;
+	}
+
+	/* Remove unwanted characters while preserving log-friendly symbols */
+	$line = preg_replace('/[^\w\s\-_.,!@#$%^&*()<>\/:;=\[\]{}|]/u', '', $line);
+
+	/* Add the sanitized line to the filter */
+	$filter[] = ":msg,contains,\"" . $line . "\" stop\n";
+}
+
+@file_put_contents($filter_file, $filter);
+
+/* Adjust rsyslog.conf so filtering will work. */
+$str = file_get_contents($rsyslog_conf);
+$str = str_replace("RuleSet local", "RuleSet RSYSLOG_DefaultRuleset", $str);
+$str = str_replace("DefaultRuleset local", "DefaultRuleset RSYSLOG_DefaultRuleset", $str);
+file_put_contents($rsyslog_conf, $str);
+
+/* Restart rsyslog if it is running */
+$running = trim(shell_exec("/etc/rc.d/rc.rsyslogd status") ?? "");
+if ($running == "Syslog server daemon is currently running.") {
+	shell_exec("/etc/rc.d/rc.rsyslogd restart");
+}
+?>

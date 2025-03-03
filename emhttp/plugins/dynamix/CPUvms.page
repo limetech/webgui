@@ -33,11 +33,11 @@ function create($type = "") {
 		for ($n = 0; $n < $max; $n++) {
 			[$cpu1, $cpu2] = my_preg_split('/[,-]/', $cpus[$c * 32 + $n]);
 			if (empty($text[$n])) $text[$n] = '';
-			$text[$n] .= "$cpu1<br />";
-			if ($cpu2) $text[$n] .= "$cpu2<br />";
+			$text[$n] .= "$cpu1<br>";
+			if ($cpu2) $text[$n] .= "$cpu2<br>";
 		}
 	}
-	$label = implode('<br />', array_fill(0, $loop, 'CPU:' . ($cpu2 ? '<br />CPU:' : '')));
+	$label = implode('<br>', array_fill(0, $loop, 'CPU:' . ($cpu2 ? '<br>CPU:' : '')));
 	if ($type == "vm") echo "<th>VPCUS</th>";
 	echo "<th>$label</th>" . implode(array_map(function($t) {
 		return "<th>$t</th>";

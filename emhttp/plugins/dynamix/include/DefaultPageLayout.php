@@ -676,7 +676,7 @@ echo "</div>";
 echo "<div class='nav-tile right'>";
 if (isset($myPage['Lock'])) {
   $title = $themes2 ?  "" : _('Unlock sortable items');
-  echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
+  echo "<div class='nav-item LockButton util'><a href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
 

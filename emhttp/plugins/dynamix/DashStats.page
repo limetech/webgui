@@ -586,7 +586,6 @@ if (!$group) {
 <span class='parity'></span><br></div>
 <a href='/Dashboard/Settings/Scheduler' title="_(Go to scheduler settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
-</td></tr>
 <tr><td id='parity' class="wrap"></td></tr>
 <tr><td id='program' class="wrap"></td></tr>
 </tbody>

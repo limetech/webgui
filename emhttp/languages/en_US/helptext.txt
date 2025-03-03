@@ -710,7 +710,7 @@ Summary of security modes:
 Windows Server Signing:
 
 If you are unable to browse SMB shares with Windows 11 version 24H2 or newer, you need to make some changes to accomodate a new feature called Server Signing.  Server Signing is enabled in Unraid and you need to make changes to access Public shares.
-You can <u><a href='https://techcommunity.microsoft.com/t5/storage-at-microsoft/accessing-a-third-party-nas-with-smb-in-windows-11-24h2-may-fail/ba-p/4154300', target='_blank'>disable it in Windows</a></u>, or to work with Unraid with Server Signing enabled, the easiest way is to create a user (with a password set) in Unraid with the same name as the Windows account you are using, Windows should then ask you for the credentials.
+You can <u><a href='https://techcommunity.microsoft.com/t5/storage-at-microsoft/accessing-a-third-party-nas-with-smb-in-windows-11-24h2-may-fail/ba-p/4154300' target='_blank'>disable it in Windows</a></u>, or to work with Unraid with Server Signing enabled, the easiest way is to create a user (with a password set) in Unraid with the same name as the Windows account you are using, Windows should then ask you for the credentials.
 If you are using a Microsoft account, it may be better to just create a user in Unraid with a simple username and set a password, then in Windows go to Control Panel -> Credential Manager -> Windows credentials -> Add a Windows Credential and add the correct Unraid server name and credentials.
 :end
 

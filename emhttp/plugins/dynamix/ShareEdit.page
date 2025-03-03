@@ -332,7 +332,7 @@ $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), 
 :share_edit_global2_help:
 <?endif;?>
 
-<br />
+<br>
 <div class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
 <span class="wrap"><select name="readshare" class="clone" onchange="toggleButton('readshare',false)">

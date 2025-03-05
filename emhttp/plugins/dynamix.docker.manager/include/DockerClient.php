@@ -318,7 +318,7 @@ class DockerTemplates {
 			if (isset($ct['Icon'])) $tmp['icon'] = $ct['Icon'];
 			if (isset($ct['Shell'])) $tmp['shell'] = $ct['Shell'];
 			if (!$communityApplications) {
-				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$tmp['icon']);
+				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$ct['Icon']);
 			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
@@ -404,15 +404,17 @@ class DockerTemplates {
 		return $info;
 	}
 
-	public function getIcon($Repository,$contName,$tmpIconUrl='') {
+	public function getIcon($Repository,$contName,$iconUrl='') {
 		global $docroot, $dockerManPaths;
-		$imgUrl = $this->getTemplateValue($Repository, 'Icon','all',$contName);
-		if (!$imgUrl) $imgUrl = $tmpIconUrl;
+		$imgUrl = $iconUrl ?: $this->getTemplateValue($Repository, 'Icon','all',$contName);
 		if (!$imgUrl || trim($imgUrl) == "/plugins/dynamix.docker.manager/images/question.png") return '';
 
-		$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
-		$icon    = sprintf('%s/%s-%s.png', $dockerManPaths['images'], $contName, 'icon');
+		$imgUrlHash = sha1($imgUrl);
+		$iconFile = sprintf('%s-%s.png', 'icon', $imgUrlHash);
 
+		$iconRAM = sprintf('%s/%s-%s', $dockerManPaths['images-ram'], $contName, $iconFile);
+		$icon    = sprintf('%s/%s', $dockerManPaths['images'], $iconFile);
+		
 		if (!is_dir(dirname($iconRAM))) mkdir(dirname($iconRAM), 0755, true);
 		if (!is_dir(dirname($icon))) mkdir(dirname($icon), 0755, true);
 
@@ -421,13 +423,46 @@ class DockerTemplates {
 			@copy($icon, $iconRAM);
 		}
 		if (!is_file($icon) && is_file($iconRAM)) {
-			@copy($iconRAM,$icon);
+			@copy($iconRAM, $icon);
 		}
 		if (!is_file($iconRAM)) {
 			my_logger("$contName: Could not download icon $imgUrl");
 		}
+		else {
+			$this->purgeUnusedIconFiles($contName, $iconFile);
+		}
 
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';
+	}
+
+	public function purgeUnusedIconFiles($contName, $keepIcon='') {
+		global $docroot, $dockerManPaths;
+
+		$icon_glob = sprintf('%s/%s-*.png', $dockerManPaths['images-ram'], $contName);
+		$ramFiles = glob($icon_glob);
+		foreach ($ramFiles as $filename) {
+			if ( ($keepIcon === '') || !(strpos($filename, $keepIcon) !== false) ) {
+				@unlink($filename);
+			}
+		}
+
+		$icon_glob = sprintf('%s/%s*.png', $dockerManPaths['images'], $contName);
+		foreach (glob($icon_glob) as $filename) {
+			if ( ($keepIcon === '') || !(strpos($filename, $keepIcon) !== false) ) {
+				@unlink($filename);
+			}
+		}	
+
+		$icon_glob = sprintf('%s/%s*.png', $dockerManPaths['images'], $contName);
+		foreach ($ramFiles as $ramFile) {
+			if ( strpos($ramFile, '-icon-') !== false ) {
+				$suffix = end(explode('-', $ramFile));
+				if ( !glob($dockerManPaths['images-ram'].'/*icon-'.$suffix) ) {
+					$filename = sprintf('%s/icon-%s', $dockerManPaths['images'], $suffix);
+					@unlink($filename);
+				}
+			}
+		}
 	}
 }
 

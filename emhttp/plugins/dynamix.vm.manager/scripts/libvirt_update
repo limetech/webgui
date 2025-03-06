@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Process settings update.
+if [ -f /boot/config/domain.cfg ]; then
+  . /boot/config/domain.cfg
+  if [ "$SERVICE" == "enable" ]; then
+    /etc/rc.d/rc.libvirt start
+  else
+    /etc/rc.d/rc.libvirt stop
+  fi
+fi

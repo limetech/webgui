@@ -19,6 +19,8 @@ Tag="desktop"
 $void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='_(Click to select PNG file)_'>";
 $icon = "<i class='fa fa-trash top' title='_(Restore default image)_' onclick='restore()'></i>";
 $plugins = '/var/log/plugins';
+$width    = [166,300];
+$disks    = array_filter($disks,'my_is_data_disk');
 
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 ?>
@@ -117,6 +119,8 @@ $(function() {
     if ($('#dropbox').triggerHandler({type:'drop',dataTransfer:{files:files}})==false) e.stopImmediatePropagation();
   });
   presetBanner(document.display_settings);
+  
+  $('#usage_disks').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
 });
 </script>
 
@@ -239,6 +243,13 @@ _(Show array utilization indicator)_:
 : <select name="usage">
   <?=mk_option($display['usage'], "0",_('No'))?>
   <?=mk_option($display['usage'], "1",_('Yes'))?>
+  </select>
+
+_(Utilization indicator disks)_:
+: <select id="usage_disks" name="usage_disks[]" multiple="multiple" style="display:none">
+  <?foreach ($disks as $disk):?>
+  <?=mk_option_check($display['usage_disks'],_var($disk,'name'),_var($disk,'name'))?>
+  <?endforeach;?>
   </select>
 
 _(Temperature unit)_:

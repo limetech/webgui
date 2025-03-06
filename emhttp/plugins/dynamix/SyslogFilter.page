@@ -1,0 +1,60 @@
+Menu="Utilities"
+Type="xmenu"
+Title="System Log Filter"
+Icon="icon-log"
+---
+<?php
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2015-2025, Dan Landon
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+
+<?
+$file		= "/boot/config/plugins/dynamix/syslog_filter.conf";
+if (file_exists($file)) {
+	$text	= @file_get_contents($file);
+} else {
+	$text	= "";
+}
+?>
+
+<table class="tablesorter shift ups">
+<thead><tr><th>_(System Log Filter Strings)_</th></tr></thead>
+</table>
+
+:enhanced_log_filter_plug:
+> You can filter out log entries to keep your Syslog from being overwhelmed with debug or redundant log entries.  You should only filter out log entries that you know are unnecessary or redundant.
+> Because the Syslog is very important for debugging issues, don't filter out entries unnecessarily.
+>
+> Enter the log strings you want to filtered from the Syslog.  Each entry is on a separate line with leading and trailing quotes.
+:end
+ 
+<div style="width: 80%; float:left">
+	<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+	<input type="hidden" name="#include" value="/webGui/include/update.file.php">
+	<input type="hidden" name="#raw_file" value="true">
+	<input type="hidden" name="#file" value="<?=$file;?>">
+
+	: <textarea spellcheck="false" cols="80" rows="22" maxlength="2048" name="text" placeholder='Example: "spinning down" to filter spin down messages' style="font-family:bitstream;width:70%;"><?=htmlspecialchars($text);?></textarea>
+
+	<dl><dt>&nbsp;</dt><dd>
+		<form name="apply_syslog_filter" method="POST" action="/update.php" target="progressFrame">
+			<input type="hidden" name="#command" value="/plugins/dynamix/scripts/syslogfilter">
+			<input type="submit" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
+		</form>
+	</dd></dl>
+
+:enhanced_log_filter_buttons_plug:
+	> Click the **Apply** button to Apply the Syslog filter. Click **Reset** to
+	> undo any changes you make before you have saved the Syslog filter. Click **Done** to exit this page.
+:end
+
+	</form>
+</div>

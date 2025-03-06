@@ -119,9 +119,12 @@ function addDocker($vtun) {
   }
   if (!$error && !isNet($network)) {
     [$device,$thisnet,$gateway] = thisNet();
-    exec("ip -4 rule add from $network table $index");
-    exec("ip -4 route add unreachable default table $index");
-    exec("ip -4 route add $thisnet via $gateway dev $device table $index");
+    // TODO: Add IPv6 support
+    if ($gateway != "" && $thisnet != "") {
+      exec("ip -4 rule add from $network table $index");
+      exec("ip -4 route add unreachable default table $index");
+      exec("ip -4 route add $thisnet via $gateway dev $device table $index");
+    }
   }
   return $error;
 }
@@ -236,15 +239,26 @@ function parseInput($vtun,&$input,&$x) {
     [$id,$i] = array_pad(explode(':',$key),2,0);
     if ($i != $section) {
       if ($section==0) {
-        // add WG routing for docker containers. Only IPv4 supported
+        // add WG routing for docker containers. 
+        // TODO: Add IPv6 support!
         [$index,$network] = newNet($vtun);
         [$device,$thisnet,$gateway] = thisNet();
+
         $conf[]  = "PostUp=ip -4 route flush table $index";
-        $conf[]  = "PostUp=ip -4 route add default via $tunip dev $vtun table $index";
-        $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway dev $device table $index";
         $conf[]  = "PostDown=ip -4 route flush table $index";
-        $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
-        $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway dev $device table $index";
+
+        if ($tunip != "") {
+          // Tunnel supports IPv4
+          $conf[]  = "PostUp=ip -4 route add default via $tunip dev $vtun table $index";
+          $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
+        }
+
+        if ($gateway != "" && $thisnet != "") {
+          // local network supports IPv4
+          $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway dev $device table $index";
+          $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway dev $device table $index";
+        }
+        
       }
       $conf[] = "\n[Peer]";
       // add peers, this is only used for peer sections
